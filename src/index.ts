@@ -48,7 +48,7 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 export class StardewDO implements DurableObject {
   private sql: SqlStorage;
 
-  constructor(private state: DurableObjectState, private env: Env) {
+  constructor(private state: DurableObjectState, _env: Env) {
     this.sql = state.storage.sql;
 
     // Create tables on first boot (safe to call repeatedly — IF NOT EXISTS)

@@ -1,4 +1,20 @@
-.dev.vars
-node_modules/
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# Yarn PnP — keep releases, sdks, patches, plugins, versions; ignore the rest
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# other
+CLAUDE.local.md
 dist/
-.wrangler/
+node_modules/
