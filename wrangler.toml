@@ -2,10 +2,15 @@ name = "thefarmcomputer"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
+[observability]
+[observability.logs]
+enabled = false
+invocation_logs = true
+
 [[durable_objects.bindings]]
 name = "STARDEW_DO"
 class_name = "StardewDO"
 
 [[migrations]]
-tag = "v1"
+tag = "v2"
 new_sqlite_classes = ["StardewDO"]

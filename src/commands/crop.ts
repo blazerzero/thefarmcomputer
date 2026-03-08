@@ -1,5 +1,5 @@
-import { getCrop } from "../db.js";
-import { InteractionResponseType } from "../types.js";
+import { getCrop } from "../db";
+import { InteractionResponseType } from "../types";
 
 const SEASON_COLORS: Record<string, number> = {
   Spring: 0x78b84a,
@@ -64,7 +64,15 @@ export function handleCrop(
       },
       {
         name: "Sell Price",
-        value: crop.sell_price != null ? `${crop.sell_price.toLocaleString()}g` : "—",
+        value: [
+          ["Normal",  crop.sell_price],
+          ["Silver",  crop.sell_price_silver],
+          ["Gold",    crop.sell_price_gold],
+          ["Iridium", crop.sell_price_iridium],
+        ]
+          .filter(([, price]) => price != null)
+          .map(([label, price]) => `${label}: ${(price as number).toLocaleString()}g`)
+          .join("\n") || "—",
         inline: true,
       },
       {

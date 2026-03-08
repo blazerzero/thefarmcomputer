@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "register": "npx tsx scripts/register-commands.ts",
+    "register": "tsx scripts/register-commands.ts",
+    "register-manual": "tsx --env-file=.dev.vars scripts/register-commands.ts",
     "lint": "biome lint --write",
     "prepare": "husky"
   },

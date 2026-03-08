@@ -1,11 +1,11 @@
-import { verifyDiscordRequest } from "./verify.js";
-import { handleCrop } from "./commands/crop.js";
-import { handleGift } from "./commands/gift.js";
-import { initDb, countCrops, countVillagers, upsertCrop, upsertVillager } from "./db.js";
-import { scrapeCrops } from "./scraper/crops.js";
-import { scrapeVillagers } from "./scraper/villagers.js";
-import { InteractionResponseType, InteractionType } from "./types.js";
-import type { Env } from "./types.js";
+import { verifyDiscordRequest } from "./verify";
+import { handleCrop } from "./commands/crop";
+import { handleGift } from "./commands/gift";
+import { initDb, countCrops, countVillagers, upsertCrop, upsertVillager } from "./db";
+import { scrapeCrops } from "./scraper/crops";
+import { scrapeVillagers } from "./scraper/villagers";
+import { InteractionResponseType, InteractionType } from "./types";
+import type { Env } from "./types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

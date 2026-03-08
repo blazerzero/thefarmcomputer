@@ -1,4 +1,4 @@
-import type { Crop, CropRow, Villager, VillagerRow } from "./types.js";
+import type { Crop, CropRow, Villager, VillagerRow } from "./types";
 
 const now = () => new Date().toISOString();
 
@@ -12,13 +12,22 @@ export function initDb(sql: SqlStorage): void {
       seasons       TEXT,
       growth_days   INTEGER,
       regrowth_days INTEGER,
-      sell_price    INTEGER,
-      buy_price     INTEGER,
+      sell_price         INTEGER,
+      sell_price_silver  INTEGER,
+      sell_price_gold    INTEGER,
+      sell_price_iridium INTEGER,
+      buy_price          INTEGER,
       is_trellis    INTEGER,
       wiki_url      TEXT,
       last_updated  TEXT
     )
   `);
+  // Add quality price columns to existing instances that predate this schema change.
+  // ALTER TABLE throws if the column already exists; swallow that error.
+  for (const col of ["sell_price_silver", "sell_price_gold", "sell_price_iridium"]) {
+    try { sql.exec(`ALTER TABLE crops ADD COLUMN ${col} INTEGER`); } catch { /* already exists */ }
+  }
+
   sql.exec(`
     CREATE TABLE IF NOT EXISTS villagers (
       id             INTEGER PRIMARY KEY,
@@ -49,20 +58,25 @@ export function getCrop(sql: SqlStorage, name: string): Crop | null {
 export function upsertCrop(sql: SqlStorage, data: Omit<CropRow, "id" | "last_updated">): void {
   sql.exec(
     `INSERT INTO crops
-       (name, seasons, growth_days, regrowth_days, sell_price,
+       (name, seasons, growth_days, regrowth_days,
+        sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
         buy_price, is_trellis, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
-       seasons       = excluded.seasons,
-       growth_days   = excluded.growth_days,
-       regrowth_days = excluded.regrowth_days,
-       sell_price    = excluded.sell_price,
-       buy_price     = excluded.buy_price,
-       is_trellis    = excluded.is_trellis,
-       wiki_url      = excluded.wiki_url,
-       last_updated  = excluded.last_updated`,
+       seasons            = excluded.seasons,
+       growth_days        = excluded.growth_days,
+       regrowth_days      = excluded.regrowth_days,
+       sell_price         = excluded.sell_price,
+       sell_price_silver  = excluded.sell_price_silver,
+       sell_price_gold    = excluded.sell_price_gold,
+       sell_price_iridium = excluded.sell_price_iridium,
+       buy_price          = excluded.buy_price,
+       is_trellis         = excluded.is_trellis,
+       wiki_url           = excluded.wiki_url,
+       last_updated       = excluded.last_updated`,
     data.name, data.seasons, data.growth_days, data.regrowth_days,
-    data.sell_price, data.buy_price, data.is_trellis, data.wiki_url, now(),
+    data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
+    data.buy_price, data.is_trellis, data.wiki_url, now(),
   );
 }
 
