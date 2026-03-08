@@ -14,81 +14,91 @@ function parseSeasons(text: string): string[] {
   return SEASONS.filter((s) => text.toLowerCase().includes(s.toLowerCase()));
 }
 
-function colIndex(headers: string[], keyword: string): number {
-  const kw = keyword.toLowerCase();
-  return headers.findIndex((h) => h.toLowerCase().includes(kw));
+/** Normalize a table row label to a lookup key. */
+function rowKey(text: string): string {
+  return text.replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated">[]> {
   const html = await fetchPage("/Crops");
   const root = parse(html);
 
-  // Find the crops wikitable (the one whose headers mention "Growth" and "Seed")
-  const tables = root.querySelectorAll("table.wikitable");
-  let targetTable = null;
-  for (const table of tables) {
-    const headerText = table.querySelectorAll("th").map((th) => th.text).join(" ").toLowerCase();
-    if (headerText.includes("growth") && headerText.includes("seed")) {
-      targetTable = table;
-      break;
-    }
-  }
-
-  if (!targetTable) {
-    console.error("Could not find crops wikitable");
-    return [];
-  }
-
-  const rows = targetTable.querySelectorAll("tr");
-  if (!rows.length) return [];
-
-  // Build column index map from the header row
-  const headerCells = rows[0]!.querySelectorAll("th");
-  const headers = headerCells.map((th) => th.text.replace(/\s+/g, " ").trim());
-
-  const idxName     = Math.max(colIndex(headers, "crop"), 0);
-  const idxSeasons  = colIndex(headers, "season");
-  const idxGrowth   = colIndex(headers, "growth");
-  const idxRegrowth = colIndex(headers, "re-grow") !== -1
-    ? colIndex(headers, "re-grow")
-    : colIndex(headers, "regrow");
-  const idxSell     = colIndex(headers, "sell");
-  const idxBuy      = colIndex(headers, "seed price") !== -1
-    ? colIndex(headers, "seed price")
-    : colIndex(headers, "seed");
-  const idxTrellis  = colIndex(headers, "trellis");
-
+  const content = root.querySelector("#mw-content-text") ?? root;
   const crops: Omit<CropRow, "id" | "last_updated">[] = [];
+  let currentSeasons: string[] = [];
 
-  for (const row of rows.slice(1)) {
-    const cells = row.querySelectorAll("td, th");
-    if (cells.length < 3) continue;
+  // Walk h2 headings and wikitables in document order.
+  // h2 headings tell us which season section we're in.
+  // Each wikitable is an individual crop.
+  const elements = content.querySelectorAll("h2, table.wikitable");
 
-    const cellText = (idx: number): string =>
-      idx >= 0 && idx < cells.length
-        ? cells[idx]!.text.replace(/\s+/g, " ").trim()
-        : "";
+  for (const el of elements) {
+    if (el.tagName === "H2") {
+      const headlineText =
+        el.querySelector(".mw-headline")?.text.trim() ?? el.text.trim();
+      const matched = parseSeasons(headlineText);
+      if (matched.length > 0) currentSeasons = matched;
+      continue;
+    }
 
-    const nameCell = cells[idxName >= 0 ? idxName : 0];
+    // --- crop table ---
+    const rows = el.querySelectorAll("tr");
+    if (rows.length < 2) continue;
+
+    // First row: crop name in a <th> (often spans 2 cols)
+    const nameCell = rows[0]!.querySelector("th");
     if (!nameCell) continue;
-    const name = nameCell.text.replace(/\s+/g, " ").trim();
+
+    const nameLink = nameCell.querySelector("a");
+    const name = (nameLink?.text ?? nameCell.text).replace(/\s+/g, " ").trim();
     if (!name) continue;
 
-    const linkEl = nameCell.querySelector("a");
-    const wikiUrl = linkEl?.getAttribute("href")
-      ? WIKI_BASE + linkEl.getAttribute("href")!
-      : WIKI_BASE + "/Crops";
+    const href = nameLink?.getAttribute("href");
+    const wikiUrl = href ? WIKI_BASE + href : `${WIKI_BASE}/Crops`;
 
-    const seasonsText  = cellText(idxSeasons);
-    const growthText   = cellText(idxGrowth);
-    const regrowthText = idxRegrowth >= 0 ? cellText(idxRegrowth) : "";
-    const sellText     = cellText(idxSell);
-    const buyText      = idxBuy >= 0 ? cellText(idxBuy) : "";
-    const trellisText  = idxTrellis >= 0 ? cellText(idxTrellis).toLowerCase() : "";
+    // Remaining rows: left cell = label, right cell = value
+    const kv: Record<string, string> = {};
+    for (const row of rows.slice(1)) {
+      const cells = row.querySelectorAll("td");
+      if (cells.length >= 2) {
+        const key = rowKey(cells[0]!.text);
+        const value = cells[1]!.text.replace(/\s+/g, " ").trim();
+        kv[key] = value;
+      }
+    }
+
+    // Season: prefer value from the table itself, fall back to section heading
+    const tableSeasonsText =
+      kv["season"] ?? kv["seasons"] ?? kv["season(s)"] ?? "";
+    const seasons = tableSeasonsText
+      ? parseSeasons(tableSeasonsText)
+      : currentSeasons;
+
+    // Flexible key matching for the fields we care about
+    const find = (...keys: string[]): string => {
+      for (const k of keys) {
+        const v = kv[k];
+        if (v !== undefined) return v;
+      }
+      // partial match fallback
+      for (const k of Object.keys(kv)) {
+        if (keys.some((needle) => k.includes(needle))) return kv[k]!;
+      }
+      return "";
+    };
+
+    const growthText   = find("growth time", "growth");
+    const regrowthText = find("regrowth time", "regrowth", "re-grow time", "re-grow");
+    const sellText     = find("sell price", "sell");
+    const buyText      = find("seed price", "buy price", "buy", "seed");
+    const trellisText  = find("trellis").toLowerCase();
+
+    // Skip tables that don't look like crop data
+    if (!growthText && !sellText) continue;
 
     crops.push({
       name,
-      seasons:       JSON.stringify(parseSeasons(seasonsText)),
+      seasons:       JSON.stringify(seasons),
       growth_days:   parseIntFrom(growthText),
       regrowth_days: /\d/.test(regrowthText) ? parseIntFrom(regrowthText) : null,
       sell_price:    parseIntFrom(sellText),
