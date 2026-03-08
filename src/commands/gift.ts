@@ -2,7 +2,7 @@ import { getVillager } from "../db.js";
 import { InteractionResponseType } from "../types.js";
 import type { Villager } from "../types.js";
 
-const EMBED_COLOUR = 0xe8608a;
+const EMBED_COLOR = 0xe8608a;
 const MAX_ITEMS = 20;
 
 const TIERS: Array<{ key: keyof Villager; label: string }> = [
@@ -49,7 +49,7 @@ export function handleGift(
   const embed = {
     title: villager.name,
     url: villager.wiki_url,
-    color: EMBED_COLOUR,
+    color: EMBED_COLOR,
     description: villager.birthday ? `🎂 Birthday: **${villager.birthday}**` : undefined,
     fields,
     footer: villager.last_updated

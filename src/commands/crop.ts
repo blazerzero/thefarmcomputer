@@ -1,19 +1,19 @@
 import { getCrop } from "../db.js";
 import { InteractionResponseType } from "../types.js";
 
-const SEASON_COLOURS: Record<string, number> = {
+const SEASON_COLORS: Record<string, number> = {
   Spring: 0x78b84a,
   Summer: 0xe8c13a,
   Fall:   0xd2691e,
   Winter: 0x89cff0,
 };
-const DEFAULT_COLOUR = 0x5b8a3c;
+const DEFAULT_COLOR = 0x5b8a3c;
 
-function seasonColour(seasons: string[]): number {
+function seasonColor(seasons: string[]): number {
   for (const s of seasons) {
-    if (s in SEASON_COLOURS) return SEASON_COLOURS[s]!;
+    if (s in SEASON_COLORS) return SEASON_COLORS[s]!;
   }
-  return DEFAULT_COLOUR;
+  return DEFAULT_COLOR;
 }
 
 export function handleCrop(
@@ -36,11 +36,11 @@ export function handleCrop(
     });
   }
 
-  const colour = seasonColour(crop.seasons);
+  const color = seasonColor(crop.seasons);
   const embed = {
     title: crop.name,
     url: crop.wiki_url,
-    color: colour,
+    color,
     fields: [
       {
         name: "Seasons",
