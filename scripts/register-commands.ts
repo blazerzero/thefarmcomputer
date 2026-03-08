@@ -8,7 +8,6 @@
 
 const APPLICATION_ID = process.env["DISCORD_APPLICATION_ID"];
 const TOKEN          = process.env["DISCORD_TOKEN"];
-const GUILD_ID       = process.env["DISCORD_GUILD_ID"]; // optional: register to one guild for instant sync
 
 if (!APPLICATION_ID || !TOKEN) {
   console.error("Missing DISCORD_APPLICATION_ID or DISCORD_TOKEN env vars.");
@@ -46,9 +45,7 @@ const commands = [
   },
 ];
 
-const url = GUILD_ID
-  ? `https://discord.com/api/v10/applications/${APPLICATION_ID}/guilds/${GUILD_ID}/commands`
-  : `https://discord.com/api/v10/applications/${APPLICATION_ID}/commands`;
+const url = `https://discord.com/api/v10/applications/${APPLICATION_ID}/commands`;
 
 const resp = await fetch(url, {
   method: "PUT",
@@ -70,4 +67,3 @@ console.log("Registered commands:");
 for (const cmd of registered) {
   console.log(`  /${cmd.name} (id: ${cmd.id})`);
 }
-console.log("\nDone! Set DISCORD_GUILD_ID to a guild ID for instant sync during development.");
