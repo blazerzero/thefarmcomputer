@@ -1,0 +1,11 @@
+name = "thefarmcomputer"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[durable_objects.bindings]]
+name = "STARDEW_DO"
+class_name = "StardewDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["StardewDO"]
