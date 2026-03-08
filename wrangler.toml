@@ -1,0 +1,11 @@
+name = "thefarmcomputer"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "stardew"
+database_id = ""  # Replace after running: wrangler d1 create stardew
+
+[triggers]
+crons = ["0 0 * * 0"]  # Every Sunday at midnight UTC

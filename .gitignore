@@ -1,11 +1,4 @@
-.env
-data/
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-.venv/
-venv/
-*.egg-info/
+.dev.vars
+node_modules/
 dist/
-build/
+.wrangler/
