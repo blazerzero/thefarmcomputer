@@ -1,5 +1,5 @@
-import { getCrop } from "../db.js";
-import { InteractionResponseType } from "../types.js";
+import { getCrop } from "../db";
+import { InteractionResponseType } from "../types";
 
 const SEASON_COLORS: Record<string, number> = {
   Spring: 0x78b84a,

@@ -1,6 +1,6 @@
 import { parse } from "node-html-parser";
-import { fetchPage } from "./wiki.js";
-import type { CropRow } from "../types.js";
+import { fetchPage } from "./wiki";
+import type { CropRow } from "../types";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
 const SEASONS = ["Spring", "Summer", "Fall", "Winter"] as const;
@@ -46,7 +46,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
     if (tag === "H3") {
       const headline = el.querySelector(".mw-headline") ?? el;
       const link = headline.querySelector("a");
-      currentCropName = (link?.text ?? headline.text)
+      currentCropName = (link?.text || headline.text)
         .replace(/\s+/g, " ")
         .trim();
       const href = link?.getAttribute("href");
@@ -64,11 +64,11 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
     // ── Crop data table ─────────────────────────────────────────────────────
     if (!currentCropName || currentSeasons.length === 0) continue;
 
-    const rows = el.querySelectorAll("tr");
+    const rows = el.querySelectorAll(":scope > tbody > tr");
     if (rows.length < 2) continue;
 
     // Header row: Seeds | Stage 1 | … | Harvest | Sells For | …
-    const headerCells = rows[0]!.querySelectorAll("th");
+    const headerCells = rows[0]!.querySelectorAll(":scope > th");
     if (headerCells.length === 0) continue;
     const headers = headerCells.map((th) =>
       th.text.replace(/\s+/g, " ").trim().toLowerCase(),
@@ -76,20 +76,27 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
 
     const idxSeeds   = headers.findIndex((h) => h.includes("seed"));
     const idxHarvest = headers.findIndex((h) => h.includes("harvest"));
-    const idxSell    = headers.findIndex((h) => h.includes("sell"));
+    const harvestCell = headerCells[idxHarvest] ?? null;
+    let idxSell    = headers.findIndex((h) => h.includes("sell"));
+    if (harvestCell?.attributes.colspan && parseInt(harvestCell.attributes.colspan) >= 2) {
+      // If the crop regrows, the Harvest header has both growth and regrowth info, pushing the Sell info one column to the right
+      idxSell += parseInt(harvestCell.attributes.colspan) - 1;
+    }
 
     // Skip tables that don't match the crop data shape
     if (idxHarvest === -1 || idxSell === -1) continue;
 
     // Data row immediately after the header
-    const dataCells = rows[1]!.querySelectorAll("td");
-    const cellText = (idx: number): string =>
-      idx >= 0 && idx < dataCells.length
-        ? dataCells[idx]!.text.replace(/\s+/g, " ").trim()
+    const dataCells = rows[1]!.querySelectorAll(":scope > td");
+    const adtlInfoCells = rows[2]!.querySelectorAll(":scope > td");
+    const cellText = (idx: number, rowData = dataCells): string =>
+      idx >= 0 && idx < rowData.length
+        ? rowData[idx]?.text.replace(/\s+/g, " ").trim() ?? ""
         : "";
 
     const seedsText   = cellText(idxSeeds);
-    const harvestText = cellText(idxHarvest);
+    const growthText = cellText(idxHarvest - 1, adtlInfoCells);
+    const regrowthText = cellText(idxHarvest, adtlInfoCells);
     const sellText    = cellText(idxSell);
 
     // Buy price — prefer Pierre's, fall back to any price in the Seeds cell
@@ -102,9 +109,9 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
         : null;
 
     // Growth/regrowth days — "Total: 10 days" / "Regrowth: 3 days"
-    const totalMatch    = harvestText.match(/total[^:]*:\s*(\d+)\s*day/i);
-    const regrowthMatch = harvestText.match(/regrowth[^:]*:\s*(\d+)\s*day/i);
-    const growthDays  = totalMatch ? parseInt(totalMatch[1]!, 10) : parseIntFrom(harvestText);
+    const totalMatch    = growthText.match(/total[^:]*:\s*(\d+)\s*day/i);
+    const regrowthMatch = regrowthText.match(/regrowth[^:]*:\s*(\d+)\s*day/i);
+    const growthDays  = totalMatch ? parseInt(totalMatch[1]!, 10) : parseIntFrom(growthText);
     const regrowthDays = regrowthMatch ? parseInt(regrowthMatch[1]!, 10) : null;
 
     // Sell prices — all Xg values in the cell (base, silver, gold, iridium)

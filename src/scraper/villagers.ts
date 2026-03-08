@@ -1,6 +1,6 @@
 import { parse } from "node-html-parser";
-import { fetchPage } from "./wiki.js";
-import type { VillagerRow } from "../types.js";
+import { fetchPage } from "./wiki";
+import type { VillagerRow } from "../types";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
 const GIFT_TIERS = ["loved", "liked", "neutral", "disliked", "hated"] as const;
