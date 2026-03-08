@@ -1,6 +1,6 @@
 import { getVillager } from "../db.js";
 import { InteractionResponseType } from "../types.js";
-import type { Env, Villager } from "../types.js";
+import type { Villager } from "../types.js";
 
 const EMBED_COLOUR = 0xe8608a;
 const MAX_ITEMS = 20;
@@ -20,15 +20,15 @@ function formatList(items: string[]): string {
   return shown.join(", ") + extra;
 }
 
-export async function handleGift(
+export function handleGift(
   interaction: Record<string, unknown>,
-  env: Env,
-): Promise<Response> {
+  sql: SqlStorage,
+): Response {
   const options = (interaction.data as Record<string, unknown>)
     ?.options as Array<{ name: string; value: string }> | undefined;
   const name = options?.find((o) => o.name === "villager")?.value ?? "";
 
-  const villager = await getVillager(env.DB, name);
+  const villager = getVillager(sql, name);
 
   if (!villager) {
     return Response.json({

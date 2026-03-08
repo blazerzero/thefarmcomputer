@@ -1,6 +1,5 @@
 import { getCrop } from "../db.js";
 import { InteractionResponseType } from "../types.js";
-import type { Env } from "../types.js";
 
 const SEASON_COLOURS: Record<string, number> = {
   Spring: 0x78b84a,
@@ -17,15 +16,15 @@ function seasonColour(seasons: string[]): number {
   return DEFAULT_COLOUR;
 }
 
-export async function handleCrop(
+export function handleCrop(
   interaction: Record<string, unknown>,
-  env: Env,
-): Promise<Response> {
+  sql: SqlStorage,
+): Response {
   const options = (interaction.data as Record<string, unknown>)
     ?.options as Array<{ name: string; value: string }> | undefined;
   const name = options?.find((o) => o.name === "name")?.value ?? "";
 
-  const crop = await getCrop(env.DB, name);
+  const crop = getCrop(sql, name);
 
   if (!crop) {
     return Response.json({
