@@ -107,17 +107,21 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
     const growthDays  = totalMatch ? parseInt(totalMatch[1]!, 10) : parseIntFrom(harvestText);
     const regrowthDays = regrowthMatch ? parseInt(regrowthMatch[1]!, 10) : null;
 
-    // Sell price — first gold amount in the cell is the base quality price
-    const sellMatch = sellText.match(/(\d[\d,]*)\s*g(?!\/)/);
-    const sellPrice = sellMatch ? parseIntFrom(sellMatch[1]!) : null;
+    // Sell prices — all Xg values in the cell (base, silver, gold, iridium)
+    // Exclude "g/" patterns like "7.2g/d"
+    const sellPrices = [...sellText.matchAll(/(\d[\d,]*)\s*g(?![\d\/])/g)]
+      .map((m) => parseIntFrom(m[1]!));
 
     crops.push({
-      name:          currentCropName,
-      seasons:       JSON.stringify(currentSeasons),
-      growth_days:   growthDays,
-      regrowth_days: regrowthDays,
-      sell_price:    sellPrice,
-      buy_price:     buyPrice,
+      name:               currentCropName,
+      seasons:            JSON.stringify(currentSeasons),
+      growth_days:        growthDays,
+      regrowth_days:      regrowthDays,
+      sell_price:         sellPrices[0] ?? null,
+      sell_price_silver:  sellPrices[1] ?? null,
+      sell_price_gold:    sellPrices[2] ?? null,
+      sell_price_iridium: sellPrices[3] ?? null,
+      buy_price:          buyPrice,
       is_trellis:    currentIsTrellis,
       wiki_url:      currentWikiUrl,
     });

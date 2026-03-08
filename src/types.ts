@@ -14,6 +14,9 @@ export interface CropRow {
   growth_days: number | null;
   regrowth_days: number | null;
   sell_price: number | null;
+  sell_price_silver: number | null;
+  sell_price_gold: number | null;
+  sell_price_iridium: number | null;
   buy_price: number | null;
   is_trellis: number;    // 0 or 1
   wiki_url: string;
