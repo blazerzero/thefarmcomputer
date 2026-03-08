@@ -16,5 +16,6 @@
   },
   "dependencies": {
     "node-html-parser": "^6.1.13"
-  }
+  },
+  "packageManager": "yarn@4.13.0"
 }
