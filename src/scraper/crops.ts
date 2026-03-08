@@ -116,7 +116,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
 
     // Sell prices — all Xg values in the cell (base, silver, gold, iridium)
     // Exclude "g/" patterns like "7.2g/d"
-    const sellPrices = [...sellText.matchAll(/(\d[\d,]*)\s*g(?![\d\/])/g)]
+    const sellPrices = [...sellText.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)]
       .map((m) => parseIntFrom(m[1]!));
 
     crops.push({
