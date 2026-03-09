@@ -1,11 +1,10 @@
-import { verifyDiscordRequest } from "./verify";
 import { handleCrop } from "./commands/crop";
 import { handleGift } from "./commands/gift";
-import { initDb, countCrops, countVillagers, upsertCrop, upsertVillager } from "./db";
+import { countCrops, countVillagers, initDb, upsertCrop, upsertVillager } from "./db";
 import { scrapeCrops } from "./scraper/crops";
 import { scrapeVillagers } from "./scraper/villagers";
-import { InteractionResponseType, InteractionType } from "./types";
-import type { Env } from "./types";
+import { type Env, InteractionResponseType, InteractionType } from "./types";
+import { verifyDiscordRequest } from "./verify";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
