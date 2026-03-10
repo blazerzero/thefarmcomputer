@@ -40,7 +40,7 @@ const commands = [
     ],
   },
   {
-    name: "status",
+    name: "info",
     description: "Show the bot's data freshness and record counts.",
   },
 ];

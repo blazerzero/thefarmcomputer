@@ -81,7 +81,7 @@ export class StardewDO implements DurableObject {
       if (commandName === "crop") return handleCrop(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
 
-      if (commandName === "status") {
+      if (commandName === "info") {
         const s = getStatus(this.sql);
         const fmt = (ts: string | null) => (ts ? ts.slice(0, 10) : "never");
         return Response.json({

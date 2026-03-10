@@ -48,11 +48,16 @@ export function initDb(sql: SqlStorage): void {
 
 export function getCrop(sql: SqlStorage, name: string): Crop | null {
   // SqlStorageCursor.one() returns Record<string, SqlStorageValue> — cast to our type
-  const row = sql
-    .exec("SELECT * FROM crops WHERE name LIKE ? LIMIT 1", `%${name}%`)
-    .one() as unknown as CropRow | null;
-  if (!row) return null;
-  return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };
+  try {
+    const row = sql
+      .exec("SELECT * FROM crops WHERE name LIKE ? LIMIT 1", `%${name}%`)
+      .one() as unknown as CropRow | null;
+    if (!row) return null;
+    return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };
+  } catch (err) {
+    console.error("DB error in getCrop:", err);
+    return null;
+  }
 }
 
 export function upsertCrop(sql: SqlStorage, data: Omit<CropRow, "id" | "last_updated">): void {
