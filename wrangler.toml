@@ -8,7 +8,7 @@ enabled = false
 invocation_logs = true
 
 [triggers]
-crons = ["0 0 * * 0"]
+crons = ["0 8 * * SUN"]
 
 [[durable_objects.bindings]]
 name = "STARDEW_DO"
