@@ -1,6 +1,5 @@
 import { getVillager } from "../db";
-import { InteractionResponseType } from "../types";
-import type { Villager } from "../types";
+import { InteractionResponseType, type Villager } from "../types";
 
 const EMBED_COLOR = 0xe8608a;
 const MAX_ITEMS = 20;

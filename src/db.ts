@@ -88,18 +88,23 @@ export function upsertCrop(sql: SqlStorage, data: Omit<CropRow, "id" | "last_upd
 // ── Villagers ─────────────────────────────────────────────────────────────────
 
 export function getVillager(sql: SqlStorage, name: string): Villager | null {
-  const row = sql
-    .exec("SELECT * FROM villagers WHERE name LIKE ? LIMIT 1", `%${name}%`)
-    .one() as unknown as VillagerRow | null;
-  if (!row) return null;
-  return {
-    ...row,
-    loved_gifts:    JSON.parse(row.loved_gifts    || "[]") as string[],
-    liked_gifts:    JSON.parse(row.liked_gifts    || "[]") as string[],
-    neutral_gifts:  JSON.parse(row.neutral_gifts  || "[]") as string[],
-    disliked_gifts: JSON.parse(row.disliked_gifts || "[]") as string[],
-    hated_gifts:    JSON.parse(row.hated_gifts    || "[]") as string[],
-  };
+  try {
+    const row = sql
+      .exec("SELECT * FROM villagers WHERE name LIKE ? LIMIT 1", `%${name}%`)
+      .one() as unknown as VillagerRow | null;
+    if (!row) return null;
+    return {
+      ...row,
+      loved_gifts:    JSON.parse(row.loved_gifts    || "[]") as string[],
+      liked_gifts:    JSON.parse(row.liked_gifts    || "[]") as string[],
+      neutral_gifts:  JSON.parse(row.neutral_gifts  || "[]") as string[],
+      disliked_gifts: JSON.parse(row.disliked_gifts || "[]") as string[],
+      hated_gifts:    JSON.parse(row.hated_gifts    || "[]") as string[],
+    };
+  } catch (err) {
+    console.error("DB error in getVillager:", err);
+    return null;
+  }
 }
 
 export function upsertVillager(
