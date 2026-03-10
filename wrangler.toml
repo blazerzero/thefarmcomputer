@@ -14,9 +14,6 @@ crons = ["0 0 * * 0"]
 name = "STARDEW_DO"
 class_name = "StardewDO"
 
-[vars]
-BOT_OWNER_TOKEN = ""
-
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["StardewDO"]
