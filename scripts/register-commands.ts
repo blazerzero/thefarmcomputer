@@ -40,8 +40,8 @@ const commands = [
     ],
   },
   {
-    name: "update",
-    description: "[Admin] Refresh crop data from the Stardew Valley Wiki.",
+    name: "status",
+    description: "Show the bot's data freshness and record counts.",
   },
 ];
 

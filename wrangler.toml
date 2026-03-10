@@ -7,9 +7,15 @@ compatibility_date = "2025-01-01"
 enabled = false
 invocation_logs = true
 
+[triggers]
+crons = ["0 0 * * 0"]
+
 [[durable_objects.bindings]]
 name = "STARDEW_DO"
 class_name = "StardewDO"
+
+[vars]
+BOT_OWNER_TOKEN = ""
 
 [[migrations]]
 tag = "v2"

@@ -131,3 +131,25 @@ export function countCrops(sql: SqlStorage): number {
 export function countVillagers(sql: SqlStorage): number {
   return (sql.exec("SELECT COUNT(*) AS n FROM villagers").one() as { n: number } | null)?.n ?? 0;
 }
+
+// ── Status ─────────────────────────────────────────────────────────────────────
+
+export function getStatus(sql: SqlStorage): {
+  cropCount: number;
+  villagerCount: number;
+  cropsLastUpdated: string | null;
+  villagersLastUpdated: string | null;
+} {
+  const cropRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crops")
+    .one() as { n: number; last_updated: string | null } | null;
+  const villagerRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM villagers")
+    .one() as { n: number; last_updated: string | null } | null;
+  return {
+    cropCount: cropRow?.n ?? 0,
+    villagerCount: villagerRow?.n ?? 0,
+    cropsLastUpdated: cropRow?.last_updated ?? null,
+    villagersLastUpdated: villagerRow?.last_updated ?? null,
+  };
+}

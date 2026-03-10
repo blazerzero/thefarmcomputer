@@ -1,22 +1,19 @@
 import { handleCrop } from "./commands/crop";
 import { handleGift } from "./commands/gift";
-import { countCrops, countVillagers, initDb, upsertCrop, upsertVillager } from "./db";
+import {
+  countCrops,
+  countVillagers,
+  getStatus,
+  initDb,
+  upsertCrop,
+  upsertVillager,
+} from "./db";
 import { scrapeCrops } from "./scraper/crops";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Timestamp for next Sunday at midnight UTC. */
-function nextSundayMidnight(): number {
-  const now = new Date();
-  const daysUntilSunday = (7 - now.getUTCDay()) % 7 || 7;
-  const next = new Date(now);
-  next.setUTCDate(now.getUTCDate() + daysUntilSunday);
-  next.setUTCHours(0, 0, 0, 0);
-  return next.getTime();
-}
 
 async function refreshCrops(sql: SqlStorage): Promise<number> {
   const crops = await scrapeCrops();
@@ -53,26 +50,23 @@ export class StardewDO implements DurableObject {
     // Create tables on first boot (safe to call repeatedly — IF NOT EXISTS)
     initDb(this.sql);
 
-    // Schedule the first alarm and seed the DB if this is a brand-new instance
+    // Seed the DB if this is a brand-new instance
     state.blockConcurrencyWhile(async () => {
-      const existing = await state.storage.getAlarm();
-      if (existing === null) {
-        await state.storage.setAlarm(nextSundayMidnight());
-      }
       if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0) {
         await refreshAll(this.sql);
       }
     });
   }
 
-  // Called by the DO runtime when the scheduled alarm fires
-  async alarm(): Promise<void> {
-    await refreshAll(this.sql);
-    await this.state.storage.setAlarm(nextSundayMidnight());
-  }
-
-  // Receives forwarded Discord interaction requests from the thin Worker
+  // Receives forwarded requests from the thin Worker
   async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname === "/admin/refresh" && request.method === "POST") {
+      this.state.waitUntil(refreshAll(this.sql));
+      return Response.json({ ok: true });
+    }
+
     const body = await request.text();
     const interaction = JSON.parse(body) as Record<string, unknown>;
     const type = interaction.type as number;
@@ -87,17 +81,31 @@ export class StardewDO implements DurableObject {
       if (commandName === "crop") return handleCrop(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
 
-      if (commandName === "update") {
-        this.state.waitUntil(
-          refreshCrops(this.sql)
-            .then((n) => console.log(`/update: refreshed ${n} crops`))
-            .catch(console.error),
-        );
+      if (commandName === "status") {
+        const s = getStatus(this.sql);
+        const fmt = (ts: string | null) => (ts ? ts.slice(0, 10) : "never");
         return Response.json({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: "Refreshing crop data from the Stardew Valley Wiki…",
-            flags: 64,
+            embeds: [
+              {
+                title: "The Farm Computer — Status",
+                color: 0x5b8a3c,
+                fields: [
+                  {
+                    name: "Crops",
+                    value: `${s.cropCount} in database\nLast updated: ${fmt(s.cropsLastUpdated)}`,
+                    inline: true,
+                  },
+                  {
+                    name: "Villagers",
+                    value: `${s.villagerCount} in database\nLast updated: ${fmt(s.villagersLastUpdated)}`,
+                    inline: true,
+                  },
+                ],
+                footer: { text: "Wiki data refreshes every Sunday at midnight UTC" },
+              },
+            ],
           },
         });
       }
@@ -111,6 +119,17 @@ export class StardewDO implements DurableObject {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname === "/admin/refresh" && request.method === "POST") {
+      const auth = request.headers.get("Authorization");
+      if (auth !== `Bearer ${env.BOT_OWNER_TOKEN}`) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+      const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
+      return stub.fetch(new Request(request.url, { method: "POST", headers: request.headers }));
+    }
+
     if (request.method !== "POST") {
       return new Response("Method Not Allowed", { status: 405 });
     }
@@ -124,5 +143,17 @@ export default {
 
     const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
     return stub.fetch(new Request(request.url, { method: "POST", body }));
+  },
+
+  async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
+    ctx.waitUntil(
+      stub.fetch(
+        new Request("https://internal/admin/refresh", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${env.BOT_OWNER_TOKEN}` },
+        }),
+      ),
+    );
   },
 } satisfies ExportedHandler<Env>;
