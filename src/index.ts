@@ -103,7 +103,7 @@ export class StardewDO implements DurableObject {
                     inline: true,
                   },
                 ],
-                footer: { text: "Wiki data refreshes every Sunday at midnight UTC" },
+                footer: { text: "Wiki data refreshes every Sunday at 8 AM UTC" },
               },
             ],
           },
