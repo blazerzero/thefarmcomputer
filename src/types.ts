@@ -20,6 +20,7 @@ export interface CropRow {
   sell_price_iridium: number | null;
   buy_price: number | null;
   is_trellis: number;    // 0 or 1
+  image_url: string | null;
   wiki_url: string;
   last_updated: string;
 }

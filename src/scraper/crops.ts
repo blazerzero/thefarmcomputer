@@ -25,7 +25,11 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
   let currentSeasons: string[] = [];
   let currentCropName = "";
   let currentWikiUrl = "";
+  let currentImageUrl: string | null = null;
   let currentIsTrellis = 0;
+  // Overrides currentSeasons for a specific crop when a "Can be grown in…" paragraph
+  // appears between its H3 heading and its data table.
+  let currentCropSeasonOverride: string[] | null = null;
 
   // Walk h2 (seasons), h3 (crop names), p (trellis prose), and wikitables
   const elements = content.querySelectorAll("h2, h3, p, table.wikitable");
@@ -45,19 +49,31 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
     // ── Crop name heading ───────────────────────────────────────────────────
     if (tag === "H3") {
       const headline = el.querySelector(".mw-headline") ?? el;
-      const link = headline.querySelector("a");
-      currentCropName = (link?.text || headline.text)
+      // Find the crop page link (not the /File: image link)
+      const links = headline.querySelectorAll("a");
+      const cropLink = links.find((l) => !l.getAttribute("href")?.startsWith("/File:"));
+      const fileLink = links.find((l) => l.getAttribute("href")?.startsWith("/File:"));
+      currentCropName = (cropLink?.text || fileLink?.text || headline.text)
         .replace(/\s+/g, " ")
         .trim();
-      const href = link?.getAttribute("href");
+      const href = cropLink?.getAttribute("href");
       currentWikiUrl = href ? WIKI_BASE + href : `${WIKI_BASE}/Crops`;
+      // Extract image URL from the img tag inside the h3
+      const imgSrc = headline.querySelector("img")?.getAttribute("src") ?? null;
+      currentImageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
       currentIsTrellis = 0;
+      currentCropSeasonOverride = null;
       continue;
     }
 
-    // ── Trellis prose ───────────────────────────────────────────────────────
+    // ── Prose between H3 and table ──────────────────────────────────────────
     if (tag === "P") {
       if (el.text.toLowerCase().includes("trellis")) currentIsTrellis = 1;
+      // "Can be grown in Spring and Summer" — captures all seasons mentioned
+      if (currentCropName) {
+        const mentioned = parseSeasons(el.text);
+        if (mentioned.length > 0) currentCropSeasonOverride = mentioned;
+      }
       continue;
     }
 
@@ -121,7 +137,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
 
     crops.push({
       name:               currentCropName,
-      seasons:            JSON.stringify(currentSeasons),
+      seasons:            JSON.stringify(currentCropSeasonOverride ?? currentSeasons),
       growth_days:        growthDays,
       regrowth_days:      regrowthDays,
       sell_price:         sellPrices[0] ?? null,
@@ -130,13 +146,16 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
       sell_price_iridium: sellPrices[3] ?? null,
       buy_price:          buyPrice,
       is_trellis:    currentIsTrellis,
+      image_url:     currentImageUrl,
       wiki_url:      currentWikiUrl,
     });
 
     // Reset crop context — this table has been consumed
     currentCropName = "";
     currentWikiUrl = "";
+    currentImageUrl = null;
     currentIsTrellis = 0;
+    currentCropSeasonOverride = null;
   }
 
   console.log(`Scraped ${crops.length} crops`);
