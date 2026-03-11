@@ -27,6 +27,9 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
   let currentWikiUrl = "";
   let currentImageUrl: string | null = null;
   let currentIsTrellis = 0;
+  // Overrides currentSeasons for a specific crop when a "Can be grown in…" paragraph
+  // appears between its H3 heading and its data table.
+  let currentCropSeasonOverride: string[] | null = null;
 
   // Walk h2 (seasons), h3 (crop names), p (trellis prose), and wikitables
   const elements = content.querySelectorAll("h2, h3, p, table.wikitable");
@@ -59,12 +62,18 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
       const imgSrc = headline.querySelector("img")?.getAttribute("src") ?? null;
       currentImageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
       currentIsTrellis = 0;
+      currentCropSeasonOverride = null;
       continue;
     }
 
-    // ── Trellis prose ───────────────────────────────────────────────────────
+    // ── Prose between H3 and table ──────────────────────────────────────────
     if (tag === "P") {
       if (el.text.toLowerCase().includes("trellis")) currentIsTrellis = 1;
+      // "Can be grown in Spring and Summer" — captures all seasons mentioned
+      if (currentCropName) {
+        const mentioned = parseSeasons(el.text);
+        if (mentioned.length > 0) currentCropSeasonOverride = mentioned;
+      }
       continue;
     }
 
@@ -128,7 +137,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
 
     crops.push({
       name:               currentCropName,
-      seasons:            JSON.stringify(currentSeasons),
+      seasons:            JSON.stringify(currentCropSeasonOverride ?? currentSeasons),
       growth_days:        growthDays,
       regrowth_days:      regrowthDays,
       sell_price:         sellPrices[0] ?? null,
@@ -146,6 +155,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
     currentWikiUrl = "";
     currentImageUrl = null;
     currentIsTrellis = 0;
+    currentCropSeasonOverride = null;
   }
 
   console.log(`Scraped ${crops.length} crops`);
