@@ -18,14 +18,15 @@ export function initDb(sql: SqlStorage): void {
       sell_price_iridium INTEGER,
       buy_price          INTEGER,
       is_trellis    INTEGER,
+      image_url     TEXT,
       wiki_url      TEXT,
       last_updated  TEXT
     )
   `);
   // Add quality price columns to existing instances that predate this schema change.
   // ALTER TABLE throws if the column already exists; swallow that error.
-  for (const col of ["sell_price_silver", "sell_price_gold", "sell_price_iridium"]) {
-    try { sql.exec(`ALTER TABLE crops ADD COLUMN ${col} INTEGER`); } catch { /* already exists */ }
+  for (const col of ["sell_price_silver", "sell_price_gold", "sell_price_iridium", "image_url"]) {
+    try { sql.exec(`ALTER TABLE crops ADD COLUMN ${col} ${col === "image_url" ? "TEXT" : "INTEGER"}`); } catch { /* already exists */ }
   }
 
   sql.exec(`
@@ -65,8 +66,8 @@ export function upsertCrop(sql: SqlStorage, data: Omit<CropRow, "id" | "last_upd
     `INSERT INTO crops
        (name, seasons, growth_days, regrowth_days,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
-        buy_price, is_trellis, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        buy_price, is_trellis, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        seasons            = excluded.seasons,
        growth_days        = excluded.growth_days,
@@ -77,11 +78,12 @@ export function upsertCrop(sql: SqlStorage, data: Omit<CropRow, "id" | "last_upd
        sell_price_iridium = excluded.sell_price_iridium,
        buy_price          = excluded.buy_price,
        is_trellis         = excluded.is_trellis,
+       image_url          = excluded.image_url,
        wiki_url           = excluded.wiki_url,
        last_updated       = excluded.last_updated`,
     data.name, data.seasons, data.growth_days, data.regrowth_days,
     data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
-    data.buy_price, data.is_trellis, data.wiki_url, now(),
+    data.buy_price, data.is_trellis, data.image_url, data.wiki_url, now(),
   );
 }
 

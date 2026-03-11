@@ -25,6 +25,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
   let currentSeasons: string[] = [];
   let currentCropName = "";
   let currentWikiUrl = "";
+  let currentImageUrl: string | null = null;
   let currentIsTrellis = 0;
 
   // Walk h2 (seasons), h3 (crop names), p (trellis prose), and wikitables
@@ -45,12 +46,18 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
     // ── Crop name heading ───────────────────────────────────────────────────
     if (tag === "H3") {
       const headline = el.querySelector(".mw-headline") ?? el;
-      const link = headline.querySelector("a");
-      currentCropName = (link?.text || headline.text)
+      // Find the crop page link (not the /File: image link)
+      const links = headline.querySelectorAll("a");
+      const cropLink = links.find((l) => !l.getAttribute("href")?.startsWith("/File:"));
+      const fileLink = links.find((l) => l.getAttribute("href")?.startsWith("/File:"));
+      currentCropName = (cropLink?.text || fileLink?.text || headline.text)
         .replace(/\s+/g, " ")
         .trim();
-      const href = link?.getAttribute("href");
+      const href = cropLink?.getAttribute("href");
       currentWikiUrl = href ? WIKI_BASE + href : `${WIKI_BASE}/Crops`;
+      // Extract image URL from the img tag inside the h3
+      const imgSrc = headline.querySelector("img")?.getAttribute("src") ?? null;
+      currentImageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
       currentIsTrellis = 0;
       continue;
     }
@@ -130,12 +137,14 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
       sell_price_iridium: sellPrices[3] ?? null,
       buy_price:          buyPrice,
       is_trellis:    currentIsTrellis,
+      image_url:     currentImageUrl,
       wiki_url:      currentWikiUrl,
     });
 
     // Reset crop context — this table has been consumed
     currentCropName = "";
     currentWikiUrl = "";
+    currentImageUrl = null;
     currentIsTrellis = 0;
   }
 

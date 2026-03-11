@@ -41,6 +41,7 @@ export function handleCrop(
     title: crop.name,
     url: crop.wiki_url,
     color,
+    thumbnail: crop.image_url ? { url: crop.image_url } : undefined,
     fields: [
       {
         name: "Seasons",
@@ -58,12 +59,12 @@ export function handleCrop(
         inline: true,
       },
       {
-        name: "Buy Price",
+        name: "Seed Price",
         value: crop.buy_price != null ? `${crop.buy_price.toLocaleString()}g` : "—",
         inline: true,
       },
       {
-        name: "Sell Price",
+        name: "Sells For",
         value: [
           ["Normal",  crop.sell_price],
           ["Silver",  crop.sell_price_silver],
