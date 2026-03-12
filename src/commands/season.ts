@@ -42,7 +42,7 @@ export function handleSeason(
   const lines = crops.map((c) => {
     const growth = c.growth_days != null ? `${c.growth_days}d` : "?";
     const regrowth = c.regrowth_days != null ? ` (+${c.regrowth_days}d)` : "";
-    const price = c.sell_price != null ? ` — sell for ${c.sell_price}g` : "";
+    const price = c.sell_price != null ? ` — ${c.sell_price}g` : "";
     return `• [${c.name}](${c.wiki_url}) — ${growth}${regrowth} grow${price}`;
   });
 
