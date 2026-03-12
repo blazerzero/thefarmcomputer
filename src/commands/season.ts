@@ -69,7 +69,7 @@ export function handleSeason(
           title: `${season} Crops (${crops.length})`,
           color,
           fields,
-          footer: { text: "Growth shown as days to first harvest. (+N) = regrowth. Sell price is base quality." },
+          footer: { text: "Growth shown as days to first harvest. (+N) = regrowth. Sells for is base quality." },
         },
       ],
     },
