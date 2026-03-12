@@ -1,5 +1,6 @@
 import { handleCrop } from "./commands/crop";
 import { handleGift } from "./commands/gift";
+import { handleSeason } from "./commands/season";
 import {
   countCrops,
   countVillagers,
@@ -80,6 +81,7 @@ export class StardewDO implements DurableObject {
 
       if (commandName === "crop") return handleCrop(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
+      if (commandName === "season") return handleSeason(interaction, this.sql);
 
       if (commandName === "info") {
         const s = getStatus(this.sql);

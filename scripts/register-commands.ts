@@ -44,6 +44,26 @@ const commands = [
     ],
   },
   {
+    name: "season",
+    description: "List all crops harvestable in a given season.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "season",
+        description: "Season name (Spring, Summer, Fall, or Winter)",
+        required: true,
+        choices: [
+          { name: "Spring", value: "Spring" },
+          { name: "Summer", value: "Summer" },
+          { name: "Fall",   value: "Fall"   },
+          { name: "Winter", value: "Winter" },
+        ],
+      },
+    ],
+  },
+  {
     name: "info",
     description: "Show the bot's data freshness and record counts.",
     integration_types: [0, 1],

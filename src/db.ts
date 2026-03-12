@@ -47,6 +47,18 @@ export function initDb(sql: SqlStorage): void {
 
 // ── Crops ─────────────────────────────────────────────────────────────────────
 
+export function getCropsBySeason(sql: SqlStorage, season: string): Crop[] {
+  try {
+    const rows = sql
+      .exec("SELECT * FROM crops WHERE seasons LIKE ? ORDER BY name ASC", `%${season}%`)
+      .toArray() as unknown as CropRow[];
+    return rows.map((row) => ({ ...row, seasons: JSON.parse(row.seasons || "[]") as string[] }));
+  } catch (err) {
+    console.error("DB error in getCropsBySeason:", err);
+    return [];
+  }
+}
+
 export function getCrop(sql: SqlStorage, name: string): Crop | null {
   // SqlStorageCursor.one() returns Record<string, SqlStorageValue> — cast to our type
   try {
