@@ -1,9 +1,9 @@
 import { parse } from "node-html-parser";
-import { fetchPage } from "./wiki";
 import type { CropRow } from "../types";
+import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
-const SEASONS = ["Spring", "Summer", "Fall", "Winter"] as const;
+const SEASONS: string[] = ["Spring", "Summer", "Fall", "Winter"];
 
 function parseIntFrom(text: string): number | null {
   const m = text.replace(/,/g, "").match(/\d+/);
@@ -11,7 +11,18 @@ function parseIntFrom(text: string): number | null {
 }
 
 function parseSeasons(text: string): string[] {
-  return SEASONS.filter((s) => text.toLowerCase().includes(s.toLowerCase()));
+  const sentences = text.split('.').map(s => s.trim().toLowerCase());
+  const textToRead = sentences
+    .filter((s) => !s.includes('sale') && !s.includes('seed') && !s.includes('sell'))
+    .join('. ');
+  if (textToRead.includes("all seasons") || textToRead.includes("any season")) {
+    return SEASONS;
+  }
+  return SEASONS.filter((s) => (
+    textToRead.toLowerCase().includes(`in ${s.toLowerCase()}`)) ||
+    textToRead.toLowerCase().includes(`and ${s.toLowerCase()}`) ||
+    textToRead.toLowerCase().includes(`or ${s.toLowerCase()}`)
+  );
 }
 
 export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated">[]> {
