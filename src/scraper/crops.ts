@@ -19,6 +19,7 @@ function parseSeasons(text: string): string[] {
     return SEASONS;
   }
   return SEASONS.filter((s) => (
+    textToRead.toLowerCase() === `${s.toLowerCase()} crops` ||
     textToRead.toLowerCase().includes(`in ${s.toLowerCase()}`)) ||
     textToRead.toLowerCase().includes(`and ${s.toLowerCase()}`) ||
     textToRead.toLowerCase().includes(`or ${s.toLowerCase()}`)
