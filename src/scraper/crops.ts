@@ -55,6 +55,7 @@ export async function scrapeCrops(): Promise<Omit<CropRow, "id" | "last_updated"
         el.querySelector(".mw-headline")?.text.trim() ?? el.text.trim();
       const matched = parseSeasons(text);
       if (matched.length > 0) currentSeasons = matched;
+      else if (text === "Special Crops") currentSeasons = ["N/A"];
       continue;
     }
 

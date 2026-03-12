@@ -1,5 +1,5 @@
-import { getCrop } from "../db";
 import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
+import { getCrop } from "../db";
 import { InteractionResponseType } from "../types";
 
 function seasonColor(seasons: string[]): number {
