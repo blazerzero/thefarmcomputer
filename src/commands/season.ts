@@ -1,12 +1,6 @@
 import { getCropsBySeason } from "../db";
+import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
 import { InteractionResponseType } from "../types";
-
-const SEASON_COLORS: Record<string, number> = {
-  Spring: 0x78b84a,
-  Summer: 0xe8c13a,
-  Fall:   0xd2691e,
-  Winter: 0x89cff0,
-};
 
 const VALID_SEASONS = new Set(["Spring", "Summer", "Fall", "Winter"]);
 
@@ -65,7 +59,7 @@ export function handleSeason(
         ]
       : [{ name: "\u200b", value: col1, inline: false }];
 
-  const color = SEASON_COLORS[season] ?? 0x5b8a3c;
+  const color = SEASON_COLORS[season] ?? DEFAULT_COLOR;
 
   return Response.json({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
