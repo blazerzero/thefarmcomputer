@@ -46,9 +46,6 @@ export async function scrapeFruitTrees(): Promise<Omit<FruitTreeRow, "id" | "las
       currentTreeName = (treeLink?.text || headline.text).replace(/\s+/g, " ").trim();
       const href = treeLink?.getAttribute("href");
       currentWikiUrl = href ? WIKI_BASE + href : `${WIKI_BASE}/Fruit_Trees`;
-      currentImageUrl = null;
-      const imgSrc = headline.querySelector("img")?.getAttribute("src") ?? null;
-      currentImageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
       tableIndex = 0;
       currentGrowthDays = null;
       continue;
@@ -63,6 +60,17 @@ export async function scrapeFruitTrees(): Promise<Omit<FruitTreeRow, "id" | "las
     if (tableIndex === 0) {
       // Growth stages table — find "Total: N Days"
       for (const row of rows) {
+        if (!currentImageUrl) {
+          const imgRow = row.querySelectorAll("td div img");
+          if (imgRow.length > 0) {
+            const harvestImage = imgRow[imgRow.length - 1]?.getAttribute("src") ?? null;
+            if (harvestImage) {
+              currentImageUrl = harvestImage.startsWith("http")
+                ? harvestImage
+                : WIKI_BASE + harvestImage;
+            }
+          }
+        }
         const cellText = row.text.replace(/\s+/g, " ").trim();
         const totalMatch = cellText.match(/total[^:]*:\s*(\d+)\s*day/i);
         if (totalMatch) {
