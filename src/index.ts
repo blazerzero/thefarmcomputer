@@ -1,15 +1,20 @@
 import { handleCrop } from "./commands/crop";
+import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleSeason } from "./commands/season";
+import { formatDate } from "./constants";
 import {
   countCrops,
+  countFruitTrees,
   countVillagers,
   getStatus,
   initDb,
   upsertCrop,
+  upsertFruitTree,
   upsertVillager,
 } from "./db";
 import { scrapeCrops } from "./scraper/crops";
+import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
@@ -22,6 +27,12 @@ async function refreshCrops(sql: SqlStorage): Promise<number> {
   return crops.length;
 }
 
+async function refreshFruitTrees(sql: SqlStorage): Promise<number> {
+  const trees = await scrapeFruitTrees();
+  for (const tree of trees) upsertFruitTree(sql, tree);
+  return trees.length;
+}
+
 async function refreshAll(sql: SqlStorage): Promise<void> {
   console.log("Wiki refresh starting…");
   try {
@@ -29,6 +40,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
     console.log(`Updated ${n} crops`);
   } catch (err) {
     console.error("Crop scrape failed:", err);
+  }
+  try {
+    const n = await refreshFruitTrees(sql);
+    console.log(`Updated ${n} fruit trees`);
+  } catch (err) {
+    console.error("Fruit tree scrape failed:", err);
   }
   try {
     const villagers = await scrapeVillagers();
@@ -53,7 +70,7 @@ export class StardewDO implements DurableObject {
 
     // Seed the DB if this is a brand-new instance
     state.blockConcurrencyWhile(async () => {
-      if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0) {
+      if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0 && countFruitTrees(this.sql) === 0) {
         await refreshAll(this.sql);
       }
     });
@@ -80,12 +97,13 @@ export class StardewDO implements DurableObject {
       const commandName = (interaction.data as Record<string, unknown>)?.name as string;
 
       if (commandName === "crop") return handleCrop(interaction, this.sql);
+      if (commandName === "fruit-tree") return handleFruitTree(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
       if (commandName === "season") return handleSeason(interaction, this.sql);
 
       if (commandName === "info") {
         const s = getStatus(this.sql);
-        const fmt = (ts: string | null) => (ts ? ts.slice(0, 10) : "never");
+        const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
         return Response.json({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
@@ -97,6 +115,11 @@ export class StardewDO implements DurableObject {
                   {
                     name: "Crops",
                     value: `${s.cropCount} in database\nLast updated: ${fmt(s.cropsLastUpdated)}`,
+                    inline: true,
+                  },
+                  {
+                    name: "Fruit Trees",
+                    value: `${s.fruitTreeCount} in database\nLast updated: ${fmt(s.fruitTreesLastUpdated)}`,
                     inline: true,
                   },
                   {

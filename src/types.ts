@@ -55,6 +55,26 @@ export interface Villager extends Omit<VillagerRow,
   hated_gifts: string[];
 }
 
+/** A fruit tree row as stored in D1. */
+export interface FruitTreeRow {
+  id?: number;
+  name: string;                    // e.g. "Apricot Tree"
+  season: string;                  // "Spring" | "Summer" | "Fall" | "Winter"
+  growth_days: number | null;
+  sapling_price: number | null;    // Pierre's price
+  fruit_name: string | null;       // e.g. "Apricot"
+  sell_price: number | null;
+  sell_price_silver: number | null;
+  sell_price_gold: number | null;
+  sell_price_iridium: number | null;
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A fruit tree row (no JSON fields to decode). */
+export interface FruitTree extends FruitTreeRow {}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,
