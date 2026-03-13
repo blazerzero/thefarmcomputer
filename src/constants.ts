@@ -6,3 +6,12 @@ export const SEASON_COLORS: Record<string, number> = {
 };
 
 export const DEFAULT_COLOR = 0x5b8a3c;
+
+export function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}

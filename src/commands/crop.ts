@@ -1,4 +1,4 @@
-import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
+import { DEFAULT_COLOR, SEASON_COLORS, formatDate } from "../constants";
 import { getCrop } from "../db";
 import { InteractionResponseType } from "../types";
 
@@ -76,7 +76,7 @@ export function handleCrop(
       },
     ],
     footer: crop.last_updated
-      ? { text: `Data from Stardew Valley Wiki • Last updated ${crop.last_updated.slice(0, 10)}` }
+      ? { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(crop.last_updated)}` }
       : undefined,
   };
 

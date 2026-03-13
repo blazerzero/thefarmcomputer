@@ -1,4 +1,4 @@
-import type { Crop, CropRow, Villager, VillagerRow } from "./types";
+import type { Crop, CropRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
 
 const now = () => new Date().toISOString();
 
@@ -28,6 +28,24 @@ export function initDb(sql: SqlStorage): void {
   for (const col of ["sell_price_silver", "sell_price_gold", "sell_price_iridium", "image_url"]) {
     try { sql.exec(`ALTER TABLE crops ADD COLUMN ${col} ${col === "image_url" ? "TEXT" : "INTEGER"}`); } catch { /* already exists */ }
   }
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS fruit_trees (
+      id                 INTEGER PRIMARY KEY,
+      name               TEXT UNIQUE NOT NULL,
+      season             TEXT,
+      growth_days        INTEGER,
+      sapling_price      INTEGER,
+      fruit_name         TEXT,
+      sell_price         INTEGER,
+      sell_price_silver  INTEGER,
+      sell_price_gold    INTEGER,
+      sell_price_iridium INTEGER,
+      image_url          TEXT,
+      wiki_url           TEXT,
+      last_updated       TEXT
+    )
+  `);
 
   sql.exec(`
     CREATE TABLE IF NOT EXISTS villagers (
@@ -99,6 +117,50 @@ export function upsertCrop(sql: SqlStorage, data: Omit<CropRow, "id" | "last_upd
   );
 }
 
+// ── Fruit Trees ───────────────────────────────────────────────────────────────
+
+export function getFruitTree(sql: SqlStorage, name: string): FruitTree | null {
+  try {
+    const row = sql
+      .exec("SELECT * FROM fruit_trees WHERE name LIKE ? OR fruit_name LIKE ? LIMIT 1", `%${name}%`, `%${name}%`)
+      .one() as unknown as FruitTreeRow | null;
+    if (!row) return null;
+    return { ...row };
+  } catch (err) {
+    console.error("DB error in getFruitTree:", err);
+    return null;
+  }
+}
+
+export function upsertFruitTree(sql: SqlStorage, data: Omit<FruitTreeRow, "id" | "last_updated">): void {
+  sql.exec(
+    `INSERT INTO fruit_trees
+       (name, season, growth_days, sapling_price, fruit_name,
+        sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
+        image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET
+       season             = excluded.season,
+       growth_days        = excluded.growth_days,
+       sapling_price      = excluded.sapling_price,
+       fruit_name         = excluded.fruit_name,
+       sell_price         = excluded.sell_price,
+       sell_price_silver  = excluded.sell_price_silver,
+       sell_price_gold    = excluded.sell_price_gold,
+       sell_price_iridium = excluded.sell_price_iridium,
+       image_url          = excluded.image_url,
+       wiki_url           = excluded.wiki_url,
+       last_updated       = excluded.last_updated`,
+    data.name, data.season, data.growth_days, data.sapling_price, data.fruit_name,
+    data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
+    data.image_url, data.wiki_url, now(),
+  );
+}
+
+export function countFruitTrees(sql: SqlStorage): number {
+  return (sql.exec("SELECT COUNT(*) AS n FROM fruit_trees").one() as { n: number } | null)?.n ?? 0;
+}
+
 // ── Villagers ─────────────────────────────────────────────────────────────────
 
 export function getVillager(sql: SqlStorage, name: string): Villager | null {
@@ -161,8 +223,10 @@ export function countVillagers(sql: SqlStorage): number {
 export function getStatus(sql: SqlStorage): {
   cropCount: number;
   villagerCount: number;
+  fruitTreeCount: number;
   cropsLastUpdated: string | null;
   villagersLastUpdated: string | null;
+  fruitTreesLastUpdated: string | null;
 } {
   const cropRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crops")
@@ -170,10 +234,15 @@ export function getStatus(sql: SqlStorage): {
   const villagerRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM villagers")
     .one() as { n: number; last_updated: string | null } | null;
+  const fruitTreeRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fruit_trees")
+    .one() as { n: number; last_updated: string | null } | null;
   return {
     cropCount: cropRow?.n ?? 0,
     villagerCount: villagerRow?.n ?? 0,
+    fruitTreeCount: fruitTreeRow?.n ?? 0,
     cropsLastUpdated: cropRow?.last_updated ?? null,
     villagersLastUpdated: villagerRow?.last_updated ?? null,
+    fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
   };
 }
