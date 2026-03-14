@@ -131,21 +131,17 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // Energy / Health
       const [energy, health] = idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
 
-      // Used In — extract each linked item name from the cell
+      // Used In — split on <br> tags first so each entry (including trailing
+      // plain text like "(loved gift)") is captured whole, not just link text.
       const usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
         const usedInCell = cells[idxUsedIn]!;
-        const links = usedInCell.querySelectorAll("a");
-        if (links.length > 0) {
-          for (const link of links) {
-            const text = link.text.replace(/\s+/g, " ").trim();
-            if (text) usedIn.push(text);
-          }
-        } else {
-          // Fallback: plain text split by newlines/bullets
-          const raw = cellText(idxUsedIn);
-          if (raw && raw !== "—") usedIn.push(...parseLocations(raw));
-        }
+        const lines = parse(usedInCell.innerHTML.replace(/<br\s*\/?>/gi, "\n"))
+          .text
+          .split("\n")
+          .map((s) => s.replace(/\s+/g, " ").trim())
+          .filter((s) => s.length > 0 && s !== "—");
+        usedIn.push(...lines);
       }
 
       // Seasons and locations depending on context
