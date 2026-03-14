@@ -78,6 +78,20 @@ const commands = [
     ],
   },
   {
+    name: "fish",
+    description: "Look up info about a Stardew Valley fish.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Fish name (e.g. Tuna, Salmon, Legend)",
+        required: true,
+      },
+    ],
+  },
+  {
     name: "info",
     description: "Show the bot's data freshness and record counts.",
     integration_types: [0, 1],
