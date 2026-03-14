@@ -75,6 +75,31 @@ export interface FruitTreeRow {
 /** A fruit tree row (no JSON fields to decode). */
 export interface FruitTree extends FruitTreeRow {}
 
+/** A single item required by a Community Center bundle. */
+export interface BundleItem {
+  name: string;
+  quantity: number;
+  quality?: "Silver" | "Gold";
+}
+
+/** A bundle row as stored in D1. */
+export interface BundleRow {
+  id?: number;
+  name: string;
+  room: string;
+  items: string;          // JSON array of BundleItem
+  items_required: number; // may be less than items.length for choice bundles
+  reward: string;
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A bundle row with items already decoded. */
+export interface Bundle extends Omit<BundleRow, "items"> {
+  items: BundleItem[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,

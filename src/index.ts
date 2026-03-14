@@ -5,15 +5,18 @@ import { handleGift } from "./commands/gift";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
 import {
+  countBundles,
   countCrops,
   countFruitTrees,
   countVillagers,
   getStatus,
   initDb,
+  upsertBundle,
   upsertCrop,
   upsertFruitTree,
   upsertVillager,
 } from "./db";
+import { scrapeBundles } from "./scraper/bundles";
 import { scrapeCrops } from "./scraper/crops";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeVillagers } from "./scraper/villagers";
@@ -32,6 +35,12 @@ async function refreshFruitTrees(sql: SqlStorage): Promise<number> {
   const trees = await scrapeFruitTrees();
   for (const tree of trees) upsertFruitTree(sql, tree);
   return trees.length;
+}
+
+async function refreshBundles(sql: SqlStorage): Promise<number> {
+  const bundles = await scrapeBundles();
+  for (const bundle of bundles) upsertBundle(sql, bundle);
+  return bundles.length;
 }
 
 async function refreshAll(sql: SqlStorage): Promise<void> {
@@ -55,6 +64,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
   } catch (err) {
     console.error("Villager scrape failed:", err);
   }
+  try {
+    const n = await refreshBundles(sql);
+    console.log(`Updated ${n} bundles`);
+  } catch (err) {
+    console.error("Bundle scrape failed:", err);
+  }
   console.log("Wiki refresh complete");
 }
 
@@ -71,7 +86,7 @@ export class StardewDO implements DurableObject {
 
     // Seed the DB if this is a brand-new instance
     state.blockConcurrencyWhile(async () => {
-      if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0 && countFruitTrees(this.sql) === 0) {
+      if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0 && countFruitTrees(this.sql) === 0 && countBundles(this.sql) === 0) {
         await refreshAll(this.sql);
       }
     });
@@ -127,6 +142,11 @@ export class StardewDO implements DurableObject {
                   {
                     name: "Villagers",
                     value: `${s.villagerCount} in database\nLast updated: ${fmt(s.villagersLastUpdated)}`,
+                    inline: true,
+                  },
+                  {
+                    name: "Bundles",
+                    value: `${s.bundleCount} in database\nLast updated: ${fmt(s.bundlesLastUpdated)}`,
                     inline: true,
                   },
                 ],

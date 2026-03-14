@@ -1,5 +1,5 @@
 import { DEFAULT_COLOR } from "../constants";
-import { getBundle } from "../data/bundles";
+import { getBundle } from "../db";
 import { InteractionResponseType } from "../types";
 
 const ROOM_COLORS: Record<string, number> = {
@@ -13,13 +13,13 @@ const ROOM_COLORS: Record<string, number> = {
 
 export function handleBundle(
   interaction: Record<string, unknown>,
-  _sql: SqlStorage,
+  sql: SqlStorage,
 ): Response {
   const options = (interaction.data as Record<string, unknown>)
     ?.options as Array<{ name: string; value: string }> | undefined;
   const query = options?.find((o) => o.name === "name")?.value ?? "";
 
-  const bundle = getBundle(query);
+  const bundle = getBundle(sql, query);
 
   if (!bundle) {
     return Response.json({
@@ -47,10 +47,11 @@ export function handleBundle(
     title: bundle.name,
     url: bundle.wiki_url,
     color: ROOM_COLORS[bundle.room] ?? DEFAULT_COLOR,
+    thumbnail: bundle.image_url ? { url: bundle.image_url } : undefined,
     fields: [
       { name: "Room", value: bundle.room, inline: true },
       { name: "Reward", value: bundle.reward, inline: true },
-      { name: itemsFieldName, value: itemLines.join("\n") },
+      { name: itemsFieldName, value: itemLines.join("\n") || "—" },
     ],
     footer: { text: "Data from Stardew Valley Wiki" },
   };
