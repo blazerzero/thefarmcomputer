@@ -53,6 +53,12 @@ Global commands can take a few minutes to propagate on Discord.
 yarn dev
 ```
 
+To bypass Discord signature verification during local development, add the following to your `.dev.vars`:
+
+```env
+OVERRIDE_DISCORD_AUTH=true
+```
+
 ### Deploy
 
 ```bash
