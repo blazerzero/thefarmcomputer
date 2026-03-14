@@ -142,15 +142,17 @@ export interface ForageableRow {
   sell_price_iridium: number | null;
   energy: number | null;  // can be negative (e.g. Red Mushroom = -50)
   health: number | null;  // can be negative
+  used_in: string;        // JSON array of item/recipe names
   image_url: string | null;
   wiki_url: string;
   last_updated: string;
 }
 
-/** A forageable item row with seasons and locations already decoded. */
-export interface Forageable extends Omit<ForageableRow, "seasons" | "locations"> {
+/** A forageable item row with seasons, locations, and used_in already decoded. */
+export interface Forageable extends Omit<ForageableRow, "seasons" | "locations" | "used_in"> {
   seasons: string[];
   locations: string[];
+  used_in: string[];
 }
 
 /** Discord interaction types. */

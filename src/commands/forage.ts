@@ -77,6 +77,15 @@ export function handleForage(
         value: energyHealthValue,
         inline: true,
       },
+      ...(item.used_in.length > 0
+        ? [
+            {
+              name: "Used In",
+              value: item.used_in.join(", ").slice(0, 1024),
+              inline: false,
+            },
+          ]
+        : []),
     ],
     footer: item.last_updated
       ? { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(item.last_updated)}` }

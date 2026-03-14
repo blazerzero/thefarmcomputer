@@ -96,6 +96,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
     const idxSeason  = headers.findIndex((h) => h.includes("season"));
     const idxSell    = headers.findIndex((h) => h.includes("sell") || h.includes("price"));
     const idxEnergy  = headers.findIndex((h) => h.includes("energy"));
+    const idxUsedIn  = headers.findIndex((h) => h.includes("used"));
 
     // Skip tables that don't look like forageable data (no name or sell column)
     if (idxName === -1 || idxSell === -1) continue;
@@ -129,6 +130,23 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
 
       // Energy / Health
       const [energy, health] = idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
+
+      // Used In — extract each linked item name from the cell
+      const usedIn: string[] = [];
+      if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
+        const usedInCell = cells[idxUsedIn]!;
+        const links = usedInCell.querySelectorAll("a");
+        if (links.length > 0) {
+          for (const link of links) {
+            const text = link.text.replace(/\s+/g, " ").trim();
+            if (text) usedIn.push(text);
+          }
+        } else {
+          // Fallback: plain text split by newlines/bullets
+          const raw = cellText(idxUsedIn);
+          if (raw && raw !== "—") usedIn.push(...parseLocations(raw));
+        }
+      }
 
       // Seasons and locations depending on context
       let seasons: string[];
@@ -167,6 +185,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
         sell_price_iridium: sellIridium,
         energy,
         health,
+        used_in:            JSON.stringify(usedIn),
         image_url:          imageUrl,
         wiki_url:           wikiUrl,
       });

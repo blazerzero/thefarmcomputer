@@ -98,6 +98,7 @@ export function initDb(sql: SqlStorage): void {
       sell_price_iridium INTEGER,
       energy             INTEGER,
       health             INTEGER,
+      used_in            TEXT,
       image_url          TEXT,
       wiki_url           TEXT,
       last_updated       TEXT
@@ -365,6 +366,7 @@ export function getForageable(sql: SqlStorage, name: string): Forageable | null 
       ...row,
       seasons:   JSON.parse(row.seasons   || "[]") as string[],
       locations: JSON.parse(row.locations || "[]") as string[],
+      used_in:   JSON.parse(row.used_in   || "[]") as string[],
     };
   } catch (err) {
     console.error("DB error in getForageable:", err);
@@ -377,8 +379,8 @@ export function upsertForageable(sql: SqlStorage, data: Omit<ForageableRow, "id"
     `INSERT INTO forageables
        (name, seasons, locations,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
-        energy, health, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        energy, health, used_in, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        seasons            = excluded.seasons,
        locations          = excluded.locations,
@@ -388,12 +390,13 @@ export function upsertForageable(sql: SqlStorage, data: Omit<ForageableRow, "id"
        sell_price_iridium = excluded.sell_price_iridium,
        energy             = excluded.energy,
        health             = excluded.health,
+       used_in            = excluded.used_in,
        image_url          = excluded.image_url,
        wiki_url           = excluded.wiki_url,
        last_updated       = excluded.last_updated`,
     data.name, data.seasons, data.locations,
     data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
-    data.energy, data.health, data.image_url, data.wiki_url, now(),
+    data.energy, data.health, data.used_in, data.image_url, data.wiki_url, now(),
   );
 }
 
