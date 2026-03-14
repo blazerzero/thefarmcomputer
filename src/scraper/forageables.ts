@@ -1,4 +1,4 @@
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 import type { ForageableRow } from "../types";
 import { fetchPage } from "./wiki";
 
@@ -91,6 +91,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
     if (headerCells.length === 0) continue;
     const headers = headerCells.map((h) => h.text.replace(/\s+/g, " ").trim().toLowerCase());
 
+    const idxImage   = headers.findIndex((h) => h.includes("image"));
     const idxName    = headers.findIndex((h) => h.includes("name"));
     const idxFound   = headers.findIndex((h) => h === "found");
     const idxSeason  = headers.findIndex((h) => h.includes("season"));
@@ -109,6 +110,11 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
         idx >= 0 && idx < cells.length
           ? cells[idx]!.text.replace(/\s+/g, " ").trim()
           : "";
+      
+      let imageCell: HTMLElement | null = null;
+      if (idxImage >= 0 && idxImage < cells.length) {
+        imageCell = cells[idxImage]!;
+      }
 
       // Name + wiki URL + image URL from the Name cell
       const nameCell = idxName >= 0 && idxName < cells.length ? cells[idxName]! : null;
@@ -122,7 +128,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       const href = nameLink?.getAttribute("href");
       const wikiUrl = href ? WIKI_BASE + href : `${WIKI_BASE}/Foraging`;
 
-      const imgSrc = nameCell.querySelector("img")?.getAttribute("src") ?? null;
+      const imgSrc = imageCell?.querySelector("img")?.getAttribute("src") ?? null;
       const imageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
 
       // Sell prices
