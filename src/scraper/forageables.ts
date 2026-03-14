@@ -136,11 +136,14 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       const usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
         const usedInCell = cells[idxUsedIn]!;
-        const lines = parse(usedInCell.innerHTML.replace(/<br\s*\/?>/gi, "\n"))
-          .text
-          .split("\n")
-          .map((s) => s.replace(/\s+/g, " ").trim())
-          .filter((s) => s.length > 0 && s !== "—");
+        // Replace <br> with \n, then strip remaining tags with regex so the
+        // injected \n separators aren't collapsed by an HTML parser's text getter.
+        const rawText = usedInCell.innerHTML
+          .replace(/<br\s*\/?>/gi, "\n")
+          .replace(/<[^>]+>/g, "")
+          .replace(/&amp;/g, "&")
+          .replace(/&nbsp;/g, " ");
+        const lines = parseLocations(rawText).filter((s) => s !== "—");
         usedIn.push(...lines);
       }
 
