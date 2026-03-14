@@ -1,0 +1,62 @@
+import { DEFAULT_COLOR } from "../constants";
+import { getBundle } from "../data/bundles";
+import { InteractionResponseType } from "../types";
+
+const ROOM_COLORS: Record<string, number> = {
+  "Crafts Room":    0x78b84a,
+  "Pantry":         0xe8c13a,
+  "Fish Tank":      0x4a9fd5,
+  "Boiler Room":    0xd2691e,
+  "Bulletin Board": 0xe8608a,
+  "Vault":          0xf5c842,
+};
+
+export function handleBundle(
+  interaction: Record<string, unknown>,
+  _sql: SqlStorage,
+): Response {
+  const options = (interaction.data as Record<string, unknown>)
+    ?.options as Array<{ name: string; value: string }> | undefined;
+  const query = options?.find((o) => o.name === "name")?.value ?? "";
+
+  const bundle = getBundle(query);
+
+  if (!bundle) {
+    return Response.json({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `No bundle named **${query}** found. Try a partial name like \`Spring Foraging\`, \`Construction\`, or \`Artisan\`.`,
+        flags: 64, // ephemeral
+      },
+    });
+  }
+
+  const isChoice = bundle.items_required < bundle.items.length;
+
+  const itemLines = bundle.items.map((item) => {
+    const qty = item.quantity > 1 ? ` ×${item.quantity.toLocaleString()}` : "";
+    const quality = item.quality ? ` (${item.quality}+)` : "";
+    return `• ${item.name}${qty}${quality}`;
+  });
+
+  const itemsFieldName = isChoice
+    ? `Items (choose ${bundle.items_required} of ${bundle.items.length})`
+    : "Items Required";
+
+  const embed = {
+    title: bundle.name,
+    url: bundle.wiki_url,
+    color: ROOM_COLORS[bundle.room] ?? DEFAULT_COLOR,
+    fields: [
+      { name: "Room", value: bundle.room, inline: true },
+      { name: "Reward", value: bundle.reward, inline: true },
+      { name: itemsFieldName, value: itemLines.join("\n") },
+    ],
+    footer: { text: "Data from Stardew Valley Wiki" },
+  };
+
+  return Response.json({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: { embeds: [embed] },
+  });
+}

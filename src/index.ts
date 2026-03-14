@@ -1,3 +1,4 @@
+import { handleBundle } from "./commands/bundle";
 import { handleCrop } from "./commands/crop";
 import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
@@ -96,6 +97,7 @@ export class StardewDO implements DurableObject {
     if (type === InteractionType.APPLICATION_COMMAND) {
       const commandName = (interaction.data as Record<string, unknown>)?.name as string;
 
+      if (commandName === "bundle") return handleBundle(interaction, this.sql);
       if (commandName === "crop") return handleCrop(interaction, this.sql);
       if (commandName === "fruit-tree") return handleFruitTree(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);

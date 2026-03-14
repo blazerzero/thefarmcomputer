@@ -78,6 +78,20 @@ const commands = [
     ],
   },
   {
+    name: "bundle",
+    description: "Look up the items required for a Community Center bundle.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Bundle name (e.g. Spring Foraging, Construction, Artisan)",
+        required: true,
+      },
+    ],
+  },
+  {
     name: "info",
     description: "Show the bot's data freshness and record counts.",
     integration_types: [0, 1],
