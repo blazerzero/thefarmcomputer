@@ -164,7 +164,7 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
 
       // Source
       const sourceCell = get("source");
-      const source = sourceCell ? parseCellText(sourceCell) : null;
+      const source = sourceCell ? parseUsedIn(sourceCell) : [];
 
       // Used in
       const usedInCell = get("used_in");
@@ -176,7 +176,7 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
         description,
         sell_price: sellPrice,
         sell_price_gemologist: sellPriceGemologist,
-        source,
+        source: JSON.stringify(source),
         used_in: JSON.stringify(usedIn),
         image_url: imageUrl,
         wiki_url: wikiUrl,

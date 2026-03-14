@@ -163,15 +163,16 @@ export interface MineralRow {
   description: string | null;
   sell_price: number | null;
   sell_price_gemologist: number | null; // null for Geodes (no Gemologist bonus)
-  source: string | null;
+  source: string;                       // JSON array of source locations
   used_in: string;                      // JSON array of item/recipe names
   image_url: string | null;
   wiki_url: string;
   last_updated: string;
 }
 
-/** A mineral row with used_in already decoded. */
-export interface Mineral extends Omit<MineralRow, "used_in"> {
+/** A mineral row with source and used_in already decoded. */
+export interface Mineral extends Omit<MineralRow, "source" | "used_in"> {
+  source: string[];
   used_in: string[];
 }
 

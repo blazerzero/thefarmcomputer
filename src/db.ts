@@ -430,6 +430,7 @@ export function getMineral(sql: SqlStorage, name: string): Mineral | null {
     if (!row) return null;
     return {
       ...row,
+      source:  JSON.parse(row.source  || "[]") as string[],
       used_in: JSON.parse(row.used_in || "[]") as string[],
     };
   } catch (err) {

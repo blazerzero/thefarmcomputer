@@ -35,8 +35,12 @@ export function handleMineral(
     fields.push({ name: "Gemologist Price", value: `${mineral.sell_price_gemologist}g`, inline: true });
   }
 
-  if (mineral.source) {
-    fields.push({ name: "Source", value: mineral.source, inline: false });
+  if (mineral.source.length > 0) {
+    fields.push({
+      name: "Source",
+      value: mineral.source.map((s) => `• ${s}`).join("\n").slice(0, 1024),
+      inline: false,
+    });
   }
 
   if (mineral.used_in.length > 0) {
