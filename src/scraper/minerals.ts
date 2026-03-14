@@ -13,28 +13,6 @@ function parseSellPrice(cell: HTMLElement): number | null {
   return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
 }
 
-function parseCellText(cell: HTMLElement): string | null {
-  // Extract text from links and plain text nodes, deduplicating and joining
-  const parts: string[] = [];
-  const seen = new Set<string>();
-
-  for (const a of cell.querySelectorAll("a") as unknown as HTMLElement[]) {
-    const t = a.text.trim();
-    if (t && !seen.has(t)) {
-      seen.add(t);
-      parts.push(t);
-    }
-  }
-
-  // If no links, fall back to plain text
-  if (parts.length === 0) {
-    const t = cell.text.trim().replace(/\s+/g, " ");
-    return t || null;
-  }
-
-  return parts.join(", ");
-}
-
 function parseUsedIn(cell: HTMLElement): string[] {
   // Walk each <a> tag; check the immediately following text node for qualifiers
   // like "(Loved Gift)" and append if present — mirrors forageables scraper.

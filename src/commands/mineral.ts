@@ -58,7 +58,7 @@ export function handleMineral(
     description: mineral.description ?? undefined,
     thumbnail: mineral.image_url ? { url: mineral.image_url } : undefined,
     fields,
-    footer: { text: `Last updated ${formatDate(mineral.last_updated)}` },
+    footer: { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(mineral.last_updated)}` },
   };
 
   return Response.json({
