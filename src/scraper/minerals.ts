@@ -14,20 +14,35 @@ function parseSellPrice(cell: HTMLElement): number | null {
 }
 
 function parseUsedIn(cell: HTMLElement): string[] {
-  // Walk each <a> tag; check the immediately following text node for qualifiers
-  // like "(Loved Gift)" and append if present — mirrors forageables scraper.
-  const items: string[] = [];
-  for (const link of cell.querySelectorAll("a") as unknown as HTMLElement[]) {
-    if (link.getAttribute("href")?.startsWith("/File:")) continue;
-    let text = link.text.replace(/\s+/g, " ").trim();
-    if (!text) continue;
-    const next = link.nextSibling;
-    if (next && next.nodeType === 3) {
-      const trailing = next.text.replace(/\s+/g, " ").trim();
-      if (trailing) text += " " + trailing;
-    }
-    items.push(text);
+  // If the cell uses <li> items, those define line boundaries.
+  const listItems = cell.querySelectorAll("li");
+  if (listItems.length > 0) {
+    return (listItems as unknown as HTMLElement[])
+      .map(li => li.text.replace(/\s+/g, " ").trim())
+      .filter(t => t.length > 0);
   }
+
+  // Otherwise walk child nodes, grouping by <br> boundaries so that
+  // comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" stay as
+  // one entry rather than being split per <a> tag.
+  const items: string[] = [];
+  let current = "";
+  for (const node of cell.childNodes) {
+    if (node.nodeType === 1) {
+      const el = node as unknown as HTMLElement;
+      if (el.tagName === "BR") {
+        const trimmed = current.replace(/\s+/g, " ").trim();
+        if (trimmed) items.push(trimmed);
+        current = "";
+      } else if (!el.getAttribute("href")?.startsWith("/File:")) {
+        current += el.text ?? "";
+      }
+    } else if (node.nodeType === 3) {
+      current += node.text;
+    }
+  }
+  const trimmed = current.replace(/\s+/g, " ").trim();
+  if (trimmed) items.push(trimmed);
   return items;
 }
 

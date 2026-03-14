@@ -137,21 +137,36 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // Energy / Health
       const [energy, health] = idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
 
-      // Used In — one <a> tag per item; check the immediately following text
-      // node for qualifiers like "(loved gift)" and append if present.
+      // Used In — split on real line boundaries (<li> or <br>) so that
+      // comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" remain
+      // a single entry rather than being split per <a> tag.
       const usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
         const usedInCell = cells[idxUsedIn]!;
-        for (const link of usedInCell.querySelectorAll("a")) {
-          if (link.getAttribute("href")?.startsWith("/File:")) continue;
-          let text = link.text.replace(/\s+/g, " ").trim();
-          if (!text) continue;
-          const next = link.nextSibling;
-          if (next && next.nodeType === 3) {
-            const trailing = next.text.replace(/\s+/g, " ").trim();
-            if (trailing) text += " " + trailing;
+        const listItems = usedInCell.querySelectorAll("li");
+        if (listItems.length > 0) {
+          for (const li of listItems) {
+            const text = li.text.replace(/\s+/g, " ").trim();
+            if (text) usedIn.push(text);
           }
-          usedIn.push(text);
+        } else {
+          let current = "";
+          for (const node of usedInCell.childNodes) {
+            if (node.nodeType === 1) {
+              const el = node as HTMLElement;
+              if (el.tagName === "BR") {
+                const trimmed = current.replace(/\s+/g, " ").trim();
+                if (trimmed) usedIn.push(trimmed);
+                current = "";
+              } else if (!el.getAttribute("href")?.startsWith("/File:")) {
+                current += el.text ?? "";
+              }
+            } else if (node.nodeType === 3) {
+              current += node.text;
+            }
+          }
+          const trimmed = current.replace(/\s+/g, " ").trim();
+          if (trimmed) usedIn.push(trimmed);
         }
       }
 
