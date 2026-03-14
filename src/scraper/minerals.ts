@@ -62,13 +62,15 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
 
   const minerals: Omit<MineralRow, "id" | "last_updated">[] = [];
 
-  // Map H2 heading text → category name
-  const CATEGORY_MAP: Record<string, string> = {
+  // Stop scraping when we hit these non-data H2 headings
+  const STOP_HEADINGS = new Set(["History", "References", "See also", "Navigation", "Notes"]);
+
+  // Singularize common plural section names for cleaner category labels
+  const CATEGORY_NAMES: Record<string, string> = {
     "Foraged Minerals": "Foraged Mineral",
     "Gems": "Gem",
     "Geodes": "Geode",
   };
-  const KNOWN_CATEGORIES = new Set(Object.keys(CATEGORY_MAP));
 
   let currentCategory: string | null = null;
 
@@ -80,12 +82,9 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
     // ── Section heading ───────────────────────────────────────────────────────
     if (tag === "H2") {
       const text = (el.querySelector(".mw-headline") ?? el).text.trim();
-      if (KNOWN_CATEGORIES.has(text)) {
-        currentCategory = CATEGORY_MAP[text]!;
-      } else if (currentCategory !== null) {
-        // We've passed the last known section — stop processing
-        break;
-      }
+      if (STOP_HEADINGS.has(text)) break;
+      // Use the mapped name if available, otherwise use the heading text as-is
+      currentCategory = CATEGORY_NAMES[text] ?? text;
       continue;
     }
 
