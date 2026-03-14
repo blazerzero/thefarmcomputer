@@ -1,4 +1,4 @@
-import type { Bundle, BundleItem, BundleRow, Crop, CropRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
+import type { Bundle, BundleItem, BundleRow, Crop, CropRow, Fish, FishRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
 
 const now = () => new Date().toISOString();
 
@@ -41,6 +41,31 @@ export function initDb(sql: SqlStorage): void {
       sell_price_silver  INTEGER,
       sell_price_gold    INTEGER,
       sell_price_iridium INTEGER,
+      image_url          TEXT,
+      wiki_url           TEXT,
+      last_updated       TEXT
+    )
+  `);
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS fish (
+      id                 INTEGER PRIMARY KEY,
+      name               TEXT UNIQUE NOT NULL,
+      category           TEXT,
+      description        TEXT,
+      sell_price         INTEGER,
+      sell_price_silver  INTEGER,
+      sell_price_gold    INTEGER,
+      sell_price_iridium INTEGER,
+      location           TEXT,
+      time               TEXT,
+      seasons            TEXT,
+      weather            TEXT,
+      min_size           INTEGER,
+      max_size           INTEGER,
+      difficulty         INTEGER,
+      behavior           TEXT,
+      base_xp            INTEGER,
       image_url          TEXT,
       wiki_url           TEXT,
       last_updated       TEXT
@@ -222,6 +247,21 @@ export function upsertVillager(
   );
 }
 
+// ── Fish ──────────────────────────────────────────────────────────────────────
+
+export function getFish(sql: SqlStorage, name: string): Fish | null {
+  try {
+    const row = sql
+      .exec("SELECT * FROM fish WHERE name LIKE ? LIMIT 1", `%${name}%`)
+      .one() as unknown as FishRow | null;
+    if (!row) return null;
+    return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };
+  } catch (err) {
+    console.error("DB error in getFish:", err);
+    return null;
+  }
+}
+
 // ── Bundles ───────────────────────────────────────────────────────────────────
 
 export function getBundle(sql: SqlStorage, name: string): Bundle | null {
@@ -235,6 +275,42 @@ export function getBundle(sql: SqlStorage, name: string): Bundle | null {
     console.error("DB error in getBundle:", err);
     return null;
   }
+}
+
+export function upsertFish(sql: SqlStorage, data: Omit<FishRow, "id" | "last_updated">): void {
+  sql.exec(
+    `INSERT INTO fish
+       (name, category, description,
+        sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
+        location, time, seasons, weather,
+        min_size, max_size, difficulty, behavior, base_xp,
+        image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET
+       category           = excluded.category,
+       description        = excluded.description,
+       sell_price         = excluded.sell_price,
+       sell_price_silver  = excluded.sell_price_silver,
+       sell_price_gold    = excluded.sell_price_gold,
+       sell_price_iridium = excluded.sell_price_iridium,
+       location           = excluded.location,
+       time               = excluded.time,
+       seasons            = excluded.seasons,
+       weather            = excluded.weather,
+       min_size           = excluded.min_size,
+       max_size           = excluded.max_size,
+       difficulty         = excluded.difficulty,
+       behavior           = excluded.behavior,
+       base_xp            = excluded.base_xp,
+       image_url          = excluded.image_url,
+       wiki_url           = excluded.wiki_url,
+       last_updated       = excluded.last_updated`,
+    data.name, data.category, data.description,
+    data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
+    data.location, data.time, data.seasons, data.weather,
+    data.min_size, data.max_size, data.difficulty, data.behavior, data.base_xp,
+    data.image_url, data.wiki_url, now(),
+  );
 }
 
 export function upsertBundle(sql: SqlStorage, data: Omit<BundleRow, "id" | "last_updated">): void {
@@ -269,16 +345,22 @@ export function countVillagers(sql: SqlStorage): number {
   return (sql.exec("SELECT COUNT(*) AS n FROM villagers").one() as { n: number } | null)?.n ?? 0;
 }
 
+export function countFish(sql: SqlStorage): number {
+  return (sql.exec("SELECT COUNT(*) AS n FROM fish").one() as { n: number } | null)?.n ?? 0;
+}
+
 // ── Status ─────────────────────────────────────────────────────────────────────
 
 export function getStatus(sql: SqlStorage): {
   cropCount: number;
   villagerCount: number;
   fruitTreeCount: number;
+  fishCount: number;
   bundleCount: number;
   cropsLastUpdated: string | null;
   villagersLastUpdated: string | null;
   fruitTreesLastUpdated: string | null;
+  fishLastUpdated: string | null;
   bundlesLastUpdated: string | null;
 } {
   const cropRow = sql
@@ -290,6 +372,9 @@ export function getStatus(sql: SqlStorage): {
   const fruitTreeRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fruit_trees")
     .one() as { n: number; last_updated: string | null } | null;
+  const fishRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fish")
+    .one() as { n: number; last_updated: string | null } | null;
   const bundleRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM bundles")
     .one() as { n: number; last_updated: string | null } | null;
@@ -297,10 +382,12 @@ export function getStatus(sql: SqlStorage): {
     cropCount: cropRow?.n ?? 0,
     villagerCount: villagerRow?.n ?? 0,
     fruitTreeCount: fruitTreeRow?.n ?? 0,
+    fishCount: fishRow?.n ?? 0,
     bundleCount: bundleRow?.n ?? 0,
     cropsLastUpdated: cropRow?.last_updated ?? null,
     villagersLastUpdated: villagerRow?.last_updated ?? null,
     fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
+    fishLastUpdated: fishRow?.last_updated ?? null,
     bundlesLastUpdated: bundleRow?.last_updated ?? null,
   };
 }

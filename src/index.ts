@@ -1,5 +1,6 @@
 import { handleBundle } from "./commands/bundle";
 import { handleCrop } from "./commands/crop";
+import { handleFish } from "./commands/fish";
 import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleSeason } from "./commands/season";
@@ -7,17 +8,20 @@ import { formatDate } from "./constants";
 import {
   countBundles,
   countCrops,
+  countFish,
   countFruitTrees,
   countVillagers,
   getStatus,
   initDb,
   upsertBundle,
   upsertCrop,
+  upsertFish,
   upsertFruitTree,
   upsertVillager,
 } from "./db";
 import { scrapeBundles } from "./scraper/bundles";
 import { scrapeCrops } from "./scraper/crops";
+import { scrapeFish } from "./scraper/fish";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
@@ -35,6 +39,12 @@ async function refreshFruitTrees(sql: SqlStorage): Promise<number> {
   const trees = await scrapeFruitTrees();
   for (const tree of trees) upsertFruitTree(sql, tree);
   return trees.length;
+}
+
+async function refreshFish(sql: SqlStorage): Promise<number> {
+  const fishList = await scrapeFish();
+  for (const f of fishList) upsertFish(sql, f);
+  return fishList.length;
 }
 
 async function refreshBundles(sql: SqlStorage): Promise<number> {
@@ -65,6 +75,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
     console.error("Villager scrape failed:", err);
   }
   try {
+    const n = await refreshFish(sql);
+    console.log(`Updated ${n} fish`);
+  } catch (err) {
+    console.error("Fish scrape failed:", err);
+  }
+  try {
     const n = await refreshBundles(sql);
     console.log(`Updated ${n} bundles`);
   } catch (err) {
@@ -88,6 +104,9 @@ export class StardewDO implements DurableObject {
     state.blockConcurrencyWhile(async () => {
       if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0 && countFruitTrees(this.sql) === 0 && countBundles(this.sql) === 0) {
         await refreshAll(this.sql);
+      } else if (countFish(this.sql) === 0) {
+        // Fish table was added in a later deploy — populate without full refresh
+        await refreshFish(this.sql);
       }
     });
   }
@@ -114,6 +133,7 @@ export class StardewDO implements DurableObject {
 
       if (commandName === "bundle") return handleBundle(interaction, this.sql);
       if (commandName === "crop") return handleCrop(interaction, this.sql);
+      if (commandName === "fish") return handleFish(interaction, this.sql);
       if (commandName === "fruit-tree") return handleFruitTree(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
       if (commandName === "season") return handleSeason(interaction, this.sql);
@@ -137,6 +157,11 @@ export class StardewDO implements DurableObject {
                   {
                     name: "Fruit Trees",
                     value: `${s.fruitTreeCount} in database\nLast updated: ${fmt(s.fruitTreesLastUpdated)}`,
+                    inline: true,
+                  },
+                  {
+                    name: "Fish",
+                    value: `${s.fishCount} in database\nLast updated: ${fmt(s.fishLastUpdated)}`,
                     inline: true,
                   },
                   {

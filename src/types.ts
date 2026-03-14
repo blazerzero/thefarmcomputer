@@ -76,6 +76,30 @@ export interface FruitTreeRow {
 /** A fruit tree row (no JSON fields to decode). */
 export interface FruitTree extends FruitTreeRow {}
 
+/** A fish row as stored in D1. */
+export interface FishRow {
+  id?: number;
+  name: string;
+  category: string;             // "Fishing Pole" | "Night Market" | "Legendary" | "Legendary II" | "Crab Pot"
+  description: string | null;
+  sell_price: number | null;
+  sell_price_silver: number | null;
+  sell_price_gold: number | null;
+  sell_price_iridium: number | null;
+  location: string | null;
+  time: string | null;          // "Anytime" or e.g. "6am – 7pm"
+  seasons: string;              // JSON array string, e.g. '["Summer","Fall"]'
+  weather: string | null;       // "Any" | "Sun" | "Rain" etc.
+  min_size: number | null;
+  max_size: number | null;
+  difficulty: number | null;
+  behavior: string | null;      // "dart" | "mixed" | "smooth" | "sinker" | "floater"
+  base_xp: number | null;
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
 /** A single item required by a Community Center bundle. */
 export interface BundleItem {
   name: string;
@@ -94,6 +118,11 @@ export interface BundleRow {
   image_url: string | null;
   wiki_url: string;
   last_updated: string;
+}
+
+/** A fish row with seasons already decoded. */
+export interface Fish extends Omit<FishRow, "seasons"> {
+  seasons: string[];
 }
 
 /** A bundle row with items already decoded. */
