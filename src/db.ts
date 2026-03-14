@@ -1,4 +1,4 @@
-import type { Bundle, BundleItem, BundleRow, Crop, CropRow, Fish, FishRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
+import type { Bundle, BundleItem, BundleRow, Crop, CropRow, Forageable, ForageableRow, Fish, FishRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
 
 const now = () => new Date().toISOString();
 
@@ -83,6 +83,24 @@ export function initDb(sql: SqlStorage): void {
       image_url      TEXT,
       wiki_url       TEXT,
       last_updated   TEXT
+    )
+  `);
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS forageables (
+      id                 INTEGER PRIMARY KEY,
+      name               TEXT UNIQUE NOT NULL,
+      seasons            TEXT,
+      locations          TEXT,
+      sell_price         INTEGER,
+      sell_price_silver  INTEGER,
+      sell_price_gold    INTEGER,
+      sell_price_iridium INTEGER,
+      energy             INTEGER,
+      health             INTEGER,
+      image_url          TEXT,
+      wiki_url           TEXT,
+      last_updated       TEXT
     )
   `);
 
@@ -335,6 +353,54 @@ export function countBundles(sql: SqlStorage): number {
   return (sql.exec("SELECT COUNT(*) AS n FROM bundles").one() as { n: number } | null)?.n ?? 0;
 }
 
+// ── Forageables ───────────────────────────────────────────────────────────────
+
+export function getForageable(sql: SqlStorage, name: string): Forageable | null {
+  try {
+    const row = sql
+      .exec("SELECT * FROM forageables WHERE name LIKE ? LIMIT 1", `%${name}%`)
+      .one() as unknown as ForageableRow | null;
+    if (!row) return null;
+    return {
+      ...row,
+      seasons:   JSON.parse(row.seasons   || "[]") as string[],
+      locations: JSON.parse(row.locations || "[]") as string[],
+    };
+  } catch (err) {
+    console.error("DB error in getForageable:", err);
+    return null;
+  }
+}
+
+export function upsertForageable(sql: SqlStorage, data: Omit<ForageableRow, "id" | "last_updated">): void {
+  sql.exec(
+    `INSERT INTO forageables
+       (name, seasons, locations,
+        sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
+        energy, health, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET
+       seasons            = excluded.seasons,
+       locations          = excluded.locations,
+       sell_price         = excluded.sell_price,
+       sell_price_silver  = excluded.sell_price_silver,
+       sell_price_gold    = excluded.sell_price_gold,
+       sell_price_iridium = excluded.sell_price_iridium,
+       energy             = excluded.energy,
+       health             = excluded.health,
+       image_url          = excluded.image_url,
+       wiki_url           = excluded.wiki_url,
+       last_updated       = excluded.last_updated`,
+    data.name, data.seasons, data.locations,
+    data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
+    data.energy, data.health, data.image_url, data.wiki_url, now(),
+  );
+}
+
+export function countForageables(sql: SqlStorage): number {
+  return (sql.exec("SELECT COUNT(*) AS n FROM forageables").one() as { n: number } | null)?.n ?? 0;
+}
+
 // ── Counts ────────────────────────────────────────────────────────────────────
 
 export function countCrops(sql: SqlStorage): number {
@@ -357,11 +423,13 @@ export function getStatus(sql: SqlStorage): {
   fruitTreeCount: number;
   fishCount: number;
   bundleCount: number;
+  forageableCount: number;
   cropsLastUpdated: string | null;
   villagersLastUpdated: string | null;
   fruitTreesLastUpdated: string | null;
   fishLastUpdated: string | null;
   bundlesLastUpdated: string | null;
+  forageablesLastUpdated: string | null;
 } {
   const cropRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crops")
@@ -378,16 +446,21 @@ export function getStatus(sql: SqlStorage): {
   const bundleRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM bundles")
     .one() as { n: number; last_updated: string | null } | null;
+  const forageableRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM forageables")
+    .one() as { n: number; last_updated: string | null } | null;
   return {
     cropCount: cropRow?.n ?? 0,
     villagerCount: villagerRow?.n ?? 0,
     fruitTreeCount: fruitTreeRow?.n ?? 0,
     fishCount: fishRow?.n ?? 0,
     bundleCount: bundleRow?.n ?? 0,
+    forageableCount: forageableRow?.n ?? 0,
     cropsLastUpdated: cropRow?.last_updated ?? null,
     villagersLastUpdated: villagerRow?.last_updated ?? null,
     fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
     fishLastUpdated: fishRow?.last_updated ?? null,
     bundlesLastUpdated: bundleRow?.last_updated ?? null,
+    forageablesLastUpdated: forageableRow?.last_updated ?? null,
   };
 }

@@ -130,6 +130,29 @@ export interface Bundle extends Omit<BundleRow, "items"> {
   items: BundleItem[];
 }
 
+/** A forageable item row as stored in D1. */
+export interface ForageableRow {
+  id?: number;
+  name: string;
+  seasons: string;        // JSON array, e.g. '["Spring"]' or '[]' for always available
+  locations: string;      // JSON array, e.g. '["Secret Woods (78%)"]' or '["The Beach"]'
+  sell_price: number | null;
+  sell_price_silver: number | null;
+  sell_price_gold: number | null;
+  sell_price_iridium: number | null;
+  energy: number | null;  // can be negative (e.g. Red Mushroom = -50)
+  health: number | null;  // can be negative
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A forageable item row with seasons and locations already decoded. */
+export interface Forageable extends Omit<ForageableRow, "seasons" | "locations"> {
+  seasons: string[];
+  locations: string[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,
