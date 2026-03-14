@@ -1,4 +1,4 @@
-import type { Bundle, BundleItem, BundleRow, Crop, CropRow, Forageable, ForageableRow, Fish, FishRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
+import type { Bundle, BundleItem, BundleRow, Crop, CropRow, Forageable, ForageableRow, Fish, FishRow, FruitTree, FruitTreeRow, Mineral, MineralRow, Villager, VillagerRow } from "./types";
 
 const now = () => new Date().toISOString();
 
@@ -102,6 +102,22 @@ export function initDb(sql: SqlStorage): void {
       image_url          TEXT,
       wiki_url           TEXT,
       last_updated       TEXT
+    )
+  `);
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS minerals (
+      id                    INTEGER PRIMARY KEY,
+      name                  TEXT UNIQUE NOT NULL,
+      category              TEXT,
+      description           TEXT,
+      sell_price            INTEGER,
+      sell_price_gemologist INTEGER,
+      source                TEXT,
+      used_in               TEXT,
+      image_url             TEXT,
+      wiki_url              TEXT,
+      last_updated          TEXT
     )
   `);
 
@@ -404,6 +420,46 @@ export function countForageables(sql: SqlStorage): number {
   return (sql.exec("SELECT COUNT(*) AS n FROM forageables").one() as { n: number } | null)?.n ?? 0;
 }
 
+// ── Minerals ──────────────────────────────────────────────────────────────────
+
+export function getMineral(sql: SqlStorage, name: string): Mineral | null {
+  try {
+    const row = sql
+      .exec("SELECT * FROM minerals WHERE name LIKE ? LIMIT 1", `%${name}%`)
+      .one() as unknown as MineralRow | null;
+    if (!row) return null;
+    return {
+      ...row,
+      used_in: JSON.parse(row.used_in || "[]") as string[],
+    };
+  } catch (err) {
+    console.error("DB error in getMineral:", err);
+    return null;
+  }
+}
+
+export function upsertMineral(sql: SqlStorage, data: Omit<MineralRow, "id" | "last_updated">): void {
+  sql.exec(
+    `INSERT INTO minerals
+       (name, category, description, sell_price, sell_price_gemologist,
+        source, used_in, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET
+       category              = excluded.category,
+       description           = excluded.description,
+       sell_price            = excluded.sell_price,
+       sell_price_gemologist = excluded.sell_price_gemologist,
+       source                = excluded.source,
+       used_in               = excluded.used_in,
+       image_url             = excluded.image_url,
+       wiki_url              = excluded.wiki_url,
+       last_updated          = excluded.last_updated`,
+    data.name, data.category, data.description, data.sell_price, data.sell_price_gemologist,
+    data.source, data.used_in, data.image_url, data.wiki_url, now(),
+  );
+}
+
+
 // ── Counts ────────────────────────────────────────────────────────────────────
 
 export function countCrops(sql: SqlStorage): number {
@@ -418,6 +474,10 @@ export function countFish(sql: SqlStorage): number {
   return (sql.exec("SELECT COUNT(*) AS n FROM fish").one() as { n: number } | null)?.n ?? 0;
 }
 
+export function countMinerals(sql: SqlStorage): number {
+  return (sql.exec("SELECT COUNT(*) AS n FROM minerals").one() as { n: number } | null)?.n ?? 0;
+}
+
 // ── Status ─────────────────────────────────────────────────────────────────────
 
 export function getStatus(sql: SqlStorage): {
@@ -427,12 +487,14 @@ export function getStatus(sql: SqlStorage): {
   fishCount: number;
   bundleCount: number;
   forageableCount: number;
+  mineralCount: number;
   cropsLastUpdated: string | null;
   villagersLastUpdated: string | null;
   fruitTreesLastUpdated: string | null;
   fishLastUpdated: string | null;
   bundlesLastUpdated: string | null;
   forageablesLastUpdated: string | null;
+  mineralsLastUpdated: string | null;
 } {
   const cropRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crops")
@@ -452,6 +514,9 @@ export function getStatus(sql: SqlStorage): {
   const forageableRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM forageables")
     .one() as { n: number; last_updated: string | null } | null;
+  const mineralRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM minerals")
+    .one() as { n: number; last_updated: string | null } | null;
   return {
     cropCount: cropRow?.n ?? 0,
     villagerCount: villagerRow?.n ?? 0,
@@ -459,11 +524,13 @@ export function getStatus(sql: SqlStorage): {
     fishCount: fishRow?.n ?? 0,
     bundleCount: bundleRow?.n ?? 0,
     forageableCount: forageableRow?.n ?? 0,
+    mineralCount: mineralRow?.n ?? 0,
     cropsLastUpdated: cropRow?.last_updated ?? null,
     villagersLastUpdated: villagerRow?.last_updated ?? null,
     fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
     fishLastUpdated: fishRow?.last_updated ?? null,
     bundlesLastUpdated: bundleRow?.last_updated ?? null,
     forageablesLastUpdated: forageableRow?.last_updated ?? null,
+    mineralsLastUpdated: mineralRow?.last_updated ?? null,
   };
 }

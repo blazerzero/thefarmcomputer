@@ -155,6 +155,26 @@ export interface Forageable extends Omit<ForageableRow, "seasons" | "locations" 
   used_in: string[];
 }
 
+/** A mineral row as stored in SQLite. */
+export interface MineralRow {
+  id?: number;
+  name: string;
+  category: string;                    // "Foraged Mineral" | "Gem" | "Geode"
+  description: string | null;
+  sell_price: number | null;
+  sell_price_gemologist: number | null; // null for Geodes (no Gemologist bonus)
+  source: string | null;
+  used_in: string;                      // JSON array of item/recipe names
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A mineral row with used_in already decoded. */
+export interface Mineral extends Omit<MineralRow, "used_in"> {
+  used_in: string[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,
