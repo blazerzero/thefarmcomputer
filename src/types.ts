@@ -130,6 +130,24 @@ export interface Bundle extends Omit<BundleRow, "items"> {
   items: BundleItem[];
 }
 
+/** A mineral row as stored in SQLite. */
+export interface MineralRow {
+  id?: number;
+  name: string;
+  category: string;                    // "Foraged Mineral" | "Gem" | "Geode"
+  description: string | null;
+  sell_price: number | null;
+  sell_price_gemologist: number | null; // null for Geodes (no Gemologist bonus)
+  source: string | null;
+  used_in: string | null;
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A mineral row (no JSON fields to decode). */
+export interface Mineral extends MineralRow {}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,
