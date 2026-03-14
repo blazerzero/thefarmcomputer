@@ -10,6 +10,8 @@ A Discord bot that provides real-time Stardew Valley game data lookups, powered 
 | `/gift <villager>` | Look up a villager's gift preferences (loved, liked, neutral, disliked, hated) and birthday |
 | `/season <season>` | List all crops available in Spring, Summer, Fall, or Winter |
 | `/fruit-tree <name>` | Look up a fruit tree — harvest season, growth time, sapling price, and sell prices by quality |
+| `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
+| `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health, and sell prices by quality |
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |
 | `/mineral <name>` | Look up a mineral — category, sell price, Gemologist sell price, source, and uses |
 | `/info` | Show the bot's data freshness and record counts |
@@ -69,7 +71,7 @@ yarn deploy
 ## Architecture
 
 - **Cloudflare Workers** — serverless request handling and Discord interaction verification
-- **Durable Objects + SQLite** — persistent storage for crop, villager, bundle, fruit tree, fish, and mineral data
+- **Durable Objects + SQLite** — persistent storage for crop, fish, forageable, mineral, villager, bundle, and fruit tree data
 - **Wiki scraper** — fetches and parses data from stardewvalleywiki.com on startup and weekly via cron
 
 ## License

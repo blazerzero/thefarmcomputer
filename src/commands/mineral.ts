@@ -39,8 +39,12 @@ export function handleMineral(
     fields.push({ name: "Source", value: mineral.source, inline: false });
   }
 
-  if (mineral.used_in) {
-    fields.push({ name: "Used In", value: mineral.used_in, inline: false });
+  if (mineral.used_in.length > 0) {
+    fields.push({
+      name: "Used In",
+      value: mineral.used_in.map((u) => `• ${u}`).join("\n").slice(0, 1024),
+      inline: false,
+    });
   }
 
   const embed: Record<string, unknown> = {

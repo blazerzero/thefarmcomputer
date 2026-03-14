@@ -92,6 +92,20 @@ const commands = [
     ],
   },
   {
+    name: "forage",
+    description: "Look up info about a forageable item in Stardew Valley.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Item name (e.g. Daffodil, Nautilus Shell, Red Mushroom)",
+        required: true,
+      },
+    ],
+  },
+  {
     name: "bundle",
     description: "Look up the items required for a Community Center bundle.",
     integration_types: [0, 1],
