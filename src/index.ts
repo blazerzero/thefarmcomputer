@@ -4,6 +4,7 @@ import { handleFish } from "./commands/fish";
 import { handleForage } from "./commands/forage";
 import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
+import { handleMineral } from "./commands/mineral";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
 import {
@@ -12,6 +13,7 @@ import {
   countFish,
   countForageables,
   countFruitTrees,
+  countMinerals,
   countVillagers,
   getStatus,
   initDb,
@@ -20,6 +22,7 @@ import {
   upsertFish,
   upsertForageable,
   upsertFruitTree,
+  upsertMineral,
   upsertVillager,
 } from "./db";
 import { scrapeBundles } from "./scraper/bundles";
@@ -27,6 +30,7 @@ import { scrapeCrops } from "./scraper/crops";
 import { scrapeFish } from "./scraper/fish";
 import { scrapeForageables } from "./scraper/forageables";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
+import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
@@ -61,6 +65,12 @@ async function refreshForageables(sql: SqlStorage): Promise<number> {
   const items = await scrapeForageables();
   for (const item of items) upsertForageable(sql, item);
   return items.length;
+}
+
+async function refreshMinerals(sql: SqlStorage): Promise<number> {
+  const minerals = await scrapeMinerals();
+  for (const m of minerals) upsertMineral(sql, m);
+  return minerals.length;
 }
 
 async function refreshAll(sql: SqlStorage): Promise<void> {
@@ -102,6 +112,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
   } catch (err) {
     console.error("Forageables scrape failed:", err);
   }
+  try {
+    const n = await refreshMinerals(sql);
+    console.log(`Updated ${n} minerals`);
+  } catch (err) {
+    console.error("Mineral scrape failed:", err);
+  }
   console.log("Wiki refresh complete");
 }
 
@@ -126,6 +142,9 @@ export class StardewDO implements DurableObject {
       } else if (countForageables(this.sql) === 0) {
         // Forageables table was added in a later deploy — populate without full refresh
         await refreshForageables(this.sql);
+      } else if (countMinerals(this.sql) === 0) {
+        // Minerals table was added in a later deploy — populate without full refresh
+        await refreshMinerals(this.sql);
       }
     });
   }
@@ -156,6 +175,7 @@ export class StardewDO implements DurableObject {
       if (commandName === "forage") return handleForage(interaction, this.sql);
       if (commandName === "fruit-tree") return handleFruitTree(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
+      if (commandName === "mineral") return handleMineral(interaction, this.sql);
       if (commandName === "season") return handleSeason(interaction, this.sql);
 
       if (commandName === "info") {
@@ -197,6 +217,11 @@ export class StardewDO implements DurableObject {
                   {
                     name: "Forageables",
                     value: `${s.forageableCount} in database\nLast updated: ${fmt(s.forageablesLastUpdated)}`,
+                    inline: true,
+                  },
+                  {
+                    name: "Minerals",
+                    value: `${s.mineralCount} in database\nLast updated: ${fmt(s.mineralsLastUpdated)}`,
                     inline: true,
                   },
                 ],

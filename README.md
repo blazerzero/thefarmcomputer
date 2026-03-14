@@ -13,6 +13,7 @@ A Discord bot that provides real-time Stardew Valley game data lookups, powered 
 | `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
 | `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health, and sell prices by quality |
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |
+| `/mineral <name>` | Look up a mineral — category, sell price, Gemologist sell price, source, and uses |
 | `/info` | Show the bot's data freshness and record counts |
 
 ## Setup
@@ -70,7 +71,7 @@ yarn deploy
 ## Architecture
 
 - **Cloudflare Workers** — serverless request handling and Discord interaction verification
-- **Durable Objects + SQLite** — persistent storage for crop, fish, forageable, villager, bundle, and fruit tree data
+- **Durable Objects + SQLite** — persistent storage for crop, fish, forageable, mineral, villager, bundle, and fruit tree data
 - **Wiki scraper** — fetches and parses data from stardewvalleywiki.com on startup and weekly via cron
 
 ## License

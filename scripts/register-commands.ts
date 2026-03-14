@@ -120,6 +120,20 @@ const commands = [
     ],
   },
   {
+    name: "mineral",
+    description: "Look up info about a Stardew Valley mineral.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Mineral name (e.g. Quartz, Emerald, Frozen Geode)",
+        required: true,
+      },
+    ],
+  },
+  {
     name: "info",
     description: "Show the bot's data freshness and record counts.",
     integration_types: [0, 1],
