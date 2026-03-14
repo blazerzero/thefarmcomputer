@@ -98,6 +98,7 @@ export async function scrapeFish(): Promise<Omit<FishRow, "id" | "last_updated">
     // ── Section heading ───────────────────────────────────────────────────────
     if (tag === "H2" || tag === "H3") {
       const text = (el.querySelector(".mw-headline") ?? el).text.trim();
+      if (text.includes("Other Catchables")) break; // stop — these aren't fish
       if (text.includes("Legendary Fish II")) {
         currentCategory = "Legendary II";
       } else if (text.includes("Legendary Fish")) {
