@@ -81,7 +81,7 @@ export function handleForage(
         ? [
             {
               name: "Used In",
-              value: item.used_in.join(", ").slice(0, 1024),
+              value: item.used_in.map((u) => `• ${u}`).join("\n").slice(0, 1024),
               inline: false,
             },
           ]
