@@ -1,4 +1,4 @@
-import type { Crop, CropRow, Fish, FishRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
+import type { Bundle, BundleItem, BundleRow, Crop, CropRow, Fish, FishRow, FruitTree, FruitTreeRow, Villager, VillagerRow } from "./types";
 
 const now = () => new Date().toISOString();
 
@@ -69,6 +69,20 @@ export function initDb(sql: SqlStorage): void {
       image_url          TEXT,
       wiki_url           TEXT,
       last_updated       TEXT
+    )
+  `);
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS bundles (
+      id             INTEGER PRIMARY KEY,
+      name           TEXT UNIQUE NOT NULL,
+      room           TEXT NOT NULL,
+      items          TEXT NOT NULL,
+      items_required INTEGER NOT NULL,
+      reward         TEXT NOT NULL,
+      image_url      TEXT,
+      wiki_url       TEXT,
+      last_updated   TEXT
     )
   `);
 
@@ -248,6 +262,21 @@ export function getFish(sql: SqlStorage, name: string): Fish | null {
   }
 }
 
+// ── Bundles ───────────────────────────────────────────────────────────────────
+
+export function getBundle(sql: SqlStorage, name: string): Bundle | null {
+  try {
+    const row = sql
+      .exec("SELECT * FROM bundles WHERE name LIKE ? LIMIT 1", `%${name}%`)
+      .one() as unknown as BundleRow | null;
+    if (!row) return null;
+    return { ...row, items: JSON.parse(row.items || "[]") as BundleItem[] };
+  } catch (err) {
+    console.error("DB error in getBundle:", err);
+    return null;
+  }
+}
+
 export function upsertFish(sql: SqlStorage, data: Omit<FishRow, "id" | "last_updated">): void {
   sql.exec(
     `INSERT INTO fish
@@ -284,6 +313,28 @@ export function upsertFish(sql: SqlStorage, data: Omit<FishRow, "id" | "last_upd
   );
 }
 
+export function upsertBundle(sql: SqlStorage, data: Omit<BundleRow, "id" | "last_updated">): void {
+  sql.exec(
+    `INSERT INTO bundles
+       (name, room, items, items_required, reward, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET
+       room           = excluded.room,
+       items          = excluded.items,
+       items_required = excluded.items_required,
+       reward         = excluded.reward,
+       image_url      = excluded.image_url,
+       wiki_url       = excluded.wiki_url,
+       last_updated   = excluded.last_updated`,
+    data.name, data.room, data.items, data.items_required,
+    data.reward, data.image_url, data.wiki_url, now(),
+  );
+}
+
+export function countBundles(sql: SqlStorage): number {
+  return (sql.exec("SELECT COUNT(*) AS n FROM bundles").one() as { n: number } | null)?.n ?? 0;
+}
+
 // ── Counts ────────────────────────────────────────────────────────────────────
 
 export function countCrops(sql: SqlStorage): number {
@@ -305,10 +356,12 @@ export function getStatus(sql: SqlStorage): {
   villagerCount: number;
   fruitTreeCount: number;
   fishCount: number;
+  bundleCount: number;
   cropsLastUpdated: string | null;
   villagersLastUpdated: string | null;
   fruitTreesLastUpdated: string | null;
   fishLastUpdated: string | null;
+  bundlesLastUpdated: string | null;
 } {
   const cropRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crops")
@@ -322,14 +375,19 @@ export function getStatus(sql: SqlStorage): {
   const fishRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fish")
     .one() as { n: number; last_updated: string | null } | null;
+  const bundleRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM bundles")
+    .one() as { n: number; last_updated: string | null } | null;
   return {
     cropCount: cropRow?.n ?? 0,
     villagerCount: villagerRow?.n ?? 0,
     fruitTreeCount: fruitTreeRow?.n ?? 0,
     fishCount: fishRow?.n ?? 0,
+    bundleCount: bundleRow?.n ?? 0,
     cropsLastUpdated: cropRow?.last_updated ?? null,
     villagersLastUpdated: villagerRow?.last_updated ?? null,
     fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
     fishLastUpdated: fishRow?.last_updated ?? null,
+    bundlesLastUpdated: bundleRow?.last_updated ?? null,
   };
 }

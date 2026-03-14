@@ -1,5 +1,5 @@
-import { parse } from "node-html-parser";
 import type { HTMLElement } from "node-html-parser";
+import { parse } from "node-html-parser";
 import type { FishRow } from "../types";
 import { fetchPage } from "./wiki";
 
@@ -62,7 +62,7 @@ function parseTime(cell: HTMLElement): string {
 function parseSize(cell: HTMLElement | null): [number | null, number | null] {
   if (!cell) return [null, null];
   const text = cell.text.trim();
-  const range = text.match(/(\d+)\s*[–\-]\s*(\d+)/);
+  const range = text.match(/(\d+)\s*[–-]\s*(\d+)/);
   if (range) return [parseInt(range[1]!, 10), parseInt(range[2]!, 10)];
   const single = text.match(/^(\d+)$/);
   if (single) {

@@ -5,6 +5,7 @@ export interface Env {
   DISCORD_PUBLIC_KEY: string;
   DISCORD_TOKEN: string;
   BOT_OWNER_TOKEN: string;
+  OVERRIDE_DISCORD_AUTH?: string;  // For testing: if set to true, skip signature verification and auth checks.
 }
 
 /** A crop row as stored in D1. */
@@ -99,9 +100,34 @@ export interface FishRow {
   last_updated: string;
 }
 
+/** A single item required by a Community Center bundle. */
+export interface BundleItem {
+  name: string;
+  quantity: number;
+  quality?: "Silver" | "Gold";
+}
+
+/** A bundle row as stored in D1. */
+export interface BundleRow {
+  id?: number;
+  name: string;
+  room: string;
+  items: string;          // JSON array of BundleItem
+  items_required: number; // may be less than items.length for choice bundles
+  reward: string;
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
 /** A fish row with seasons already decoded. */
 export interface Fish extends Omit<FishRow, "seasons"> {
   seasons: string[];
+}
+
+/** A bundle row with items already decoded. */
+export interface Bundle extends Omit<BundleRow, "items"> {
+  items: BundleItem[];
 }
 
 /** Discord interaction types. */
