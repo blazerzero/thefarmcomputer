@@ -131,20 +131,22 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // Energy / Health
       const [energy, health] = idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
 
-      // Used In — split on <br> tags first so each entry (including trailing
-      // plain text like "(loved gift)") is captured whole, not just link text.
+      // Used In — one <a> tag per item; check the immediately following text
+      // node for qualifiers like "(loved gift)" and append if present.
       const usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
         const usedInCell = cells[idxUsedIn]!;
-        // Replace <br> with \n, then strip remaining tags with regex so the
-        // injected \n separators aren't collapsed by an HTML parser's text getter.
-        const rawText = usedInCell.innerHTML
-          .replace(/<br\s*\/?>/gi, "\n")
-          .replace(/<[^>]+>/g, "")
-          .replace(/&amp;/g, "&")
-          .replace(/&nbsp;/g, " ");
-        const lines = parseLocations(rawText).filter((s) => s !== "—");
-        usedIn.push(...lines);
+        for (const link of usedInCell.querySelectorAll("a")) {
+          if (link.getAttribute("href")?.startsWith("/File:")) continue;
+          let text = link.text.replace(/\s+/g, " ").trim();
+          if (!text) continue;
+          const next = link.nextSibling;
+          if (next && next.nodeType === 3) {
+            const trailing = next.text.replace(/\s+/g, " ").trim();
+            if (trailing) text += " " + trailing;
+          }
+          usedIn.push(text);
+        }
       }
 
       // Seasons and locations depending on context
