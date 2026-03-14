@@ -4,16 +4,6 @@ import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
 
-// Room headings as they appear on the wiki page
-const ROOMS = [
-  "Crafts Room",
-  "Pantry",
-  "Fish Tank",
-  "Boiler Room",
-  "Bulletin Board",
-  "Vault",
-];
-
 function parseQuantity(text: string, itemName: string): number {
   // Look for "(N)" after the item name in the cell text, e.g. "Wood (99)"
   const escaped = itemName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -27,6 +17,11 @@ function parseRewardQty(text: string, itemName: string): string {
   const afterName = text.replace(escaped, "");
   const m = afterName.match(/\((\d[\d,]*)\)/);
   return m ? m[1]! : "1";
+}
+
+function parseGoldCost(text: string): number | null {
+  const m = text.match(/(\d[\d,]*)\s*g\b/i);
+  return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
 }
 
 function detectQuality(cellText: string, imgAlts: string[]): BundleItem["quality"] {
@@ -48,19 +43,16 @@ export async function scrapeBundles(): Promise<Omit<BundleRow, "id" | "last_upda
   let currentRoom = "";
 
   // Walk room headings and wikitables in document order
-  const elements = content.querySelectorAll("h2, table.wikitable");
+  const elements = content.querySelectorAll("h3, table.wikitable");
 
   for (const el of elements) {
     // ── Room heading ────────────────────────────────────────────────────────
-    if (el.tagName === "H2") {
+    if (el.tagName === "H3") {
       const text = el.querySelector(".mw-headline")?.text.trim() ?? el.text.trim();
-      const matched = ROOMS.find((r) => text.includes(r));
-      if (matched) currentRoom = matched;
-      continue;
+      currentRoom = text;
     }
 
     if (!currentRoom) continue;
-
     const rows = el.querySelectorAll(":scope > tbody > tr");
     if (rows.length < 2) continue;
 
@@ -115,6 +107,19 @@ export async function scrapeBundles(): Promise<Omit<BundleRow, "id" | "last_upda
             const qty = parseRewardQty(td.text.replace(/\s+/g, " ").trim(), rewardName);
             reward = qty === "1" ? rewardName : `${rewardName} (${qty})`;
             break;
+          }
+        }
+        continue;
+      }
+
+      // ── Vault: gold purchase row ────────────────────────────────────────────
+      if (currentRoom === "Vault") {
+        for (const td of tds) {
+          if (td.getAttribute("rowspan")) continue; // skip bundle image cell
+          const tdText = td.text.replace(/\s+/g, " ").trim();
+          const goldCost = parseGoldCost(tdText);
+          if (goldCost !== null && goldCost > 0 && items.length === 0) {
+            items.push({ name: "Gold", quantity: goldCost });
           }
         }
         continue;

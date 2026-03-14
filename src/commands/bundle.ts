@@ -1,4 +1,4 @@
-import { DEFAULT_COLOR } from "../constants";
+import { DEFAULT_COLOR, formatDate } from "../constants";
 import { getBundle } from "../db";
 import { InteractionResponseType } from "../types";
 
@@ -31,17 +31,22 @@ export function handleBundle(
     });
   }
 
+  const isVault = bundle.room === "Vault";
   const isChoice = bundle.items_required < bundle.items.length;
 
-  const itemLines = bundle.items.map((item) => {
-    const qty = item.quantity > 1 ? ` ×${item.quantity.toLocaleString()}` : "";
-    const quality = item.quality ? ` (${item.quality}+)` : "";
-    return `• ${item.name}${qty}${quality}`;
-  });
+  const itemLines = isVault
+    ? bundle.items.map((item) => `• ${item.quantity.toLocaleString()}g`)
+    : bundle.items.map((item) => {
+        const qty = item.quantity > 1 ? ` ×${item.quantity.toLocaleString()}` : "";
+        const quality = item.quality ? ` (${item.quality}+)` : "";
+        return `• ${item.name}${qty}${quality}`;
+      });
 
-  const itemsFieldName = isChoice
-    ? `Items (choose ${bundle.items_required} of ${bundle.items.length})`
-    : "Items Required";
+  const itemsFieldName = isVault
+    ? "Purchase Cost"
+    : isChoice
+      ? `Items (choose ${bundle.items_required} of ${bundle.items.length})`
+      : "Items Required";
 
   const embed = {
     title: bundle.name,
@@ -53,7 +58,7 @@ export function handleBundle(
       { name: "Reward", value: bundle.reward, inline: true },
       { name: itemsFieldName, value: itemLines.join("\n") || "—" },
     ],
-    footer: { text: "Data from Stardew Valley Wiki" },
+    footer: { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(bundle.last_updated)}` },
   };
 
   return Response.json({
