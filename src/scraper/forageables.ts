@@ -140,33 +140,25 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // Used In — split on real line boundaries (<li> or <br>) so that
       // comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" remain
       // a single entry rather than being split per <a> tag.
-      const usedIn: string[] = [];
+      let usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
         const usedInCell = cells[idxUsedIn]!;
         const listItems = usedInCell.querySelectorAll("li");
         if (listItems.length > 0) {
-          for (const li of listItems) {
-            const text = li.text.replace(/\s+/g, " ").trim();
-            if (text) usedIn.push(text);
-          }
+          usedIn = listItems
+            .map(li => li.text.replace(/\s+/g, " ").trim())
+            .filter(t => t.length > 0);
         } else {
-          let current = "";
-          for (const node of usedInCell.childNodes) {
-            if (node.nodeType === 1) {
-              const el = node as HTMLElement;
-              if (el.tagName === "BR") {
-                const trimmed = current.replace(/\s+/g, " ").trim();
-                if (trimmed) usedIn.push(trimmed);
-                current = "";
-              } else if (!el.getAttribute("href")?.startsWith("/File:")) {
-                current += el.text ?? "";
+          usedIn = usedInCell.innerHTML
+            .split(/<br\s*\/?>/i)
+            .map(seg => {
+              const el = parse(`<span>${seg}</span>`);
+              for (const a of el.querySelectorAll("a") as unknown as HTMLElement[]) {
+                if (a.getAttribute("href")?.startsWith("/File:")) a.remove();
               }
-            } else if (node.nodeType === 3) {
-              current += node.text;
-            }
-          }
-          const trimmed = current.replace(/\s+/g, " ").trim();
-          if (trimmed) usedIn.push(trimmed);
+              return el.text.replace(/\s+/g, " ").trim();
+            })
+            .filter(t => t.length > 0);
         }
       }
 

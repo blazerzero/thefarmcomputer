@@ -22,28 +22,19 @@ function parseUsedIn(cell: HTMLElement): string[] {
       .filter(t => t.length > 0);
   }
 
-  // Otherwise walk child nodes, grouping by <br> boundaries so that
-  // comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" stay as
-  // one entry rather than being split per <a> tag.
-  const items: string[] = [];
-  let current = "";
-  for (const node of cell.childNodes) {
-    if (node.nodeType === 1) {
-      const el = node as unknown as HTMLElement;
-      if (el.tagName === "BR") {
-        const trimmed = current.replace(/\s+/g, " ").trim();
-        if (trimmed) items.push(trimmed);
-        current = "";
-      } else if (!el.getAttribute("href")?.startsWith("/File:")) {
-        current += el.text ?? "";
+  // Split the raw HTML on <br> tags (regardless of nesting depth), then
+  // extract plain text from each segment. This keeps comma-separated names
+  // like "Clint, Dwarf, Emily (Loved Gift)" as a single entry.
+  return cell.innerHTML
+    .split(/<br\s*\/?>/i)
+    .map(seg => {
+      const el = parse(`<span>${seg}</span>`);
+      for (const a of el.querySelectorAll("a") as unknown as HTMLElement[]) {
+        if (a.getAttribute("href")?.startsWith("/File:")) a.remove();
       }
-    } else if (node.nodeType === 3) {
-      current += node.text;
-    }
-  }
-  const trimmed = current.replace(/\s+/g, " ").trim();
-  if (trimmed) items.push(trimmed);
-  return items;
+      return el.text.replace(/\s+/g, " ").trim();
+    })
+    .filter(t => t.length > 0);
 }
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
