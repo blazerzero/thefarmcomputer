@@ -191,37 +191,37 @@ export class StardewDO implements DurableObject {
                 fields: [
                   {
                     name: `Crops: ${s.cropCount}`,
-                    value: `Last updated: ${fmt(s.cropsLastUpdated)}`,
+                    value: `(as of ${fmt(s.cropsLastUpdated)})`,
                     inline: true,
                   },
                   {
                     name: `Fruit Trees: ${s.fruitTreeCount}`,
-                    value: `Last updated: ${fmt(s.fruitTreesLastUpdated)}`,
+                    value: `(as of ${fmt(s.fruitTreesLastUpdated)})`,
                     inline: true,
                   },
                   {
                     name: `Fish: ${s.fishCount}`,
-                    value: `Last updated: ${fmt(s.fishLastUpdated)}`,
+                    value: `(as of ${fmt(s.fishLastUpdated)})`,
                     inline: true,
                   },
                   {
                     name: `Villagers: ${s.villagerCount}`,
-                    value: `Last updated: ${fmt(s.villagersLastUpdated)}`,
+                    value: `(as of ${fmt(s.villagersLastUpdated)})`,
                     inline: true,
                   },
                   {
                     name: `Bundles: ${s.bundleCount}`,
-                    value: `Last updated: ${fmt(s.bundlesLastUpdated)}`,
+                    value: `(as of ${fmt(s.bundlesLastUpdated)})`,
                     inline: true,
                   },
                   {
                     name: `Forageables: ${s.forageableCount}`,
-                    value: `Last updated: ${fmt(s.forageablesLastUpdated)}`,
+                    value: `(as of ${fmt(s.forageablesLastUpdated)})`,
                     inline: true,
                   },
                   {
                     name: `Minerals: ${s.mineralCount}`,
-                    value: `Last updated: ${fmt(s.mineralsLastUpdated)}`,
+                    value: `(as of ${fmt(s.mineralsLastUpdated)})`,
                     inline: true,
                   },
                 ],
