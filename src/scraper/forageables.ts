@@ -1,5 +1,6 @@
 import { HTMLElement, parse } from "node-html-parser";
 import type { ForageableRow } from "../types";
+import { parseCellWithItemList } from "../utils/parsers";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
@@ -137,22 +138,12 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // Energy / Health
       const [energy, health] = idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
 
-      // Used In — one <a> tag per item; check the immediately following text
-      // node for qualifiers like "(loved gift)" and append if present.
-      const usedIn: string[] = [];
+      // Used In — split on real line boundaries (<li> or <br>) so that
+      // comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" remain
+      // a single entry rather than being split per <a> tag.
+      let usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
-        const usedInCell = cells[idxUsedIn]!;
-        for (const link of usedInCell.querySelectorAll("a")) {
-          if (link.getAttribute("href")?.startsWith("/File:")) continue;
-          let text = link.text.replace(/\s+/g, " ").trim();
-          if (!text) continue;
-          const next = link.nextSibling;
-          if (next && next.nodeType === 3) {
-            const trailing = next.text.replace(/\s+/g, " ").trim();
-            if (trailing) text += " " + trailing;
-          }
-          usedIn.push(text);
-        }
+        usedIn = parseCellWithItemList(cells[idxUsedIn]!);
       }
 
       // Seasons and locations depending on context

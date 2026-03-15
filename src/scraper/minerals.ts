@@ -1,6 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { MineralRow } from "../types";
+import { parseCellWithItemList } from "../utils/parsers";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
@@ -11,24 +12,6 @@ function parseSellPrice(cell: HTMLElement): number | null {
   const text = cell.text;
   const m = text.match(/(\d[\d,]*)\s*g/i);
   return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
-}
-
-function parseUsedIn(cell: HTMLElement): string[] {
-  // Walk each <a> tag; check the immediately following text node for qualifiers
-  // like "(Loved Gift)" and append if present — mirrors forageables scraper.
-  const items: string[] = [];
-  for (const link of cell.querySelectorAll("a") as unknown as HTMLElement[]) {
-    if (link.getAttribute("href")?.startsWith("/File:")) continue;
-    let text = link.text.replace(/\s+/g, " ").trim();
-    if (!text) continue;
-    const next = link.nextSibling;
-    if (next && next.nodeType === 3) {
-      const trailing = next.text.replace(/\s+/g, " ").trim();
-      if (trailing) text += " " + trailing;
-    }
-    items.push(text);
-  }
-  return items;
 }
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
@@ -142,11 +125,11 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
 
       // Source
       const sourceCell = get("source");
-      const source = sourceCell ? parseUsedIn(sourceCell) : [];
+      const source = sourceCell ? parseCellWithItemList(sourceCell) : [];
 
       // Used in
       const usedInCell = get("used_in");
-      const usedIn = usedInCell ? parseUsedIn(usedInCell) : [];
+      const usedIn = usedInCell ? parseCellWithItemList(usedInCell) : [];
 
       minerals.push({
         name: mineralName,

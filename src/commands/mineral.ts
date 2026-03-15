@@ -28,7 +28,7 @@ export function handleMineral(
   ];
 
   if (mineral.sell_price !== null) {
-    fields.push({ name: "Sell Price", value: `${mineral.sell_price}g`, inline: true });
+    fields.push({ name: "Sells For", value: `${mineral.sell_price}g`, inline: true });
   }
 
   if (mineral.sell_price_gemologist !== null) {
