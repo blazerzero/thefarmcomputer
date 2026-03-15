@@ -60,6 +60,7 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
       const cells = row.querySelectorAll("td");
       if (cells.length < 1) continue;
 
+      // TODO: Format list-style gift exceptions
       if (cells[1]?.childNodes[0]?.rawTagName === "ul") {
         for (const items of cells[1].querySelectorAll("li")!) {
           const item = items.text.trim();

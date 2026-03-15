@@ -3,7 +3,6 @@ import { getVillager } from "../db";
 import { InteractionResponseType, type Villager } from "../types";
 
 const EMBED_COLOR = 0xe8608a;
-const MAX_ITEMS = 20;
 
 const TIERS: Array<{ key: keyof Villager; label: string }> = [
   { key: "loved_gifts",    label: "❤️ Loved" },
@@ -15,9 +14,7 @@ const TIERS: Array<{ key: keyof Villager; label: string }> = [
 
 function formatList(items: string[]): string {
   if (!items.length) return "—";
-  const shown = items.slice(0, MAX_ITEMS);
-  const extra = items.length > MAX_ITEMS ? ` (+${items.length - MAX_ITEMS} more)` : "";
-  return shown.join(", ") + extra;
+  return items.map((s) => `• ${s}`).join("\n").slice(0, 1024);
 }
 
 export function handleGift(
