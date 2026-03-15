@@ -7,7 +7,7 @@ A Discord bot that provides real-time Stardew Valley game data lookups, powered 
 | Command | Description |
 |---------|-------------|
 | `/crop <name>` | Look up a crop — seasons, growth time, seed price, and sell prices by quality |
-| `/gift <villager>` | Look up a villager's gift preferences (loved, liked, neutral, disliked, hated) and birthday |
+| `/gift <villager> <tier (optional)>` | Look up a villager's gift preferences (loved, liked, neutral, disliked, hated) and birthday |
 | `/season <season>` | List all crops available in Spring, Summer, Fall, or Winter |
 | `/fruit-tree <name>` | Look up a fruit tree — harvest season, growth time, sapling price, and sell prices by quality |
 | `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
