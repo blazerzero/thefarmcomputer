@@ -1,10 +1,19 @@
 import { HTMLElement, parse } from "node-html-parser";
 import type { ForageableRow } from "../types";
-import { parseCellWithItemList } from "../utils/parsers";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
 const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
+
+function parseUsedInCell(cell: HTMLElement): string[] {
+    const items = cell.querySelectorAll(":scope > span, :scope > p");
+    if (items.length > 0) {
+        return items
+            .map(item => item.text.replace(/\s+/g, " ").trim())
+            .filter(t => t.length > 0);
+    }
+    return [];
+}
 
 function parsePrices(text: string): [number | null, number | null, number | null, number | null] {
   // Match all "Xg" values (exclude "g/" patterns like "7.2g/d")
@@ -143,7 +152,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // a single entry rather than being split per <a> tag.
       let usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
-        usedIn = parseCellWithItemList(cells[idxUsedIn]!);
+        usedIn = parseUsedInCell(cells[idxUsedIn]!);
       }
 
       // Seasons and locations depending on context

@@ -1,7 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { MineralRow } from "../types";
-import { parseCellWithItemList } from "../utils/parsers";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
@@ -12,6 +11,29 @@ function parseSellPrice(cell: HTMLElement): number | null {
   const text = cell.text;
   const m = text.match(/(\d[\d,]*)\s*g/i);
   return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
+}
+
+function parseUsedInCell(cell: HTMLElement): string[] {
+    const items = cell.childNodes;
+    const parsedItems: string[] = [];
+    let goToNewline = false;
+    let text = "";
+    items.forEach((item, index) => {
+      if (item.rawTagName === "img") return;
+      if (item.rawTagName && item.rawTagName !== "a") {
+        goToNewline = true;
+        if (item.rawTagName === "br") return;
+      }
+      const itemText = item.text.replace(/\s+/g, " ");
+      text += itemText;
+      console.log(text);
+      if (goToNewline || index === items.length - 1) {
+        if (text.trim()) parsedItems.push(text.trim());
+        text = "";
+        goToNewline = false;
+      }
+    });
+    return parsedItems;
 }
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
@@ -125,11 +147,11 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
 
       // Source
       const sourceCell = get("source");
-      const source = sourceCell ? parseCellWithItemList(sourceCell) : [];
+      const source = sourceCell ? parseUsedInCell(sourceCell) : [];
 
       // Used in
       const usedInCell = get("used_in");
-      const usedIn = usedInCell ? parseCellWithItemList(usedInCell) : [];
+      const usedIn = usedInCell ? parseUsedInCell(usedInCell) : [];
 
       minerals.push({
         name: mineralName,
