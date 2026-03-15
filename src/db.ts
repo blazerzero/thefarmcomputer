@@ -132,10 +132,10 @@ export function initDb(sql: SqlStorage): void {
       disliked_gifts TEXT,
       hated_gifts    TEXT,
       wiki_url       TEXT,
+      image_url      TEXT,
       last_updated   TEXT
     )
   `);
-  sql.exec(`ALTER TABLE villagers ADD COLUMN image_url TEXT`); // Add image_url column to existing instances; ignore error if it already exists
 }
 
 // ── Crops ─────────────────────────────────────────────────────────────────────
