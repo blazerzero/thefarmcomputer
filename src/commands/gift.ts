@@ -24,6 +24,7 @@ export function handleGift(
   const options = (interaction.data as Record<string, unknown>)
     ?.options as Array<{ name: string; value: string }> | undefined;
   const name = options?.find((o) => o.name === "villager")?.value ?? "";
+  const tierFilter = options?.find((o) => o.name === "tier")?.value;
 
   const villager = getVillager(sql, name);
 
@@ -37,7 +38,9 @@ export function handleGift(
     });
   }
 
-  const fields = TIERS.map(({ key, label }) => ({
+  const activeTiers = tierFilter ? TIERS.filter((t) => t.key === tierFilter) : TIERS;
+
+  const fields = activeTiers.map(({ key, label }) => ({
     name: label,
     value: formatList(villager[key] as string[]),
     inline: false,

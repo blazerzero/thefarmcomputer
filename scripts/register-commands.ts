@@ -41,6 +41,19 @@ const commands = [
         description: "Villager name (e.g. Abigail, Harvey, Emily)",
         required: true,
       },
+      {
+        type: 3, // STRING
+        name: "tier",
+        description: "Filter to a specific gift tier",
+        required: false,
+        choices: [
+          { name: "❤️ Loved",    value: "loved_gifts" },
+          { name: "😊 Liked",    value: "liked_gifts" },
+          { name: "😐 Neutral",  value: "neutral_gifts" },
+          { name: "😒 Disliked", value: "disliked_gifts" },
+          { name: "😡 Hated",    value: "hated_gifts" },
+        ],
+      },
     ],
   },
   {
