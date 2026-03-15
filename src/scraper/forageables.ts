@@ -1,4 +1,9 @@
 import { HTMLElement, parse } from "node-html-parser";
+import { rehype } from "rehype";
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
+import remarkStringify from "remark-stringify";
+import strip from "strip-markdown";
 import type { ForageableRow } from "../types";
 import { fetchPage } from "./wiki";
 
@@ -36,6 +41,12 @@ function parseLocations(text: string): string[] {
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 }
+
+const mdEngine = rehype()
+  .use(rehypeParse, { fragment: true })
+  .use(rehypeRemark)
+  .use(remarkStringify)
+  .use(strip, {keep: ["list", "listItem"]})
 
 export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "last_updated">[]> {
   const html = await fetchPage("/Foraging");
@@ -118,7 +129,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
 
       const cellText = (idx: number): string =>
         idx >= 0 && idx < cells.length
-          ? cells[idx]!.text.replace(/\s+/g, " ").trim()
+          ? String(mdEngine.processSync(cells[idx]!.innerHTML)).replaceAll(/\*\s*/gm, "").trim()
           : "";
       
       let imageCell: HTMLElement | null = null;
