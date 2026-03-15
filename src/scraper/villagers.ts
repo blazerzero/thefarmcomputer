@@ -60,11 +60,26 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
       const cells = row.querySelectorAll("td");
       if (cells.length < 1) continue;
 
-      // TODO: Format list-style gift exceptions
       if (cells[1]?.childNodes[0]?.rawTagName === "ul") {
-        for (const items of cells[1].querySelectorAll("li")!) {
-          const item = items.text.trim();
-          if (item) gifts[tier].push(item);
+        const outerUl = cells[1].childNodes[0];
+        const topLevelLis = outerUl.childNodes.filter((n) => n.rawTagName === "li");
+        for (const li of topLevelLis) {
+          const nestedUl = li.childNodes.find((n) => n.rawTagName === "ul");
+          if (nestedUl) {
+            const introText = li.childNodes
+              .filter((n) => n.rawTagName !== "ul")
+              .map((n) => n.text)
+              .join("")
+              .trim();
+            const subItems = nestedUl.childNodes
+              .filter((n) => n.rawTagName === "li")
+              .map((n) => n.text.trim())
+              .filter(Boolean);
+            gifts[tier].push(introText + "\n" + subItems.map((s) => `  • ${s}`).join("\n"));
+          } else {
+            const item = li.text.trim();
+            if (item) gifts[tier].push(item);
+          }
         }
       } else {
         const item = cells[1]?.text.trim();
