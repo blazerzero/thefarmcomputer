@@ -180,7 +180,17 @@ export class StardewDO implements DurableObject {
 
       if (commandName === "info") {
         const s = getStatus(this.sql);
-        const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
+        // const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
+        const lastUpdatedMs = Math.max(
+          s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
+          s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
+          s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
+          s.forageablesLastUpdated ? new Date(s.forageablesLastUpdated).getTime() : 0,
+          s.fruitTreesLastUpdated ? new Date(s.fruitTreesLastUpdated).getTime() : 0,
+          s.mineralsLastUpdated ? new Date(s.mineralsLastUpdated).getTime() : 0,
+          s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
+        )
+        const lastUpdated = lastUpdatedMs ? formatDate(new Date(lastUpdatedMs).toISOString()) : "never";
         return Response.json({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
@@ -191,41 +201,41 @@ export class StardewDO implements DurableObject {
                 fields: [
                   {
                     name: `Crops: ${s.cropCount}`,
-                    value: `(as of ${fmt(s.cropsLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                   {
                     name: `Fruit Trees: ${s.fruitTreeCount}`,
-                    value: `(as of ${fmt(s.fruitTreesLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                   {
                     name: `Fish: ${s.fishCount}`,
-                    value: `(as of ${fmt(s.fishLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                   {
                     name: `Villagers: ${s.villagerCount}`,
-                    value: `(as of ${fmt(s.villagersLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                   {
                     name: `Bundles: ${s.bundleCount}`,
-                    value: `(as of ${fmt(s.bundlesLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                   {
                     name: `Forageables: ${s.forageableCount}`,
-                    value: `(as of ${fmt(s.forageablesLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                   {
                     name: `Minerals: ${s.mineralCount}`,
-                    value: `(as of ${fmt(s.mineralsLastUpdated)})`,
+                    value: "",
                     inline: true,
                   },
                 ],
-                footer: { text: "Wiki data refreshes every Sunday at 8 AM UTC" },
+                footer: { text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC` },
               },
             ],
           },
