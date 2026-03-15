@@ -25,6 +25,7 @@ function parsePrices(text: string): [number | null, number | null, number | null
   const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)].map((m) =>
     parseInt(m[1]!.replace(/,/g, ""), 10),
   );
+  console.log(matches);
   return [matches[0] ?? null, matches[1] ?? null, matches[2] ?? null, matches[3] ?? null];
 }
 
@@ -129,6 +130,11 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
 
       const cellText = (idx: number): string =>
         idx >= 0 && idx < cells.length
+          ? cells[idx]!.text.replace(/\s+/g, " ").trim()
+          : "";
+
+      const cellRichText = (idx: number): string =>
+        idx >= 0 && idx < cells.length
           ? String(mdEngine.processSync(cells[idx]!.innerHTML)).replaceAll(/\*\s*/gm, "").trim()
           : "";
       
@@ -173,7 +179,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       if (currentSeasons !== null) {
         // Seasonal section — "Found" column has the locations
         seasons = currentSeasons;
-        locations = idxFound >= 0 ? parseLocations(cellText(idxFound)) : [];
+        locations = idxFound >= 0 ? parseLocations(cellRichText(idxFound)) : [];
       } else {
         // Location section — optional "Season Found" column
         locations = [currentLocation!];
