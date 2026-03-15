@@ -1,6 +1,11 @@
 import { parse } from "node-html-parser";
-import { fetchPage } from "./wiki";
+import {rehype} from "rehype";
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
+import remarkStringify from "remark-stringify";
+import strip from "strip-markdown";
 import type { VillagerRow } from "../types";
+import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
 const GIFT_TIERS = ["loved", "liked", "neutral", "disliked", "hated"] as const;
@@ -60,27 +65,21 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
       const cells = row.querySelectorAll("td");
       if (cells.length < 1) continue;
 
-      if (cells[1]?.childNodes[0]?.rawTagName === "ul") {
-        const outerUl = cells[1].childNodes[0];
-        const topLevelLis = outerUl.childNodes.filter((n) => n.rawTagName === "li");
-        for (const li of topLevelLis) {
-          const nestedUl = li.childNodes.find((n) => n.rawTagName === "ul");
-          if (nestedUl) {
-            const introText = li.childNodes
-              .filter((n) => n.rawTagName !== "ul")
-              .map((n) => n.text)
-              .join("")
-              .trim();
-            const subItems = nestedUl.childNodes
-              .filter((n) => n.rawTagName === "li")
-              .map((n) => n.text.trim())
-              .filter(Boolean);
-            gifts[tier].push(introText + "\n" + subItems.map((s) => `  • ${s}`).join("\n"));
-          } else {
-            const item = li.text.trim();
-            if (item) gifts[tier].push(item);
-          }
-        }
+      const contentAsList = cells[1]?.querySelector(":scope > ul");
+      if (contentAsList) {
+        const md = rehype()
+          .use(rehypeParse, { fragment: true })
+          .use(rehypeRemark)
+          .use(remarkStringify)
+          .use(strip, {keep: ["list", "listItem"]})
+          .processSync(contentAsList.innerHTML)
+        const text = String(md)
+          .replaceAll(/^\*\s/gm, "")
+          .replaceAll("\\\*", "")
+          .replaceAll(" (except:-", " (except:\n  -")
+          .trim();
+        const items = text.split("\n\n").map(s => s.trim()).filter(s => s);
+        gifts[tier].push(...items);
       } else {
         const item = cells[1]?.text.trim();
         if (item) gifts[tier].push(item);
