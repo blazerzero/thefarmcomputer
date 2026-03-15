@@ -1,5 +1,6 @@
 import { HTMLElement, parse } from "node-html-parser";
 import type { ForageableRow } from "../types";
+import { parseCellWithItemList } from "../utils/parsers";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
@@ -142,24 +143,7 @@ export async function scrapeForageables(): Promise<Omit<ForageableRow, "id" | "l
       // a single entry rather than being split per <a> tag.
       let usedIn: string[] = [];
       if (idxUsedIn >= 0 && idxUsedIn < cells.length) {
-        const usedInCell = cells[idxUsedIn]!;
-        const listItems = usedInCell.querySelectorAll("li");
-        if (listItems.length > 0) {
-          usedIn = listItems
-            .map(li => li.text.replace(/\s+/g, " ").trim())
-            .filter(t => t.length > 0);
-        } else {
-          usedIn = usedInCell.innerHTML
-            .split(/<br\s*\/?>/i)
-            .map(seg => {
-              const el = parse(`<span>${seg}</span>`);
-              for (const a of el.querySelectorAll("a") as unknown as HTMLElement[]) {
-                if (a.getAttribute("href")?.startsWith("/File:")) a.remove();
-              }
-              return el.text.replace(/\s+/g, " ").trim();
-            })
-            .filter(t => t.length > 0);
-        }
+        usedIn = parseCellWithItemList(cells[idxUsedIn]!);
       }
 
       // Seasons and locations depending on context

@@ -1,6 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { MineralRow } from "../types";
+import { parseCellWithItemList } from "../utils/parsers";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
@@ -11,30 +12,6 @@ function parseSellPrice(cell: HTMLElement): number | null {
   const text = cell.text;
   const m = text.match(/(\d[\d,]*)\s*g/i);
   return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
-}
-
-function parseUsedIn(cell: HTMLElement): string[] {
-  // If the cell uses <li> items, those define line boundaries.
-  const listItems = cell.querySelectorAll("li");
-  if (listItems.length > 0) {
-    return (listItems as unknown as HTMLElement[])
-      .map(li => li.text.replace(/\s+/g, " ").trim())
-      .filter(t => t.length > 0);
-  }
-
-  // Split the raw HTML on <br> tags (regardless of nesting depth), then
-  // extract plain text from each segment. This keeps comma-separated names
-  // like "Clint, Dwarf, Emily (Loved Gift)" as a single entry.
-  return cell.innerHTML
-    .split(/<br\s*\/?>/i)
-    .map(seg => {
-      const el = parse(`<span>${seg}</span>`);
-      for (const a of el.querySelectorAll("a") as unknown as HTMLElement[]) {
-        if (a.getAttribute("href")?.startsWith("/File:")) a.remove();
-      }
-      return el.text.replace(/\s+/g, " ").trim();
-    })
-    .filter(t => t.length > 0);
 }
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
@@ -148,11 +125,11 @@ export async function scrapeMinerals(): Promise<Omit<MineralRow, "id" | "last_up
 
       // Source
       const sourceCell = get("source");
-      const source = sourceCell ? parseUsedIn(sourceCell) : [];
+      const source = sourceCell ? parseCellWithItemList(sourceCell) : [];
 
       // Used in
       const usedInCell = get("used_in");
-      const usedIn = usedInCell ? parseUsedIn(usedInCell) : [];
+      const usedIn = usedInCell ? parseCellWithItemList(usedInCell) : [];
 
       minerals.push({
         name: mineralName,
