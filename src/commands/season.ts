@@ -1,6 +1,7 @@
-import { getCropsBySeason } from "../db";
 import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
+import { getCropsBySeason } from "../db";
 import { InteractionResponseType } from "../types";
+import { getOption, notFoundResponse } from "./utils";
 
 const VALID_SEASONS = new Set(["Spring", "Summer", "Fall", "Winter"]);
 
@@ -12,31 +13,17 @@ export function handleSeason(
   interaction: Record<string, unknown>,
   sql: SqlStorage,
 ): Response {
-  const options = (interaction.data as Record<string, unknown>)
-    ?.options as Array<{ name: string; value: string }> | undefined;
-  const raw = options?.find((o) => o.name === "season")?.value ?? "";
+  const raw = getOption(interaction, "season");
   const season = normalize(raw);
 
   if (!VALID_SEASONS.has(season)) {
-    return Response.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `**${raw}** isn't a valid season. Choose from: Spring, Summer, Fall, Winter.`,
-        flags: 64, // ephemeral
-      },
-    });
+    return notFoundResponse(`**${raw}** isn't a valid season. Choose from: Spring, Summer, Fall, Winter.`);
   }
 
   const crops = getCropsBySeason(sql, season);
 
   if (crops.length === 0) {
-    return Response.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `No crops found for **${season}**.`,
-        flags: 64, // ephemeral
-      },
-    });
+    return notFoundResponse(`No crops found for **${season}**.`);
   }
 
   const lines = crops.map((c) => {
@@ -59,15 +46,13 @@ export function handleSeason(
         ]
       : [{ name: "\u200b", value: col1, inline: false }];
 
-  const color = SEASON_COLORS[season] ?? DEFAULT_COLOR;
-
   return Response.json({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
       embeds: [
         {
           title: `${season} Crops (${crops.length})`,
-          color,
+          color: SEASON_COLORS[season] ?? DEFAULT_COLOR,
           fields,
           footer: { text: "Growth shown as days to first harvest. (+N) = regrowth. Sell price is base quality." },
         },

@@ -1,32 +1,23 @@
 import { DEFAULT_COLOR, SEASON_COLORS, formatDate } from "../constants";
 import { getFruitTree } from "../db";
-import { InteractionResponseType } from "../types";
+import { embedResponse, formatPriceTiers, getOption, notFoundResponse } from "./utils";
 
 export function handleFruitTree(
   interaction: Record<string, unknown>,
   sql: SqlStorage,
 ): Response {
-  const options = (interaction.data as Record<string, unknown>)
-    ?.options as Array<{ name: string; value: string }> | undefined;
-  const name = options?.find((o) => o.name === "name")?.value ?? "";
-
+  const name = getOption(interaction, "name");
   const tree = getFruitTree(sql, name);
 
   if (!tree) {
-    return Response.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `No fruit tree named **${name}** found. Check the spelling (e.g. \`Apricot\`, \`Cherry\`, \`Peach\`).`,
-        flags: 64, // ephemeral
-      },
-    });
+    return notFoundResponse(`No fruit tree named **${name}** found. Check the spelling (e.g. \`Apricot\`, \`Cherry\`, \`Peach\`).`);
   }
 
   const color = (tree.season && tree.season in SEASON_COLORS)
     ? SEASON_COLORS[tree.season]!
     : DEFAULT_COLOR;
 
-  const embed = {
+  return embedResponse({
     title: tree.name,
     url: tree.wiki_url,
     color,
@@ -54,25 +45,12 @@ export function handleFruitTree(
       },
       {
         name: "Fruit Sells For",
-        value: [
-          ["Normal",  tree.sell_price],
-          ["Silver",  tree.sell_price_silver],
-          ["Gold",    tree.sell_price_gold],
-          ["Iridium", tree.sell_price_iridium],
-        ]
-          .filter(([, price]) => price != null)
-          .map(([label, price]) => `${label}: ${(price as number).toLocaleString()}g`)
-          .join("\n") || "—",
+        value: formatPriceTiers(tree.sell_price, tree.sell_price_silver, tree.sell_price_gold, tree.sell_price_iridium),
         inline: true,
       },
     ],
     footer: tree.last_updated
       ? { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(tree.last_updated)}` }
       : undefined,
-  };
-
-  return Response.json({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { embeds: [embed] },
   });
 }
