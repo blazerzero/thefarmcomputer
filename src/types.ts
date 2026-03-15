@@ -42,6 +42,7 @@ export interface VillagerRow {
   disliked_gifts: string;
   hated_gifts: string;
   wiki_url: string;
+  image_url: string;
   last_updated: string;
 }
 

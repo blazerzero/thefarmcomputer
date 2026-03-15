@@ -6,10 +6,13 @@ const WIKI_BASE = "https://stardewvalleywiki.com";
 const GIFT_TIERS = ["loved", "liked", "neutral", "disliked", "hated"] as const;
 type GiftTier = (typeof GIFT_TIERS)[number];
 
-// Non-social NPCs whose pages don't have a standard gift table
-const NON_SOCIAL = new Set([
-  "Dwarf", "Krobus", "Sandy", "Marnie", "Pam", "Linus", "Willy", "Leo",
-]);
+const GIFT_HEADING_TO_TIER: Record<string, GiftTier> = {
+  "Love": "loved",
+  "Like": "liked",
+  "Neutral": "neutral",
+  "Dislike": "disliked",
+  "Hate": "hated",
+};
 
 const BATCH_SIZE = 5; // concurrent fetch limit
 
@@ -17,17 +20,18 @@ const BATCH_SIZE = 5; // concurrent fetch limit
 async function scrapeVillagerList(): Promise<Array<[string, string]>> {
   const html = await fetchPage("/Villagers");
   const root = parse(html);
-
   const seen = new Set<string>();
   const result: Array<[string, string]> = [];
 
-  for (const table of root.querySelectorAll("table.wikitable")) {
-    for (const row of table.querySelectorAll("tr")) {
-      const link = row.querySelector("td a, th a");
-      if (!link) continue;
+  const sections = root.querySelectorAll("h2, h3");
+  for (const sec of sections) {
+    if (sec.text === "Non-giftable NPCs") continue; // skip non-social section
+
+    const villagersInSection = sec.querySelectorAll(":scope + ul li div.gallerytext a");
+    for (const link of villagersInSection) {
       const name = link.text.trim();
-      const href = link.getAttribute("href") ?? "";
-      if (name && href.startsWith("/") && !NON_SOCIAL.has(name) && !seen.has(name)) {
+      const href = link.getAttribute("href") ?? `${name}`;
+      if (!seen.has(name)) {
         seen.add(name);
         result.push([name, href]);
       }
@@ -45,62 +49,52 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
     loved: [], liked: [], neutral: [], disliked: [], hated: [],
   };
 
-  // Strategy 1: find a "Gifts" heading, then grab the first table after it
-  const headings = root.querySelectorAll("h2, h3, h4");
-  let giftsTable = null;
+  const headings = root.querySelectorAll("h3");
   for (const heading of headings) {
-    if (heading.text.toLowerCase().includes("gift")) {
-      let sibling = heading.nextElementSibling;
-      while (sibling) {
-        if (sibling.tagName?.match(/^h[2-4]$/i)) break;
-        if (sibling.tagName === "TABLE") { giftsTable = sibling; break; }
-        sibling = sibling.nextElementSibling;
-      }
-      break;
-    }
-  }
+    const headingText = heading.text.trim();
+    if (!["Love", "Like", "Neutral", "Dislike", "Hate"].includes(headingText)) continue; // skip non-gift tables{
+    const tier = GIFT_HEADING_TO_TIER[headingText] as GiftTier;
+    const giftTable = heading.querySelector(":scope ~ table.wikitable")!
 
-  // Strategy 2: any table whose first-column cells contain tier names
-  const candidates = giftsTable ? [giftsTable] : root.querySelectorAll("table");
-  for (const table of candidates) {
-    let matched = false;
-    for (const row of table.querySelectorAll("tr")) {
-      const cells = row.querySelectorAll("td, th");
-      if (cells.length < 2) continue;
-      const tierText = cells[0]!.text.toLowerCase().trim();
-      const tier = GIFT_TIERS.find((t) => tierText.includes(t));
-      if (!tier) continue;
+    for (const row of giftTable.querySelectorAll("tr")) {
+      const cells = row.querySelectorAll("td");
+      if (cells.length < 1) continue;
 
-      // Collect item names from links, or plain text
-      const items: string[] = [];
-      for (const cell of cells.slice(1)) {
-        const links = cell.querySelectorAll("a");
-        if (links.length) {
-          items.push(...links.map((a) => a.text.trim()).filter(Boolean));
-        } else {
-          const raw = cell.text.trim();
-          if (raw) items.push(...raw.split(",").map((s) => s.trim()).filter(Boolean));
+      if (cells[1]?.childNodes[0]?.rawTagName === "ul") {
+        for (const items of cells[1].querySelectorAll("li")!) {
+          const item = items.text.trim();
+          if (item) gifts[tier].push(item);
         }
+      } else {
+        const item = cells[1]?.text.trim();
+        if (item) gifts[tier].push(item);
       }
-      if (items.length) { gifts[tier] = items; matched = true; }
     }
-    if (matched) break;
   }
 
   return gifts;
 }
 
 /** Parse birthday from one villager's HTML page. */
-function parseBirthday(html: string): string {
+function parseVillagerDetails(name: string, html: string): {
+  birthday: string;
+  image_url: string;
+} {
   const root = parse(html);
-  for (const row of root.querySelectorAll("tr")) {
-    const th = row.querySelector("th");
-    if (th && th.text.toLowerCase().includes("birthday")) {
-      const td = row.querySelector("td");
-      if (td) return td.text.replace(/\s+/g, " ").trim();
+  let birthday = "", image_url = "";
+  for (const row of root.querySelectorAll("table#infoboxtable tr")) {
+    const details = row.querySelectorAll("td");
+    for (const detail of details) {
+      if (detail.text.trim().toLowerCase() === "birthday") {
+        const birthdayField = detail.querySelector(":scope + td");
+        if (birthdayField) birthday = birthdayField.text.replace(/\s+/g, " ").trim();
+      } else {
+        const img = detail.querySelector(`:scope img[alt="${name}.png"]`)
+        if (img) image_url = WIKI_BASE + img.getAttribute("src");
+      }
     }
   }
-  return "";
+  return { birthday, image_url };
 }
 
 /** Scrape gift + birthday data for all social villagers. */
@@ -114,7 +108,7 @@ export async function scrapeVillagers(): Promise<Omit<VillagerRow, "id" | "last_
     const settled = await Promise.allSettled(
       batch.map(async ([name, path]) => {
         const html = await fetchPage(path);
-        const birthday = parseBirthday(html);
+        const {birthday, image_url} = parseVillagerDetails(name, html);
         const gifts = parseGifts(html);
         return {
           name,
@@ -125,6 +119,7 @@ export async function scrapeVillagers(): Promise<Omit<VillagerRow, "id" | "last_
           disliked_gifts: JSON.stringify(gifts.disliked),
           hated_gifts:    JSON.stringify(gifts.hated),
           wiki_url:       WIKI_BASE + path,
+          image_url,
         } satisfies Omit<VillagerRow, "id" | "last_updated">;
       }),
     );

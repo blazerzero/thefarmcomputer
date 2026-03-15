@@ -1,3 +1,4 @@
+import { formatDate } from "../constants";
 import { getVillager } from "../db";
 import { InteractionResponseType, type Villager } from "../types";
 
@@ -48,11 +49,12 @@ export function handleGift(
   const embed = {
     title: villager.name,
     url: villager.wiki_url,
+    thumbnail: villager.image_url ? { url: villager.image_url } : undefined,
     color: EMBED_COLOR,
     description: villager.birthday ? `🎂 Birthday: **${villager.birthday}**` : undefined,
     fields,
     footer: villager.last_updated
-      ? { text: `Data from Stardew Valley Wiki • Last updated ${villager.last_updated.slice(0, 10)}` }
+      ? { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(villager.last_updated)}` }
       : undefined,
   };
 

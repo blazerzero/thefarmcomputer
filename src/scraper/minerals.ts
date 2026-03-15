@@ -26,7 +26,6 @@ function parseUsedInCell(cell: HTMLElement): string[] {
       }
       const itemText = item.text.replace(/\s+/g, " ");
       text += itemText;
-      console.log(text);
       if (goToNewline || index === items.length - 1) {
         if (text.trim()) parsedItems.push(text.trim());
         text = "";
