@@ -1,47 +1,21 @@
-import { DEFAULT_COLOR, SEASON_COLORS, formatDate } from "../constants";
+import { formatDate } from "../constants";
 import { getFish } from "../db";
-import { InteractionResponseType } from "../types";
-
-function fishColor(seasons: string[]): number {
-  for (const s of seasons) {
-    if (s in SEASON_COLORS) return SEASON_COLORS[s]!;
-  }
-  return DEFAULT_COLOR;
-}
+import { embedResponse, formatPriceTiers, getOption, notFoundResponse, seasonColor } from "./utils";
 
 export function handleFish(
   interaction: Record<string, unknown>,
   sql: SqlStorage,
 ): Response {
-  const options = (interaction.data as Record<string, unknown>)
-    ?.options as Array<{ name: string; value: string }> | undefined;
-  const name = options?.find((o) => o.name === "name")?.value ?? "";
-
+  const name = getOption(interaction, "name");
   const fish = getFish(sql, name);
 
   if (!fish) {
-    return Response.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `No fish named **${name}** found. Check the spelling (e.g. \`Tuna\`, \`Salmon\`, \`Legend\`).`,
-        flags: 64, // ephemeral
-      },
-    });
+    return notFoundResponse(`No fish named **${name}** found. Check the spelling (e.g. \`Tuna\`, \`Salmon\`, \`Legend\`).`);
   }
 
-  const color = fishColor(fish.seasons);
-
   const fields: { name: string; value: string; inline: boolean }[] = [
-    {
-      name: "Category",
-      value: fish.category,
-      inline: true,
-    },
-    {
-      name: "Season",
-      value: fish.seasons.length ? fish.seasons.join(", ") : "All Seasons",
-      inline: true,
-    },
+    { name: "Category", value: fish.category, inline: true },
+    { name: "Season",   value: fish.seasons.length ? fish.seasons.join(", ") : "All Seasons", inline: true },
   ];
 
   if (fish.location) {
@@ -73,36 +47,20 @@ export function handleFish(
     });
   }
 
-  const sellValue = (
-    [
-      ["Normal", fish.sell_price],
-      ["Silver", fish.sell_price_silver],
-      ["Gold", fish.sell_price_gold],
-      ["Iridium", fish.sell_price_iridium],
-    ] as [string, number | null][]
-  )
-    .filter(([, price]) => price != null)
-    .map(([label, price]) => `${label}: ${(price as number).toLocaleString()}g`)
-    .join("\n");
-
-  if (sellValue) {
+  const sellValue = formatPriceTiers(fish.sell_price, fish.sell_price_silver, fish.sell_price_gold, fish.sell_price_iridium);
+  if (sellValue !== "—") {
     fields.push({ name: "Sells For", value: sellValue, inline: true });
   }
 
-  const embed = {
+  return embedResponse({
     title: fish.name,
     url: fish.wiki_url,
-    color,
+    color: seasonColor(fish.seasons),
     thumbnail: fish.image_url ? { url: fish.image_url } : undefined,
     description: fish.description || undefined,
     fields,
     footer: fish.last_updated
       ? { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(fish.last_updated)}` }
       : undefined,
-  };
-
-  return Response.json({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { embeds: [embed] },
   });
 }

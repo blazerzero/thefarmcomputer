@@ -1,6 +1,7 @@
 import { formatDate } from "../constants";
 import { getVillager } from "../db";
-import { InteractionResponseType, type Villager } from "../types";
+import type { Villager } from "../types";
+import { embedResponse, getOption, notFoundResponse } from "./utils";
 
 const EMBED_COLOR = 0xe8608a;
 
@@ -21,21 +22,16 @@ export function handleGift(
   interaction: Record<string, unknown>,
   sql: SqlStorage,
 ): Response {
-  const options = (interaction.data as Record<string, unknown>)
-    ?.options as Array<{ name: string; value: string }> | undefined;
-  const name = options?.find((o) => o.name === "villager")?.value ?? "";
-  const tierFilter = options?.find((o) => o.name === "tier")?.value;
+  const name = getOption(interaction, "villager");
+  const tierFilter = (
+    (interaction.data as Record<string, unknown>)
+      ?.options as Array<{ name: string; value: string }> | undefined
+  )?.find((o) => o.name === "tier")?.value;
 
   const villager = getVillager(sql, name);
 
   if (!villager) {
-    return Response.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `No villager named **${name}** found. Check the spelling (e.g. \`Abigail\`, \`Harvey\`).`,
-        flags: 64,
-      },
-    });
+    return notFoundResponse(`No villager named **${name}** found. Check the spelling (e.g. \`Abigail\`, \`Harvey\`).`);
   }
 
   const activeTiers = tierFilter ? TIERS.filter((t) => t.key === tierFilter) : TIERS;
@@ -46,7 +42,7 @@ export function handleGift(
     inline: false,
   }));
 
-  const embed = {
+  return embedResponse({
     title: villager.name,
     url: villager.wiki_url,
     thumbnail: villager.image_url ? { url: villager.image_url } : undefined,
@@ -56,10 +52,5 @@ export function handleGift(
     footer: villager.last_updated
       ? { text: `Data from Stardew Valley Wiki • Last updated ${formatDate(villager.last_updated)}` }
       : undefined,
-  };
-
-  return Response.json({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { embeds: [embed] },
   });
 }
