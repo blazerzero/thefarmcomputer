@@ -1,6 +1,11 @@
 import { parse } from "node-html-parser";
-import { fetchPage } from "./wiki";
+import {rehype} from "rehype";
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
+import remarkStringify from "remark-stringify";
+import strip from "strip-markdown";
 import type { VillagerRow } from "../types";
+import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
 const GIFT_TIERS = ["loved", "liked", "neutral", "disliked", "hated"] as const;
@@ -60,12 +65,21 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
       const cells = row.querySelectorAll("td");
       if (cells.length < 1) continue;
 
-      // TODO: Format list-style gift exceptions
-      if (cells[1]?.childNodes[0]?.rawTagName === "ul") {
-        for (const items of cells[1].querySelectorAll("li")!) {
-          const item = items.text.trim();
-          if (item) gifts[tier].push(item);
-        }
+      const contentAsList = cells[1]?.querySelector(":scope > ul");
+      if (contentAsList) {
+        const md = rehype()
+          .use(rehypeParse, { fragment: true })
+          .use(rehypeRemark)
+          .use(remarkStringify)
+          .use(strip, {keep: ["list", "listItem"]})
+          .processSync(contentAsList.innerHTML)
+        const text = String(md)
+          .replaceAll(/^\*\s/gm, "")
+          .replaceAll("\\\*", "")
+          .replaceAll(" (except:-", " (except:\n  -")
+          .trim();
+        const items = text.split("\n\n").map(s => s.trim()).filter(s => s);
+        gifts[tier].push(...items);
       } else {
         const item = cells[1]?.text.trim();
         if (item) gifts[tier].push(item);
