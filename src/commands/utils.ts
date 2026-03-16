@@ -56,3 +56,7 @@ export function formatPriceTiers(
 
 export const renderDotForListContent = (count: number): string =>
   count > 1 ? "•".repeat(count) : "";
+
+/** Prepend bullet dots to each item and join into a Discord embed field value (max 1024 chars). */
+export const renderDotList = (items: string[]): string =>
+  items.map((s, _, { length: n }) => `${renderDotForListContent(n)}${s}`).join("\n").slice(0, 1024);

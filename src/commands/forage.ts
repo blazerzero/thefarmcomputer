@@ -1,6 +1,6 @@
 import { formatDate } from "../constants";
 import { getForageable } from "../db";
-import { embedResponse, formatPriceTiers, getOption, notFoundResponse, renderDotForListContent, seasonColor } from "./utils";
+import { embedResponse, formatPriceTiers, getOption, notFoundResponse, renderDotList, seasonColor } from "./utils";
 
 export function handleForage(
   interaction: Record<string, unknown>,
@@ -19,7 +19,7 @@ export function handleForage(
   const locationsValue =
     item.locations.length === 0
       ? "—"
-      : item.locations.map((l, _, {length: numLocations}) => `${renderDotForListContent(numLocations)}${l}`).join("\n").slice(0, 1024);
+      : renderDotList(item.locations);
 
   const energyHealthValue =
     item.energy != null && item.health != null
@@ -43,7 +43,7 @@ export function handleForage(
       },
       { name: "Energy / Health", value: energyHealthValue, inline: true },
       ...(item.used_in.length > 0
-        ? [{ name: "Used In", value: item.used_in.map((u, _, {length: numUsedIn}) => `${renderDotForListContent(numUsedIn)}${u}`).join("\n").slice(0, 1024), inline: false }]
+        ? [{ name: "Used In", value: renderDotList(item.used_in), inline: false }]
         : []),
     ],
     footer: item.last_updated
