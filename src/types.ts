@@ -1,5 +1,6 @@
 /** Cloudflare Worker environment bindings. */
 export interface Env {
+  ASSETS: Fetcher;
   STARDEW_DO: DurableObjectNamespace;
   DISCORD_APPLICATION_ID: string;
   DISCORD_PUBLIC_KEY: string;

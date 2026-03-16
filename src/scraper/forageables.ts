@@ -25,7 +25,6 @@ function parsePrices(text: string): [number | null, number | null, number | null
   const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)].map((m) =>
     parseInt(m[1]!.replace(/,/g, ""), 10),
   );
-  console.log(matches);
   return [matches[0] ?? null, matches[1] ?? null, matches[2] ?? null, matches[3] ?? null];
 }
 
