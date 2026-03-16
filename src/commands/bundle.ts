@@ -1,6 +1,6 @@
 import { DEFAULT_COLOR, formatDate } from "../constants";
 import { getBundle } from "../db";
-import { embedResponse, getOption, notFoundResponse } from "./utils";
+import { embedResponse, getOption, notFoundResponse, renderDotForListContent } from "./utils";
 
 const ROOM_COLORS: Record<string, number> = {
   "Crafts Room":    0x78b84a,
@@ -26,11 +26,11 @@ export function handleBundle(
   const isChoice = bundle.items_required < bundle.items.length;
 
   const itemLines = isVault
-    ? bundle.items.map((item) => `• ${item.quantity.toLocaleString()}g`)
+    ? bundle.items.map((item, _, {length: numItems}) => `${renderDotForListContent(numItems)}${item.quantity.toLocaleString()}g`)
     : bundle.items.map((item) => {
         const qty = item.quantity > 1 ? ` ×${item.quantity.toLocaleString()}` : "";
         const quality = item.quality ? ` (${item.quality}+)` : "";
-        return `• ${item.name}${qty}${quality}`;
+        return `${renderDotForListContent(bundle.items.length)}${item.name}${qty}${quality}`;
       });
 
   const itemsFieldName = isVault

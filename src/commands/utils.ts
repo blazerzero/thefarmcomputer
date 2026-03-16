@@ -53,3 +53,6 @@ export function formatPriceTiers(
       .join("\n") || "—"
   );
 }
+
+export const renderDotForListContent = (count: number): string =>
+  count > 1 ? "•".repeat(count) : "";

@@ -1,7 +1,7 @@
 import { formatDate } from "../constants";
 import { getVillager } from "../db";
 import type { Villager } from "../types";
-import { embedResponse, getOption, notFoundResponse } from "./utils";
+import { embedResponse, getOption, notFoundResponse, renderDotForListContent } from "./utils";
 
 const EMBED_COLOR = 0xe8608a;
 
@@ -15,7 +15,7 @@ const TIERS: Array<{ key: keyof Villager; label: string }> = [
 
 function formatList(items: string[]): string {
   if (!items.length) return "—";
-  return items.map((s) => `• ${s}`).join("\n").slice(0, 1024);
+  return items.map((s, _, {length: numItems}) => `${renderDotForListContent(numItems)}${s}`).join("\n").slice(0, 1024);
 }
 
 export function handleGift(

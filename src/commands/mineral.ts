@@ -1,6 +1,6 @@
 import { formatDate } from "../constants";
 import { getMineral } from "../db";
-import { embedResponse, getOption, notFoundResponse } from "./utils";
+import { embedResponse, getOption, notFoundResponse, renderDotForListContent } from "./utils";
 
 export function handleMineral(
   interaction: Record<string, unknown>,
@@ -28,7 +28,9 @@ export function handleMineral(
   if (mineral.source.length > 0) {
     fields.push({
       name: "Source",
-      value: mineral.source.map((s) => `• ${s}`).join("\n").slice(0, 1024),
+      value: mineral.source.map(
+        (s, _, {length: numSources}) => `${renderDotForListContent(numSources)}${s}`
+      ).join("\n").slice(0, 1024),
       inline: false,
     });
   }
@@ -36,7 +38,7 @@ export function handleMineral(
   if (mineral.used_in.length > 0) {
     fields.push({
       name: "Used In",
-      value: mineral.used_in.map((u) => `• ${u}`).join("\n").slice(0, 1024),
+      value: mineral.used_in.map((u, _, {length: numUsedIn}) => `${renderDotForListContent(numUsedIn)}${u}`).join("\n").slice(0, 1024),
       inline: false,
     });
   }

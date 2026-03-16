@@ -1,7 +1,7 @@
 import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
 import { getCropsBySeason } from "../db";
 import { InteractionResponseType } from "../types";
-import { getOption, notFoundResponse } from "./utils";
+import { getOption, notFoundResponse, renderDotForListContent } from "./utils";
 
 const VALID_SEASONS = new Set(["Spring", "Summer", "Fall", "Winter"]);
 
@@ -26,11 +26,11 @@ export function handleSeason(
     return notFoundResponse(`No crops found for **${season}**.`);
   }
 
-  const lines = crops.map((c) => {
+  const lines = crops.map((c, _, {length: numCrops}) => {
     const growth = c.growth_days != null ? `${c.growth_days}d` : "?";
     const regrowth = c.regrowth_days != null ? ` (+${c.regrowth_days}d)` : "";
     const price = c.sell_price != null ? ` — ${c.sell_price}g` : "";
-    return `• [${c.name}](${c.wiki_url}) — ${growth}${regrowth} grow${price}`;
+    return `${renderDotForListContent(numCrops)}[${c.name}](${c.wiki_url}) — ${growth}${regrowth} grow${price}`;
   });
 
   // Discord embed field values max out at 1024 chars; split into columns if needed
