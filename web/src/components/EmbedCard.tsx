@@ -58,13 +58,14 @@ function FieldsGrid({ fields }: FieldsGridProps) {
 		}
 	}
 	if (currentRow.length > 0) rows.push(currentRow);
+	const maxColCount = Math.max(...rows.map(r => r.length));
 
 	return (
 		<div className={styles.fields}>
 			{rows.map((row, rowIdx) => (
 				<div
 					key={rowIdx}
-					className={`${styles.fieldsRow} ${colsClass(row.length, row[0]?.inline ?? false)}`}
+					className={`${styles.fieldsRow} ${colsClass(maxColCount, row[0]?.inline ?? false)}`}
 				>
 					{row.map((field, i) => (
 						<div key={i}>
