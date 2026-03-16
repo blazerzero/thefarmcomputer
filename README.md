@@ -1,6 +1,6 @@
 # The Farm Computer
 
-A Discord bot that provides real-time Stardew Valley game data lookups, powered by Cloudflare Workers. It scrapes the [Stardew Valley Wiki](https://stardewvalleywiki.com) and stores data in a SQLite database (via Cloudflare Durable Objects), refreshing automatically every Sunday at 8 AM UTC.
+A Discord bot and web app that provide real-time Stardew Valley game data lookups, powered by Cloudflare Workers. It scrapes the [Stardew Valley Wiki](https://stardewvalleywiki.com) and stores data in a SQLite database (via Cloudflare Durable Objects), refreshing automatically every Sunday at 8 AM UTC.
 
 ## Commands
 
@@ -15,6 +15,12 @@ A Discord bot that provides real-time Stardew Valley game data lookups, powered 
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |
 | `/mineral <name>` | Look up a mineral — category, sell price, Gemologist sell price, source, and uses |
 | `/info` | Show the bot's data freshness and record counts |
+
+## Web App
+
+The web app provides a browser-based interface to the same data as the Discord bot. Type a command (e.g. `crop parsnip` or `gift Penny`) into the search bar and get back the same formatted results, rendered as Discord-style embed cards.
+
+An "Add to Discord" button is also available to install the bot directly from the web.
 
 ## Setup
 
@@ -52,9 +58,19 @@ Global commands can take a few minutes to propagate on Discord.
 
 ### Local Development
 
+Run the Cloudflare Worker backend:
+
 ```bash
 yarn dev
 ```
+
+To also run the web frontend (in a separate terminal):
+
+```bash
+yarn web:dev
+```
+
+The web app runs at `http://localhost:5173` and proxies API requests to the Worker at `http://localhost:8787`.
 
 To bypass Discord signature verification during local development, add the following to your `.dev.vars`:
 
@@ -68,11 +84,18 @@ OVERRIDE_DISCORD_AUTH=true
 yarn deploy
 ```
 
+The web frontend is built and served as a Cloudflare static asset bundle. To build it before deploying:
+
+```bash
+yarn web:build
+```
+
 ## Architecture
 
 - **Cloudflare Workers** — serverless request handling and Discord interaction verification
 - **Durable Objects + SQLite** — persistent storage for crop, fish, forageable, mineral, villager, bundle, and fruit tree data
 - **Wiki scraper** — fetches and parses data from stardewvalleywiki.com on startup and weekly via cron
+- **Web frontend** — React + Vite app served as a Cloudflare static asset bundle; queries the same Worker backend via `/api/query`
 
 ## License
 
