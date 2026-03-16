@@ -2,6 +2,9 @@ name = "thefarmcomputer"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
+[assets]
+directory = "./web/dist"
+
 [observability]
 [observability.logs]
 enabled = true
