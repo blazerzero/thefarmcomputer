@@ -2,12 +2,29 @@
 	display: flex;
 	gap: 0.5rem;
 	width: 100%;
-	max-width: 31.25rem;
+	max-width: 41.25rem;
+}
+
+.inputWrapper {
+	position: relative;
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+
+.slash {
+	position: absolute;
+	left: 0.75rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-muted);
+	pointer-events: none;
+	user-select: none;
 }
 
 .input {
-	flex: 1;
-	padding: 0.5rem 0.75rem;
+	width: 100%;
+	padding: 0.5rem 0.75rem 0.5rem 1.5rem;
 	font-size: 1rem;
 	background: var(--bg);
 	color: var(--text);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaDiscord } from "react-icons/fa";
 import styles from "./App.module.scss";
 import { CommandHelp } from "./components/CommandHelp";
 import { CommandInput } from "./components/CommandInput";
@@ -31,8 +32,20 @@ export default function App() {
 	return (
 		<div className={styles.page}>
 			<div className={styles.header}>
-				<h1 className={styles.title}>The Farm Computer</h1>
-				<p className={styles.subtitle}>Stardew Valley reference — type a command below</p>
+				<h1 className={styles.title}>The Farm Computer 💾</h1>
+				<p className={styles.subtitle}>
+					A Discord bot and web tool for searching in-game details for Stardew Valley, sourced from the{" "}
+					<a href="https://stardewvalleywiki.com" target="_blank" rel="noreferrer">official wiki</a>.
+				</p>
+				<a
+					href="https://discord.com/oauth2/authorize?client_id=1479385265327046677"
+					target="_blank"
+					rel="noreferrer"
+					className={styles.discordButton}
+				>
+					<FaDiscord className={styles.discordIcon} aria-hidden="true" />
+					Add to Discord
+				</a>
 			</div>
 
 			<CommandInput onSubmit={handleSubmit} loading={loading} />
@@ -48,6 +61,10 @@ export default function App() {
 			)}
 
 			<CommandHelp />
+
+			<footer className={styles.footer}>
+				© {new Date().getFullYear()} Omeed Habibelahian
+			</footer>
 		</div>
 	);
 }

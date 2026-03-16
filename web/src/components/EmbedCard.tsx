@@ -1,3 +1,5 @@
+import Markdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import type { DiscordEmbed, EmbedField } from "../types";
 import styles from "./EmbedCard.module.scss";
 
@@ -12,7 +14,16 @@ function colorToHex(color: number | undefined): string {
 
 function FieldValue({ value }: { value: string }) {
 	if (!value) return null;
-	return <span className={styles.fieldValue}>{value}</span>;
+	return (
+		<div className={styles.fieldValue}>
+			<Markdown
+				remarkPlugins={[remarkBreaks]}
+				components={{ a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer" /> }}
+			>
+				{value}
+			</Markdown>
+		</div>
+	);
 }
 
 interface FieldsGridProps {
@@ -57,7 +68,7 @@ function FieldsGrid({ fields }: FieldsGridProps) {
 				>
 					{row.map((field, i) => (
 						<div key={i}>
-							<div className={styles.fieldName}>{field.name}</div>
+							{field.name && <div className={styles.fieldName}>{field.name}</div>}
 							{field.value && <FieldValue value={field.value} />}
 						</div>
 					))}
@@ -70,44 +81,51 @@ function FieldsGrid({ fields }: FieldsGridProps) {
 export function EmbedCard({ embed }: Props) {
 	const accentColor = colorToHex(embed.color);
 
+	const hasHeaderContent = Boolean(embed.title || embed.description || embed.thumbnail?.url);
+	const hasTitleOrDescription = Boolean(embed.title || embed.description);
+
 	return (
 		<div
 			className={styles.card}
 			style={{ borderLeft: `4px solid ${accentColor}` }}
 		>
 			<div className={styles.body}>
-				<div className={styles.header}>
-					<div className={styles.headerContent}>
-						{embed.title && (
-							embed.url ? (
-								<a
-									href={embed.url}
-									target="_blank"
-									rel="noreferrer"
-									className={`${styles.title} ${styles.link}`}
-								>
-									{embed.title}
-								</a>
-							) : (
-								<div className={`${styles.title} ${styles.plain}`}>
-									{embed.title}
-								</div>
-							)
+				{hasHeaderContent && (
+					<div className={styles.header}>
+						{hasTitleOrDescription && (
+							<div className={styles.headerContent}>
+								{embed.title && (
+									embed.url ? (
+										<a
+											href={embed.url}
+											target="_blank"
+											rel="noreferrer"
+											className={`${styles.title} ${styles.link}`}
+										>
+											{embed.title}
+										</a>
+									) : (
+										<div className={`${styles.title} ${styles.plain}`}>
+											{embed.title}
+										</div>
+									)
+								)}
+
+								{embed.description && (
+									<p className={styles.description}>{embed.description}</p>
+								)}
+							</div>
 						)}
 
-						{embed.description && (
-							<p className={styles.description}>{embed.description}</p>
+						{embed.thumbnail?.url && (
+							<img
+								src={embed.thumbnail.url}
+								alt=""
+								className={styles.thumbnail}
+							/>
 						)}
 					</div>
-
-					{embed.thumbnail?.url && (
-						<img
-							src={embed.thumbnail.url}
-							alt=""
-							className={styles.thumbnail}
-						/>
-					)}
-				</div>
+				)}
 
 				{embed.fields && embed.fields.length > 0 && (
 					<FieldsGrid fields={embed.fields} />

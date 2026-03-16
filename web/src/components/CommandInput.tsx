@@ -17,15 +17,18 @@ export function CommandInput({ onSubmit, loading }: Props) {
 
 	return (
 		<form onSubmit={handleSubmit} className={styles.form}>
-			<input
-				type="text"
-				value={value}
-				onChange={(e) => setValue(e.target.value)}
-				placeholder="crop parsnip"
-				disabled={loading}
-				autoFocus
-				className={styles.input}
-			/>
+			<div className={styles.inputWrapper}>
+				<span className={styles.slash} aria-hidden="true">/</span>
+				<input
+					type="text"
+					value={value}
+					onChange={(e) => setValue(e.target.value)}
+					placeholder="crop parsnip"
+					disabled={loading}
+					autoFocus
+					className={styles.input}
+				/>
+			</div>
 			<button
 				type="submit"
 				disabled={loading || !value.trim()}
