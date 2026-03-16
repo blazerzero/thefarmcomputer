@@ -34,6 +34,7 @@ import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
+import { handleWebQuery } from "./web";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -149,95 +150,6 @@ export class StardewDO implements DurableObject {
     });
   }
 
-  // ── Web API ──────────────────────────────────────────────────────────────────
-
-  private async handleWebQuery(input: string): Promise<Response> {
-    const parts = input.trim().split(/\s+/);
-    const command = parts[0]?.toLowerCase() ?? "";
-    const args = parts.slice(1);
-
-    const makeInteraction = (options: Array<{ name: string; value: string }>) => ({
-      data: { options },
-    });
-
-    let handlerResponse: Response;
-
-    switch (command) {
-      case "crop":
-        handlerResponse = handleCrop(makeInteraction([{ name: "name", value: args.join(" ") }]), this.sql);
-        break;
-      case "fish":
-        handlerResponse = handleFish(makeInteraction([{ name: "name", value: args.join(" ") }]), this.sql);
-        break;
-      case "fruit-tree":
-        handlerResponse = handleFruitTree(makeInteraction([{ name: "name", value: args.join(" ") }]), this.sql);
-        break;
-      case "forage":
-        handlerResponse = handleForage(makeInteraction([{ name: "name", value: args.join(" ") }]), this.sql);
-        break;
-      case "bundle":
-        handlerResponse = handleBundle(makeInteraction([{ name: "name", value: args.join(" ") }]), this.sql);
-        break;
-      case "mineral":
-        handlerResponse = handleMineral(makeInteraction([{ name: "name", value: args.join(" ") }]), this.sql);
-        break;
-      case "gift": {
-        const options: Array<{ name: string; value: string }> = [{ name: "villager", value: args[0] ?? "" }];
-        if (args[1]) options.push({ name: "tier", value: args[1] });
-        handlerResponse = handleGift(makeInteraction(options), this.sql);
-        break;
-      }
-      case "season":
-        handlerResponse = handleSeason(makeInteraction([{ name: "season", value: args[0] ?? "" }]), this.sql);
-        break;
-      case "info": {
-        const s = getStatus(this.sql);
-        const lastUpdatedMs = Math.max(
-          s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
-          s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
-          s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
-          s.forageablesLastUpdated ? new Date(s.forageablesLastUpdated).getTime() : 0,
-          s.fruitTreesLastUpdated ? new Date(s.fruitTreesLastUpdated).getTime() : 0,
-          s.mineralsLastUpdated ? new Date(s.mineralsLastUpdated).getTime() : 0,
-          s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
-        );
-        const lastUpdated = lastUpdatedMs ? formatDate(new Date(lastUpdatedMs).toISOString()) : "never";
-        return Response.json({
-          embed: {
-            title: "The Farm Computer — Status",
-            color: 0x5b8a3c,
-            fields: [
-              { name: `Crops: ${s.cropCount}`,         value: "", inline: false },
-              { name: `Fruit Trees: ${s.fruitTreeCount}`, value: "", inline: false },
-              { name: `Fish: ${s.fishCount}`,           value: "", inline: false },
-              { name: `Villagers: ${s.villagerCount}`,  value: "", inline: false },
-              { name: `Bundles: ${s.bundleCount}`,      value: "", inline: false },
-              { name: `Forageables: ${s.forageableCount}`, value: "", inline: false },
-              { name: `Minerals: ${s.mineralCount}`,   value: "", inline: false },
-            ],
-            footer: { text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC` },
-          },
-        });
-      }
-      default:
-        return Response.json({
-          error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, gift, season, info`,
-        });
-    }
-
-    const data = await handlerResponse.json() as {
-      data?: { embeds?: unknown[]; content?: string };
-    };
-
-    const embed = data.data?.embeds?.[0];
-    if (embed) return Response.json({ embed });
-
-    const content = data.data?.content;
-    if (content) return Response.json({ error: content });
-
-    return Response.json({ error: "No data found." });
-  }
-
   // Receives forwarded requests from the thin Worker
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
@@ -249,7 +161,7 @@ export class StardewDO implements DurableObject {
 
     if (request.method === "GET" && url.pathname === "/api/query") {
       const input = url.searchParams.get("input") ?? "";
-      return this.handleWebQuery(input);
+      return handleWebQuery(input, this.sql);
     }
 
     const body = await request.text();
