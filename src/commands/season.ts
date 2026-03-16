@@ -41,10 +41,10 @@ export function handleSeason(
   const fields =
     col2.length > 0
       ? [
-          { name: "\u200b", value: col1, inline: true },
-          { name: "\u200b", value: col2, inline: true },
+          { name: "", value: col1, inline: true },
+          { name: "", value: col2, inline: true },
         ]
-      : [{ name: "\u200b", value: col1, inline: false }];
+      : [{ name: "", value: col1, inline: false }];
 
   return Response.json({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -54,7 +54,7 @@ export function handleSeason(
           title: `${season} Crops (${crops.length})`,
           color: SEASON_COLORS[season] ?? DEFAULT_COLOR,
           fields,
-          footer: { text: "Growth shown as days to first harvest. (+N) = regrowth. Sell price is base quality." },
+          footer: { text: "Growth shown as days to first harvest. (+N) = regrowth. Sell value is for base quality." },
         },
       ],
     },

@@ -34,6 +34,7 @@ import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
+import { handleWebQuery } from "./web";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -158,6 +159,11 @@ export class StardewDO implements DurableObject {
       return Response.json({ ok: true });
     }
 
+    if (request.method === "GET" && url.pathname === "/api/query") {
+      const input = url.searchParams.get("input") ?? "";
+      return handleWebQuery(input, this.sql);
+    }
+
     const body = await request.text();
     const interaction = JSON.parse(body) as Record<string, unknown>;
     const type = interaction.type as number;
@@ -260,6 +266,11 @@ export default {
       }
       const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
       return stub.fetch(new Request(request.url, { method: "POST", headers: request.headers }));
+    }
+
+    if (request.method === "GET" && url.pathname.startsWith("/api/")) {
+      const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
+      return stub.fetch(request);
     }
 
     if (request.method !== "POST") {

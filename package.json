@@ -1,7 +1,7 @@
 {
   "name": "thefarmcomputer",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
@@ -9,7 +9,11 @@
     "register": "tsx scripts/register-commands.ts",
     "register-manual": "tsx --env-file=.dev.vars scripts/register-commands.ts",
     "lint": "biome lint --write",
-    "prepare": "husky"
+    "prepare": "husky",
+    "web:dev": "yarn workspace thefarmcomputer-web dev",
+    "web:build": "yarn workspace thefarmcomputer-web build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",
@@ -19,6 +23,7 @@
     "lint-staged": "^16.3.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
+    "vitest": "^3.2.4",
     "wrangler": "^4.73.0"
   },
   "dependencies": {
@@ -29,5 +34,8 @@
     "remark-stringify": "^11.0.0",
     "strip-markdown": "^6.0.0"
   },
-  "packageManager": "yarn@4.13.0"
+  "packageManager": "yarn@4.13.0",
+  "workspaces": [
+    "web"
+  ]
 }
