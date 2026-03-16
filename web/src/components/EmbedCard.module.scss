@@ -1,0 +1,108 @@
+.card {
+	display: inline-flex;
+	max-width: 31.25rem;
+	width: 100%;
+	background: var(--surface);
+	border-radius: 0.25rem;
+	overflow: hidden;
+	// border-left color is dynamic — set via inline style
+}
+
+.body {
+	padding: 0.75rem 1rem;
+	flex: 1;
+	min-width: 0;
+}
+
+.header {
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+}
+
+.headerContent {
+	flex: 1;
+	min-width: 0;
+}
+
+.title {
+	font-weight: 600;
+	font-size: 1rem;
+	margin-bottom: 0.25rem;
+
+	&.link {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		// color inherited from global a rule
+	}
+
+	&.plain {
+		color: var(--text);
+	}
+}
+
+.description {
+	font-size: 0.875rem;
+	color: var(--text);
+	margin-bottom: 0.25rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.thumbnail {
+	width: 4rem;
+	height: 4rem;
+	object-fit: contain;
+	flex-shrink: 0;
+	border-radius: 0.25rem;
+	image-rendering: pixelated;
+}
+
+.fields {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.fieldsRow {
+	display: grid;
+	gap: 0.5rem;
+
+	&.cols1 {
+		grid-template-columns: 1fr;
+	}
+
+	&.cols2 {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	&.cols3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+.fieldName {
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--text);
+	margin-bottom: 0.125rem;
+}
+
+.fieldValue {
+	font-size: 0.875rem;
+	color: var(--text);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.footer {
+	margin-top: 0.75rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--border);
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	white-space: pre-wrap;
+}

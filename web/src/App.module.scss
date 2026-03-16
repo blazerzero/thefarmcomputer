@@ -1,0 +1,40 @@
+.page {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 2rem 1rem;
+	gap: 1.5rem;
+}
+
+.header {
+	text-align: center;
+}
+
+.title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--text);
+	margin-bottom: 0.25rem;
+}
+
+.subtitle {
+	font-size: 0.875rem;
+	color: var(--text-muted);
+}
+
+.loading {
+	font-size: 0.875rem;
+	color: var(--text-muted);
+}
+
+.error {
+	max-width: 31.25rem;
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: var(--surface);
+	border-left: 4px solid #ed4245;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
+	color: var(--text);
+}

@@ -1,0 +1,33 @@
+.form {
+	display: flex;
+	gap: 0.5rem;
+	width: 100%;
+	max-width: 31.25rem;
+}
+
+.input {
+	flex: 1;
+	padding: 0.5rem 0.75rem;
+	font-size: 1rem;
+	background: var(--bg);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 0.25rem;
+	outline: none;
+	font-family: inherit;
+}
+
+.button {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	font-weight: 600;
+	background: var(--accent);
+	color: #fff;
+	border: none;
+	border-radius: 0.25rem;
+	transition: opacity 0.15s;
+
+	&:disabled {
+		opacity: 0.5;
+	}
+}
