@@ -23,10 +23,11 @@ export function handleGift(
   sql: SqlStorage,
 ): Response {
   const name = getOption(interaction, "villager");
-  const tierFilter = (
+  let tierFilter = (
     (interaction.data as Record<string, unknown>)
       ?.options as Array<{ name: string; value: string }> | undefined
   )?.find((o) => o.name === "tier")?.value;
+  if (tierFilter && !tierFilter.endsWith('_gifts')) tierFilter += '_gifts';
 
   const villager = getVillager(sql, name);
 

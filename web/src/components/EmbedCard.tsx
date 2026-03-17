@@ -1,7 +1,6 @@
-import Markdown from "react-markdown";
-import remarkBreaks from "remark-breaks";
 import type { DiscordEmbed, EmbedField } from "../types";
 import styles from "./EmbedCard.module.scss";
+import { Markdown } from "./Markdown";
 
 interface Props {
 	embed: DiscordEmbed;
@@ -16,12 +15,7 @@ function FieldValue({ value }: { value: string }) {
 	if (!value) return null;
 	return (
 		<div className={styles.fieldValue}>
-			<Markdown
-				remarkPlugins={[remarkBreaks]}
-				components={{ a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer" /> }}
-			>
-				{value}
-			</Markdown>
+			<Markdown>{value}</Markdown>
 		</div>
 	);
 }
@@ -113,7 +107,7 @@ export function EmbedCard({ embed }: Props) {
 								)}
 
 								{embed.description && (
-									<p className={styles.description}>{embed.description}</p>
+									<Markdown>{embed.description}</Markdown>
 								)}
 							</div>
 						)}
