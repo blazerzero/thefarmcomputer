@@ -32,6 +32,11 @@
 	border-radius: 0.25rem;
 	outline: none;
 	font-family: inherit;
+
+	&::placeholder {
+		color: var(--text-muted);
+		opacity: 0.5;
+	}
 }
 
 .button {
