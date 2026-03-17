@@ -11,11 +11,22 @@
 	text-align: center;
 }
 
+@keyframes blink {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0; }
+}
+
 .title {
 	font-size: 3rem;
 	font-weight: 700;
 	color: var(--text);
 	margin-bottom: 0.25rem;
+}
+
+.titleTyping::after {
+	content: '|';
+	animation: blink 0.75s step-start infinite;
+	margin-left: 0.05em;
 }
 
 .subtitle {
