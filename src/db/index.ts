@@ -6,4 +6,5 @@ export { getFruitTree, upsertFruitTree, countFruitTrees } from "./fruitTrees";
 export { getBundle, upsertBundle, countBundles } from "./bundles";
 export { getForageable, upsertForageable, countForageables } from "./forageables";
 export { getMineral, upsertMineral, countMinerals } from "./minerals";
+export { getCraftedItem, getCraftedItemsByIngredient, upsertCraftedItem, countCraftedItems } from "./craftedItems";
 export { getVillager, upsertVillager, countVillagers } from "./villagers";

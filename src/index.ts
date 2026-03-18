@@ -1,14 +1,17 @@
 import { handleBundle } from "./commands/bundle";
+import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
 import { handleFish } from "./commands/fish";
 import { handleForage } from "./commands/forage";
 import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
+import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
 import {
   countBundles,
+  countCraftedItems,
   countCrops,
   countFish,
   countForageables,
@@ -18,6 +21,7 @@ import {
   getStatus,
   initDb,
   upsertBundle,
+  upsertCraftedItem,
   upsertCrop,
   upsertFish,
   upsertForageable,
@@ -26,6 +30,7 @@ import {
   upsertVillager,
 } from "./db";
 import { scrapeBundles } from "./scraper/bundles";
+import { scrapeCraftedItems } from "./scraper/craftedItems";
 import { scrapeCrops } from "./scraper/crops";
 import { scrapeFish } from "./scraper/fish";
 import { scrapeForageables } from "./scraper/forageables";
@@ -74,6 +79,12 @@ async function refreshMinerals(sql: SqlStorage): Promise<number> {
   return minerals.length;
 }
 
+async function refreshCraftedItems(sql: SqlStorage): Promise<number> {
+  const craftedItems = await scrapeCraftedItems();
+  for (const item of craftedItems) upsertCraftedItem(sql, item);
+  return craftedItems.length;
+}
+
 async function refreshAll(sql: SqlStorage): Promise<void> {
   console.log("Wiki refresh starting…");
   try {
@@ -119,6 +130,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
   } catch (err) {
     console.error("Mineral scrape failed:", err);
   }
+  try {
+    const n = await refreshCraftedItems(sql);
+    console.log(`Updated ${n} crafted items`);
+  } catch (err) {
+    console.error("Crafted items scrape failed:", err);
+  }
   console.log("Wiki refresh complete");
 }
 
@@ -146,6 +163,9 @@ export class StardewDO implements DurableObject {
       } else if (countMinerals(this.sql) === 0) {
         // Minerals table was added in a later deploy — populate without full refresh
         await refreshMinerals(this.sql);
+      } else if (countCraftedItems(this.sql) === 0) {
+        // Crafted items table was added in a later deploy — populate without full refresh
+        await refreshCraftedItems(this.sql);
       }
     });
   }
@@ -176,11 +196,13 @@ export class StardewDO implements DurableObject {
       const commandName = (interaction.data as Record<string, unknown>)?.name as string;
 
       if (commandName === "bundle") return handleBundle(interaction, this.sql);
+      if (commandName === "craft") return handleCraft(interaction, this.sql);
       if (commandName === "crop") return handleCrop(interaction, this.sql);
       if (commandName === "fish") return handleFish(interaction, this.sql);
       if (commandName === "forage") return handleForage(interaction, this.sql);
       if (commandName === "fruit-tree") return handleFruitTree(interaction, this.sql);
       if (commandName === "gift") return handleGift(interaction, this.sql);
+      if (commandName === "ingredient") return handleIngredient(interaction, this.sql);
       if (commandName === "mineral") return handleMineral(interaction, this.sql);
       if (commandName === "season") return handleSeason(interaction, this.sql);
 
@@ -189,6 +211,7 @@ export class StardewDO implements DurableObject {
         // const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
         const lastUpdatedMs = Math.max(
           s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
+          s.craftedItemsLastUpdated ? new Date(s.craftedItemsLastUpdated).getTime() : 0,
           s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
           s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
           s.forageablesLastUpdated ? new Date(s.forageablesLastUpdated).getTime() : 0,
@@ -237,6 +260,11 @@ export class StardewDO implements DurableObject {
                   },
                   {
                     name: `Minerals: ${s.mineralCount}`,
+                    value: "",
+                    inline: false,
+                  },
+                  {
+                    name: `Crafted Items: ${s.craftedItemCount}`,
                     value: "",
                     inline: false,
                   },

@@ -147,6 +147,34 @@ const commands = [
     ],
   },
   {
+    name: "craft",
+    description: "Look up a crafted item in Stardew Valley.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Item name (e.g. Chest, Furnace, Sprinkler, Scarecrow)",
+        required: true,
+      },
+    ],
+  },
+  {
+    name: "ingredient",
+    description: "Find all crafting recipes that use an item as an ingredient.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Ingredient name (e.g. Wood, Stone, Iron Bar, Battery Pack)",
+        required: true,
+      },
+    ],
+  },
+  {
     name: "info",
     description: "Show the bot's data freshness and record counts.",
     integration_types: [0, 1],

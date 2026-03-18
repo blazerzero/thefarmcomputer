@@ -178,6 +178,34 @@ export interface Mineral extends Omit<MineralRow, "source" | "used_in"> {
   used_in: string[];
 }
 
+/** A single ingredient in a crafting recipe. */
+export interface CraftIngredient {
+  name: string;
+  quantity: number;
+}
+
+/** A crafted item row as stored in SQLite. */
+export interface CraftedItemRow {
+  id?: number;
+  name: string;
+  description: string | null;
+  duration_days: number | null;     // null if item has no duration (e.g. consumables)
+  duration_seasons: string | null;  // e.g. "Any" or "Spring, Summer, Fall, Winter"
+  radius: number | null;            // e.g. 3 for Quality Sprinkler
+  ingredients: string;              // JSON array of CraftIngredient
+  energy: number | null;
+  health: number | null;
+  recipe_source: string | null;     // e.g. "Crafting (Level 6)" or "Robin (6 hearts)"
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A crafted item row with ingredients already decoded. */
+export interface CraftedItem extends Omit<CraftedItemRow, "ingredients"> {
+  ingredients: CraftIngredient[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,
