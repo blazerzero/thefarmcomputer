@@ -7,6 +7,8 @@ const COMMANDS = [
 	{ syntax: "forage <name>", example: "forage daffodil", desc: "Seasons, locations, energy, health, sell price" },
 	{ syntax: "bundle <name>", example: "bundle spring", desc: "Room, required items, reward" },
 	{ syntax: "mineral <name>", example: "mineral quartz", desc: "Category, sources, uses, sell price" },
+	{ syntax: "craft <name>", example: "craft furnace", desc: "Ingredients, duration, radius, energy, health, recipe source" },
+	{ syntax: "ingredient <name>", example: "ingredient wood", desc: "All crafting recipes that use this item as an ingredient" },
 	{ syntax: "gift <villager> [tier]", example: "gift Emily loved", desc: "Gift preferences & birthday. Tier: loved, liked, neutral, disliked, hated" },
 	{ syntax: "season <season>", example: "season Summer", desc: "All crops for Spring, Summer, Fall, or Winter" },
 	{ syntax: "info", example: "info", desc: "Database record counts and last update time" },
