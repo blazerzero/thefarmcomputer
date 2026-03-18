@@ -116,6 +116,24 @@ export function initDb(sql: SqlStorage): void {
   `);
 
   sql.exec(`
+    CREATE TABLE IF NOT EXISTS crafted_items (
+      id               INTEGER PRIMARY KEY,
+      name             TEXT UNIQUE NOT NULL,
+      description      TEXT,
+      duration_days    INTEGER,
+      duration_seasons TEXT,
+      radius           REAL,
+      ingredients      TEXT,
+      energy           INTEGER,
+      health           INTEGER,
+      recipe_source    TEXT,
+      image_url        TEXT,
+      wiki_url         TEXT,
+      last_updated     TEXT
+    )
+  `);
+
+  sql.exec(`
     CREATE TABLE IF NOT EXISTS villagers (
       id             INTEGER PRIMARY KEY,
       name           TEXT UNIQUE NOT NULL,

@@ -1,9 +1,11 @@
 import { handleBundle } from "./commands/bundle";
+import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
 import { handleFish } from "./commands/fish";
 import { handleForage } from "./commands/forage";
 import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
+import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
@@ -39,6 +41,12 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		case "mineral":
 			handlerResponse = handleMineral(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
 			break;
+		case "craft":
+			handlerResponse = handleCraft(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
+			break;
+		case "ingredient":
+			handlerResponse = handleIngredient(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
+			break;
 		case "gift": {
 			const options: Array<{ name: string; value: string }> = [{ name: "villager", value: args[0] ?? "" }];
 			if (args[1]) options.push({ name: "tier", value: args[1] });
@@ -52,6 +60,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
 				s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
+				s.craftedItemsLastUpdated ? new Date(s.craftedItemsLastUpdated).getTime() : 0,
 				s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
 				s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
 				s.forageablesLastUpdated ? new Date(s.forageablesLastUpdated).getTime() : 0,
@@ -72,6 +81,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 						{ name: `Bundles: ${s.bundleCount}`,          value: "", inline: false },
 						{ name: `Forageables: ${s.forageableCount}`,  value: "", inline: false },
 						{ name: `Minerals: ${s.mineralCount}`,        value: "", inline: false },
+					{ name: `Crafted Items: ${s.craftedItemCount}`, value: "", inline: false },
 					],
 					footer: { text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC` },
 				},
@@ -79,7 +89,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, gift, season, info`,
+				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, season, info`,
 			});
 	}
 

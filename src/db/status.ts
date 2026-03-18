@@ -6,6 +6,7 @@ export function getStatus(sql: SqlStorage): {
   bundleCount: number;
   forageableCount: number;
   mineralCount: number;
+  craftedItemCount: number;
   cropsLastUpdated: string | null;
   villagersLastUpdated: string | null;
   fruitTreesLastUpdated: string | null;
@@ -13,6 +14,7 @@ export function getStatus(sql: SqlStorage): {
   bundlesLastUpdated: string | null;
   forageablesLastUpdated: string | null;
   mineralsLastUpdated: string | null;
+  craftedItemsLastUpdated: string | null;
 } {
   const cropRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crops")
@@ -35,6 +37,9 @@ export function getStatus(sql: SqlStorage): {
   const mineralRow = sql
     .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM minerals")
     .one() as { n: number; last_updated: string | null } | null;
+  const craftedItemRow = sql
+    .exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM crafted_items")
+    .one() as { n: number; last_updated: string | null } | null;
   return {
     cropCount: cropRow?.n ?? 0,
     villagerCount: villagerRow?.n ?? 0,
@@ -43,6 +48,7 @@ export function getStatus(sql: SqlStorage): {
     bundleCount: bundleRow?.n ?? 0,
     forageableCount: forageableRow?.n ?? 0,
     mineralCount: mineralRow?.n ?? 0,
+    craftedItemCount: craftedItemRow?.n ?? 0,
     cropsLastUpdated: cropRow?.last_updated ?? null,
     villagersLastUpdated: villagerRow?.last_updated ?? null,
     fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
@@ -50,5 +56,6 @@ export function getStatus(sql: SqlStorage): {
     bundlesLastUpdated: bundleRow?.last_updated ?? null,
     forageablesLastUpdated: forageableRow?.last_updated ?? null,
     mineralsLastUpdated: mineralRow?.last_updated ?? null,
+    craftedItemsLastUpdated: craftedItemRow?.last_updated ?? null,
   };
 }
