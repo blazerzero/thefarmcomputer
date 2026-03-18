@@ -19,6 +19,7 @@
     "@biomejs/biome": "^2.4.6",
     "@cloudflare/workers-types": "^4.20250224.0",
     "@types/node": "^25.3.5",
+    "@types/pluralize": "^0.0.33",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
     "tsx": "^4.19.2",
@@ -28,6 +29,7 @@
   },
   "dependencies": {
     "node-html-parser": "^6.1.13",
+    "pluralize": "^8.0.0",
     "rehype": "^13.0.2",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",

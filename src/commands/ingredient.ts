@@ -1,3 +1,4 @@
+import pluralize from "pluralize";
 import { formatDate } from "../constants";
 import { getCraftedItemsByIngredient } from "../db";
 import { embedResponse, getOption, notFoundResponse, renderDotList } from "./utils";
@@ -17,16 +18,20 @@ export function handleIngredient(
     );
   }
 
-  const recipeLinks = items.map((item) => `[${item.name}](${item.wiki_url})`);
+  const recipes: string[] = items.reduce((acc, curr) => {
+    const idx = curr.ingredients.findIndex((i) => i.name.toLowerCase() === name.toLowerCase());
+    if (idx >= 0) acc.push(`${curr.name} (${curr.ingredients[idx]!.quantity} needed)`);
+    return acc;
+  }, [] as string[]);
   const lastUpdated = items[0]!.last_updated;
 
   return embedResponse({
-    title: `Recipes using ${name}`,
+    title: `${items.length} ${pluralize('recipe', items.length)} using ${name}`,
     color: CRAFT_COLOR,
     fields: [
       {
-        name: `${items.length} recipe${items.length === 1 ? "" : "s"}`,
-        value: renderDotList(recipeLinks),
+        name: "Recipes",
+        value: renderDotList(recipes),
         inline: false,
       },
     ],

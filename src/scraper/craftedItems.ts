@@ -23,20 +23,13 @@ function parseIngredients(cell: HTMLElement): CraftIngredient[] {
 
   // Collect text segments by splitting on <br> boundaries
   const segments: string[] = [];
-  let current = "";
 
-  for (const node of cell.childNodes) {
-    const tag = (node as HTMLElement).rawTagName;
-    if (tag === "br") {
-      if (current.trim()) segments.push(current.trim());
-      current = "";
-    } else if (tag === "img") {
-      // skip images
-    } else {
-      current += node.text;
-    }
+  const ingredientElements = cell.querySelectorAll(":scope > span");
+
+  for (const node of ingredientElements) {
+    const text = node.text.trim();
+    if (text) segments.push(text);
   }
-  if (current.trim()) segments.push(current.trim());
 
   for (const seg of segments) {
     const clean = seg.replace(/\s+/g, " ").trim();
@@ -44,9 +37,9 @@ function parseIngredients(cell: HTMLElement): CraftIngredient[] {
 
     // Match leading number (quantity) followed by the rest as name
     // e.g. "50 Wood", "1 Iron Bar", "Battery Pack" (no quantity → 1)
-    const m = clean.match(/^(\d+)\s+(.+)$/);
+    const m = clean.match(/^(.+)\s+\((\d+)\)$/);
     if (m) {
-      ingredients.push({ name: m[2]!.trim(), quantity: parseInt(m[1]!, 10) });
+      ingredients.push({ name: m[1]!.trim(), quantity: parseInt(m[2]!, 10) });
     } else if (clean.length > 0) {
       ingredients.push({ name: clean, quantity: 1 });
     }
@@ -127,8 +120,6 @@ export async function scrapeCraftedItems(): Promise<Omit<CraftedItemRow, "id" | 
       const secondRow = allRows[1]!;
       const secondRowTh = secondRow.querySelectorAll(":scope > th") as unknown as HTMLElement[];
       if (secondRowTh.length > 0) {
-        const merged = buildColIdx(secondRow);
-        Object.assign(colIdx, merged);
         dataStartRow = 2;
       }
     }
@@ -142,13 +133,16 @@ export async function scrapeCraftedItems(): Promise<Omit<CraftedItemRow, "id" | 
       const cells = row.querySelectorAll(":scope > td") as unknown as HTMLElement[];
       if (cells.length === 0) continue;
 
-      const get = (key: string): HTMLElement | null => {
+      const getCell = (key: string): HTMLElement | null => {
         const idx = colIdx[key];
-        return idx !== undefined ? (cells[idx] ?? null) : null;
+        const cell = idx !== undefined ? (cells[idx] ?? null) : null;
+        if (!cell) return cell;
+        cell.querySelectorAll('[style*="display: none"]').forEach(el => el.remove());
+        return cell;
       };
 
       // Name
-      const nameCell = get("name");
+      const nameCell = getCell("name");
       if (!nameCell) continue;
 
       const nameLink = nameCell.querySelector("a") as unknown as HTMLElement | null;
@@ -165,7 +159,7 @@ export async function scrapeCraftedItems(): Promise<Omit<CraftedItemRow, "id" | 
 
       // Image
       let imageUrl: string | null = null;
-      const imageCell = get("image");
+      const imageCell = getCell("image");
       if (imageCell) {
         const img = imageCell.querySelector("img") as unknown as HTMLElement | null;
         const src = img?.getAttribute("src") ?? "";
@@ -173,34 +167,34 @@ export async function scrapeCraftedItems(): Promise<Omit<CraftedItemRow, "id" | 
       }
 
       // Description
-      const description = get("description")?.text.trim().replace(/\s+/g, " ") || null;
+      const description = getCell("description")?.text.trim().replace(/\s+/g, " ") || null;
 
       // Duration (Days)
-      const daysCell = get("duration_days");
+      const daysCell = getCell("duration_days");
       const durationDays = daysCell ? parseNumber(daysCell.text) : null;
 
       // Duration (Seasons)
-      const seasonsCell = get("duration_seasons");
+      const seasonsCell = getCell("duration_seasons");
       const durationSeasons = seasonsCell ? seasonsCell.text.trim().replace(/\s+/g, " ") || null : null;
 
       // Radius
-      const radiusCell = get("radius");
+      const radiusCell = getCell("radius");
       const radius = radiusCell ? parseNumber(radiusCell.text) : null;
 
       // Ingredients
-      const ingredientsCell = get("ingredients");
+      const ingredientsCell = getCell("ingredients");
       const ingredients: CraftIngredient[] = ingredientsCell ? parseIngredients(ingredientsCell) : [];
 
       // Energy
-      const energyCell = get("energy");
+      const energyCell = getCell("energy");
       const energy = energyCell ? parseNumber(energyCell.text) : null;
 
       // Health
-      const healthCell = get("health");
+      const healthCell = getCell("health");
       const health = healthCell ? parseNumber(healthCell.text) : null;
 
       // Recipe source
-      const recipeSourceCell = get("recipe_source");
+      const recipeSourceCell = getCell("recipe_source");
       const recipeSource = recipeSourceCell ? recipeSourceCell.text.trim().replace(/\s+/g, " ") || null : null;
 
       items.push({

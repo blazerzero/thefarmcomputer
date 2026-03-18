@@ -1731,6 +1731,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pluralize@npm:^0.0.33":
+  version: 0.0.33
+  resolution: "@types/pluralize@npm:0.0.33"
+  checksum: 10c0/24899caf85b79dd291a6b6e9b9f3b67b452b18d578d0ac0d531a705bf5ee0361d9386ea1f8532c64de9e22c6e9606c5497787bb5e31bd299c487980436c59785
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^19.1.0":
   version: 19.2.3
   resolution: "@types/react-dom@npm:19.2.3"
@@ -3919,6 +3926,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pluralize@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "pluralize@npm:8.0.0"
+  checksum: 10c0/2044cfc34b2e8c88b73379ea4a36fc577db04f651c2909041b054c981cd863dd5373ebd030123ab058d194ae615d3a97cfdac653991e499d10caf592e8b3dc33
+  languageName: node
+  linkType: hard
+
 "postcss@npm:^8.5.3, postcss@npm:^8.5.6":
   version: 8.5.8
   resolution: "postcss@npm:8.5.8"
@@ -4592,9 +4606,11 @@ __metadata:
     "@biomejs/biome": "npm:^2.4.6"
     "@cloudflare/workers-types": "npm:^4.20250224.0"
     "@types/node": "npm:^25.3.5"
+    "@types/pluralize": "npm:^0.0.33"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^16.3.2"
     node-html-parser: "npm:^6.1.13"
+    pluralize: "npm:^8.0.0"
     rehype: "npm:^13.0.2"
     rehype-parse: "npm:^9.0.1"
     rehype-remark: "npm:^10.0.1"

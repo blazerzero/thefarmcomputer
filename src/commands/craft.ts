@@ -1,3 +1,4 @@
+import pluralize from "pluralize";
 import { formatDate } from "../constants";
 import { getCraftedItem } from "../db";
 import type { CraftIngredient } from "../types";
@@ -25,10 +26,16 @@ export function handleCraft(
   const fields: Array<{ name: string; value: string; inline: boolean }> = [];
 
   if (item.duration_days !== null) {
-    const seasons = item.duration_seasons ? ` (${item.duration_seasons})` : "";
+    const seasons = item.duration_seasons;;
+    const lowEndSeason = seasons ? parseInt(seasons.split('-')[0] ?? '') : null;
+    let seasonsText: string = "";
+    if (lowEndSeason && !isNaN(lowEndSeason)) {
+      const exactlyOneSeason = Boolean(lowEndSeason && seasons?.split('-').length === 1);
+      seasonsText = item.duration_seasons ? ` (${item.duration_seasons} ${exactlyOneSeason ? 'season' : 'seasons'})` : "";
+    }
     fields.push({
       name: "Duration",
-      value: `${item.duration_days} day${item.duration_days === 1 ? "" : "s"}${seasons}`,
+      value: `${item.duration_days} ${pluralize("day", item.duration_days)}${seasonsText}`,
       inline: true,
     });
   }

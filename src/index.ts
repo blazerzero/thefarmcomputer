@@ -286,7 +286,6 @@ export class StardewDO implements DurableObject {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    console.log(url);
 
     if (url.pathname === "/admin/refresh" && request.method === "POST") {
       const auth = request.headers.get("Authorization");
