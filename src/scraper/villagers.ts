@@ -4,7 +4,7 @@ import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
 import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
-import type { VillagerRow } from "../types";
+import type { ScheduleEntry, VillagerRow } from "../types";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
@@ -90,6 +90,77 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
   return gifts;
 }
 
+const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
+
+/**
+ * Parse schedule data from one villager's HTML page.
+ *
+ * The wiki lays out schedules as:
+ *   h3 "Spring" / "Summer" / "Fall" / "Winter"  (season header)
+ *     <b>Occasion name</b>  (e.g. "Rain", "Monday and Sunday", "Regular Schedule")
+ *     <table class="wikitable">  (Time | Location rows)
+ *     ... more <b>/table pairs ...
+ *
+ * Returns a nested object: { Spring: { Rain: [{time,location}], ... }, ... }
+ */
+function parseSchedule(html: string): Record<string, Record<string, ScheduleEntry[]>> {
+  const root = parse(html);
+  const result: Record<string, Record<string, ScheduleEntry[]>> = {};
+
+  const h3s = root.querySelectorAll("h3");
+  for (const h3 of h3s) {
+    const seasonText = h3.text.trim();
+    if (!SEASONS.includes(seasonText)) continue;
+
+    const seasonData: Record<string, ScheduleEntry[]> = {};
+
+    // Walk next siblings until we hit another h3 or h2
+    let node = h3.nextElementSibling;
+    let currentOccasion = "Regular Schedule";
+
+    while (node) {
+      const tag = node.tagName?.toUpperCase();
+
+      // Stop when we reach the next season heading or a major section heading
+      if (tag === "H3" || tag === "H2") break;
+
+      if (tag === "P" || tag === "DIV") {
+        // Check for bold sub-headings inside paragraphs or divs
+        const bold = node.querySelector("b");
+        if (bold) {
+          const label = bold.text.trim();
+          if (label) currentOccasion = label;
+        }
+      } else if (tag === "B") {
+        const label = node.text.trim();
+        if (label) currentOccasion = label;
+      } else if (tag === "TABLE" && node.classList?.contains("wikitable")) {
+        const entries: ScheduleEntry[] = [];
+        for (const row of node.querySelectorAll("tr")) {
+          const cells = row.querySelectorAll("td");
+          if (cells.length < 2) continue;
+          const time = cells[0]!.text.trim();
+          const location = cells[1]!.text.replace(/\s+/g, " ").trim();
+          if (time && location) entries.push({ time, location });
+        }
+        if (entries.length > 0) {
+          // Accumulate entries for the same occasion (some pages have multiple tables per occasion)
+          if (!seasonData[currentOccasion]) seasonData[currentOccasion] = [];
+          seasonData[currentOccasion]!.push(...entries);
+        }
+      }
+
+      node = node.nextElementSibling;
+    }
+
+    if (Object.keys(seasonData).length > 0) {
+      result[seasonText] = seasonData;
+    }
+  }
+
+  return result;
+}
+
 /** Parse birthday from one villager's HTML page. */
 function parseVillagerDetails(name: string, html: string): {
   birthday: string;
@@ -125,6 +196,7 @@ export async function scrapeVillagers(): Promise<Omit<VillagerRow, "id" | "last_
         const html = await fetchPage(path);
         const {birthday, image_url} = parseVillagerDetails(name, html);
         const gifts = parseGifts(html);
+        const schedule = parseSchedule(html);
         return {
           name,
           birthday,
@@ -133,6 +205,7 @@ export async function scrapeVillagers(): Promise<Omit<VillagerRow, "id" | "last_
           neutral_gifts:  JSON.stringify(gifts.neutral),
           disliked_gifts: JSON.stringify(gifts.disliked),
           hated_gifts:    JSON.stringify(gifts.hated),
+          schedule:       JSON.stringify(schedule),
           wiki_url:       WIKI_BASE + path,
           image_url,
         } satisfies Omit<VillagerRow, "id" | "last_updated">;

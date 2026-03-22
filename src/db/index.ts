@@ -7,4 +7,4 @@ export { getBundle, upsertBundle, countBundles } from "./bundles";
 export { getForageable, upsertForageable, countForageables } from "./forageables";
 export { getMineral, upsertMineral, countMinerals } from "./minerals";
 export { getCraftedItem, getCraftedItemsByIngredient, upsertCraftedItem, countCraftedItems } from "./craftedItems";
-export { getVillager, upsertVillager, countVillagers } from "./villagers";
+export { getVillager, upsertVillager, countVillagers, villagersNeedScheduleRefresh } from "./villagers";

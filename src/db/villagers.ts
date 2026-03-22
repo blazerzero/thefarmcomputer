@@ -29,8 +29,8 @@ export function upsertVillager(
   sql.exec(
     `INSERT INTO villagers
        (name, birthday, loved_gifts, liked_gifts, neutral_gifts,
-        disliked_gifts, hated_gifts, wiki_url, image_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        disliked_gifts, hated_gifts, schedule, wiki_url, image_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        birthday       = excluded.birthday,
        loved_gifts    = excluded.loved_gifts,
@@ -38,16 +38,26 @@ export function upsertVillager(
        neutral_gifts  = excluded.neutral_gifts,
        disliked_gifts = excluded.disliked_gifts,
        hated_gifts    = excluded.hated_gifts,
+       schedule       = excluded.schedule,
        wiki_url       = excluded.wiki_url,
        image_url      = excluded.image_url,
        last_updated   = excluded.last_updated`,
     data.name, data.birthday,
     data.loved_gifts, data.liked_gifts, data.neutral_gifts,
     data.disliked_gifts, data.hated_gifts,
+    data.schedule,
     data.wiki_url, data.image_url, now(),
   );
 }
 
 export function countVillagers(sql: SqlStorage): number {
   return (sql.exec("SELECT COUNT(*) AS n FROM villagers").one() as { n: number } | null)?.n ?? 0;
+}
+
+/** Returns true when any villager row has a NULL schedule (indicates the column needs populating). */
+export function villagersNeedScheduleRefresh(sql: SqlStorage): boolean {
+  const row = sql
+    .exec("SELECT COUNT(*) AS n FROM villagers WHERE schedule IS NULL")
+    .one() as { n: number } | null;
+  return (row?.n ?? 0) > 0;
 }
