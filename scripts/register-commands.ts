@@ -176,7 +176,7 @@ const commands = [
   },
   {
     name: "schedule",
-    description: "Look up a villager's schedule for a given season.",
+    description: "Look up a villager's schedule.",
     integration_types: [0, 1],
     contexts: [0, 1, 2],
     options: [
@@ -188,21 +188,23 @@ const commands = [
       },
       {
         type: 3, // STRING
-        name: "season",
-        description: "Season name",
-        required: true,
-        choices: [
-          { name: "Spring", value: "Spring" },
-          { name: "Summer", value: "Summer" },
-          { name: "Fall",   value: "Fall"   },
-          { name: "Winter", value: "Winter" },
-        ],
-      },
-      {
-        type: 3, // STRING
         name: "day",
         description: "Filter by occasion or day (e.g. Rain, Monday, Regular, Festival)",
         required: false,
+      },
+      {
+        type: 3, // STRING
+        name: "season",
+        description: "Season group (defaults to Default for villagers without season-specific schedules)",
+        required: false,
+        choices: [
+          { name: "Default",  value: "Default"  },
+          { name: "Spring",   value: "Spring"   },
+          { name: "Summer",   value: "Summer"   },
+          { name: "Fall",     value: "Fall"     },
+          { name: "Winter",   value: "Winter"   },
+          { name: "Marriage", value: "Marriage" },
+        ],
       },
     ],
   },

@@ -8,7 +8,7 @@ export function handleSchedule(
   sql: SqlStorage,
 ): Response {
   const villagerName = getOption(interaction, "villager");
-  const season = getOption(interaction, "season");
+  const season = getOption(interaction, "season") || "Default";
   const dayFilter = getOption(interaction, "day");
 
   const villager = getVillager(sql, villagerName);
@@ -30,7 +30,7 @@ export function handleSchedule(
 
   if (!seasonKey || !schedule[seasonKey]) {
     return notFoundResponse(
-      `No **${season}** schedule found for **${villager.name}**.`,
+      `No **${season}** schedule found for **${villager.name}**. Please specify a season.`,
     );
   }
 
@@ -60,7 +60,7 @@ export function handleSchedule(
   const color = SEASON_COLORS[seasonKey] ?? 0x5b8a3c;
 
   return embedResponse({
-    title: `${villager.name} — ${seasonKey} Schedule`,
+    title: `${villager.name}'s Schedule`,
     url: `${villager.wiki_url}#Schedule`,
     thumbnail: villager.image_url ? { url: villager.image_url } : undefined,
     color,

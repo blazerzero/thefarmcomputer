@@ -91,41 +91,92 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
 }
 
 const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
+const SCHEDULE_GROUPS = [...SEASONS, "Marriage"];
+
+/** Extract time/location rows from a wikitable. */
+function parseTableEntries(table: ReturnType<typeof parse>): ScheduleEntry[] {
+  const entries: ScheduleEntry[] = [];
+  for (const row of table.querySelectorAll("tr")) {
+    const cells = row.querySelectorAll("td");
+    if (cells.length < 2) continue;
+    const time = cells[0]!.text.trim();
+    const location = cells[1]!.text.replace(/\s+/g, " ").trim();
+    if (time && location) entries.push({ time, location });
+  }
+  return entries;
+}
+
+/**
+ * Walk the children of a container element, collecting occasion labels (<b> tags)
+ * and their associated wikitable entries.
+ */
+function parseGroupContent(container: ReturnType<typeof parse>): Record<string, ScheduleEntry[]> {
+  const groupData: Record<string, ScheduleEntry[]> = {};
+  let currentOccasion = "Regular Schedule";
+
+  for (const child of container.childNodes) {
+    const tag = (child as ReturnType<typeof parse>).tagName?.toUpperCase();
+    if (!tag) continue; // skip text nodes
+
+    const el = child as ReturnType<typeof parse>;
+
+    if (tag === "P" || tag === "DIV") {
+      const bold = el.querySelector("b");
+      if (bold) {
+        const label = bold.text.trim();
+        if (label) currentOccasion = label;
+      }
+    } else if (tag === "B") {
+      const label = el.text.trim();
+      if (label) currentOccasion = label;
+    } else if (tag === "TABLE" && el.classList?.contains("wikitable")) {
+      const entries = parseTableEntries(el);
+      if (entries.length > 0) {
+        if (!groupData[currentOccasion]) groupData[currentOccasion] = [];
+        groupData[currentOccasion]!.push(...entries);
+      }
+    }
+  }
+
+  return groupData;
+}
 
 /**
  * Parse schedule data from one villager's HTML page.
  *
- * The wiki lays out schedules as:
- *   h3 "Spring" / "Summer" / "Fall" / "Winter"  (season header)
- *     <b>Occasion name</b>  (e.g. "Rain", "Monday and Sunday", "Regular Schedule")
- *     <table class="wikitable">  (Time | Location rows)
- *     ... more <b>/table pairs ...
+ * Handles three wiki layout patterns:
  *
- * Returns a nested object: { Spring: { Rain: [{time,location}], ... }, ... }
+ *   Pass 1 — h3-based groups: some pages use h3 headings ("Spring", "Marriage", etc.)
+ *     followed by <b> occasion labels and <table class="wikitable"> rows.
+ *
+ *   Pass 2 — collapsible group tables: other pages wrap each group in a
+ *     <table class="mw-collapsible"> (without "wikitable") whose <th> names the group
+ *     and whose <td> contains <b> occasion labels + inner wikitables.
+ *
+ *   Pass 3 — ungrouped collapsible tables: individual <table class="wikitable mw-collapsible">
+ *     tables not inside any group. The occasion name is in the <th> header. These fall
+ *     into a synthetic "Default" group.
+ *
+ * Returns: { Spring: { Rain: [{time,location}], … }, Marriage: { … }, Default: { … }, … }
  */
 function parseSchedule(html: string): Record<string, Record<string, ScheduleEntry[]>> {
   const root = parse(html);
   const result: Record<string, Record<string, ScheduleEntry[]>> = {};
 
-  const h3s = root.querySelectorAll("h3");
-  for (const h3 of h3s) {
-    const seasonText = h3.text.trim();
-    if (!SEASONS.includes(seasonText)) continue;
+  // ── Pass 1: h3-based grouped schedules ──────────────────────────────────────
+  for (const h3 of root.querySelectorAll("h3")) {
+    const groupText = h3.text.trim();
+    if (!SCHEDULE_GROUPS.includes(groupText)) continue;
 
-    const seasonData: Record<string, ScheduleEntry[]> = {};
-
-    // Walk next siblings until we hit another h3 or h2
+    const groupData: Record<string, ScheduleEntry[]> = {};
     let node = h3.nextElementSibling;
     let currentOccasion = "Regular Schedule";
 
     while (node) {
       const tag = node.tagName?.toUpperCase();
-
-      // Stop when we reach the next season heading or a major section heading
       if (tag === "H3" || tag === "H2") break;
 
       if (tag === "P" || tag === "DIV") {
-        // Check for bold sub-headings inside paragraphs or divs
         const bold = node.querySelector("b");
         if (bold) {
           const label = bold.text.trim();
@@ -135,28 +186,78 @@ function parseSchedule(html: string): Record<string, Record<string, ScheduleEntr
         const label = node.text.trim();
         if (label) currentOccasion = label;
       } else if (tag === "TABLE" && node.classList?.contains("wikitable")) {
-        const entries: ScheduleEntry[] = [];
-        for (const row of node.querySelectorAll("tr")) {
-          const cells = row.querySelectorAll("td");
-          if (cells.length < 2) continue;
-          const time = cells[0]!.text.trim();
-          const location = cells[1]!.text.replace(/\s+/g, " ").trim();
-          if (time && location) entries.push({ time, location });
-        }
+        const entries = parseTableEntries(node);
         if (entries.length > 0) {
-          // Accumulate entries for the same occasion (some pages have multiple tables per occasion)
-          if (!seasonData[currentOccasion]) seasonData[currentOccasion] = [];
-          seasonData[currentOccasion]!.push(...entries);
+          if (!groupData[currentOccasion]) groupData[currentOccasion] = [];
+          groupData[currentOccasion]!.push(...entries);
         }
       }
 
       node = node.nextElementSibling;
     }
 
-    if (Object.keys(seasonData).length > 0) {
-      result[seasonText] = seasonData;
-    }
+    if (Object.keys(groupData).length > 0) result[groupText] = groupData;
   }
+
+  // ── Pass 2: collapsible group tables ────────────────────────────────────────
+  for (const table of root.querySelectorAll("table.mw-collapsible")) {
+    if (table.classList.contains("wikitable")) continue; // individual occasion table — handled in Pass 3
+
+    const th = table.querySelector("th");
+    if (!th) continue;
+
+    // The group name lives in a non-toggle <a> link (e.g. <a href="/Winter">Winter</a>)
+    const groupLink = th.querySelector("a:not(.mw-collapsible-text)");
+    let groupName = groupLink?.text.trim() ?? "";
+
+    if (!groupName) {
+      // Fallback: strip the collapsible toggle text and use whatever remains
+      const toggleText = th.querySelector(".mw-collapsible-toggle")?.text ?? "";
+      groupName = th.text.replace(toggleText, "").replace(/\s+/g, " ").trim();
+    }
+
+    if (!groupName || !SCHEDULE_GROUPS.includes(groupName)) continue;
+    if (result[groupName]) continue; // already parsed via Pass 1
+
+    const td = table.querySelector("td");
+    if (!td) continue;
+
+    const groupData = parseGroupContent(td);
+    if (Object.keys(groupData).length > 0) result[groupName] = groupData;
+  }
+
+  // ── Pass 3: ungrouped collapsible occasion tables → "Default" group ─────────
+  const defaultGroup: Record<string, ScheduleEntry[]> = {};
+
+  for (const table of root.querySelectorAll("table.wikitable.mw-collapsible")) {
+    // Skip tables that are nested inside a group-level collapsible (Pass 2 territory)
+    let parent = table.parentNode as typeof table | null;
+    let insideGroup = false;
+    while (parent) {
+      const ptag = (parent as ReturnType<typeof parse>).tagName?.toUpperCase();
+      if (ptag === "TABLE") {
+        const pcl = (parent as ReturnType<typeof parse>).classList;
+        if (pcl?.contains("mw-collapsible") && !pcl?.contains("wikitable")) {
+          insideGroup = true;
+          break;
+        }
+      }
+      parent = (parent as ReturnType<typeof parse>).parentNode as typeof table | null;
+    }
+    if (insideGroup) continue;
+
+    const th = table.querySelector("th");
+    if (!th) continue;
+
+    const toggleText = th.querySelector(".mw-collapsible-toggle")?.text ?? "";
+    const occasion = th.text.replace(toggleText, "").trim();
+    if (!occasion) continue;
+
+    const entries = parseTableEntries(table);
+    if (entries.length > 0) defaultGroup[occasion] = entries;
+  }
+
+  if (Object.keys(defaultGroup).length > 0) result["Default"] = defaultGroup;
 
   return result;
 }
