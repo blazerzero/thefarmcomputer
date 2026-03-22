@@ -1,6 +1,6 @@
 .card {
 	display: inline-flex;
-	max-width: 41.25rem;
+	max-width: var(--max-width);
 	width: 100%;
 	background: var(--surface);
 	border-radius: 0.25rem;

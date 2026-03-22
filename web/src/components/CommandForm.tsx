@@ -337,7 +337,7 @@ export function CommandForm({ onSubmit, loading }: Props) {
 							>
 								{field.required && !field.default && (
 									<option value="" disabled>
-										— select —
+										Select {field.name}...
 									</option>
 								)}
 								{!field.required && !field.default && (

@@ -3,7 +3,7 @@
 	flex-direction: column;
 	gap: 0.5rem;
 	width: 100%;
-	max-width: 41.25rem;
+	max-width: var(--max-width);
 }
 
 .commandField,
@@ -39,7 +39,6 @@
 .input,
 .select {
 	width: 100%;
-	padding: 0.5rem 0.75rem;
 	font-size: 1rem;
 	background: var(--bg);
 	color: var(--text);
@@ -57,10 +56,22 @@
 		opacity: 0.5;
 		cursor: not-allowed;
 	}
+
+	option:disabled {
+		opacity: 0.5;
+	}
+}
+
+.input {
+	padding: 0.5625rem 0.75rem;
+}
+
+.select {
+	padding: 0.5rem 0.75rem;
 }
 
 .button {
-	padding: 0.5625rem 1rem;
+	padding: 0.625rem 1rem;
 	font-size: 1rem;
 	font-weight: 600;
 	background: var(--accent);
@@ -92,5 +103,28 @@
 	.button {
 		width: auto;
 		align-self: flex-end;
+	}
+}
+
+// Large — Layout B: everything inline in one row
+@media (min-width: 1000px) {
+	.form {
+		flex-direction: row;
+		align-items: flex-end;
+	}
+
+	.commandField {
+		flex-shrink: 0;
+		width: 8.5rem;
+	}
+
+	.params {
+		flex: 1;
+		flex-wrap: nowrap;
+		min-width: 0;
+	}
+
+	.field {
+		min-width: 0;
 	}
 }
