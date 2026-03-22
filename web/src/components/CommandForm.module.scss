@@ -1,0 +1,119 @@
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+	max-width: 41.25rem;
+}
+
+.commandField,
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.params {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.label {
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-muted);
+}
+
+.optionalHint {
+	font-size: 0.65rem;
+	font-weight: 400;
+	font-style: italic;
+	text-transform: none;
+	letter-spacing: 0;
+	margin-left: 0.3rem;
+}
+
+.input,
+.select {
+	width: 100%;
+	padding: 0.5rem 0.75rem;
+	font-size: 1rem;
+	background: var(--bg);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 0.25rem;
+	outline: none;
+	font-family: inherit;
+
+	&::placeholder {
+		color: var(--text-muted);
+		opacity: 0.5;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+.button {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	font-weight: 600;
+	background: var(--accent);
+	color: #fff;
+	border: none;
+	border-radius: 0.25rem;
+	transition: opacity 0.15s;
+	width: 100%;
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+// Medium — Layout A: command on row 1, params + button on row 2
+@media (min-width: 568px) {
+	.params {
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: flex-end;
+	}
+
+	.field {
+		flex: 1;
+		min-width: 8rem;
+	}
+
+	.button {
+		width: auto;
+		align-self: flex-end;
+	}
+}
+
+// Large — Layout B: everything inline in one row
+@media (min-width: 1000px) {
+	.form {
+		flex-direction: row;
+		align-items: flex-end;
+	}
+
+	.commandField {
+		flex-shrink: 0;
+		width: 8.5rem;
+	}
+
+	.params {
+		flex: 1;
+		flex-wrap: nowrap;
+		min-width: 0;
+	}
+
+	.field {
+		min-width: 0;
+	}
+}

@@ -1,14 +1,18 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaDiscord } from "react-icons/fa";
 import styles from "./App.module.scss";
+import { CommandForm } from "./components/CommandForm";
 import { CommandHelp } from "./components/CommandHelp";
-import { CommandInput } from "./components/CommandInput";
 import { EmbedCard } from "./components/EmbedCard";
 import type { QueryResult } from "./types";
 
 /** Strip Discord markdown bold/italic markers for plain text display. */
 function stripMarkdown(text: string): string {
-	return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/__/g, "").replace(/_/g, "");
+	return text
+		.replace(/\*\*/g, "")
+		.replace(/\*/g, "")
+		.replace(/__/g, "")
+		.replace(/_/g, "");
 }
 
 const FULL_TITLE = "The Farm Computer 💾";
@@ -41,7 +45,9 @@ export default function App() {
 			const data = (await res.json()) as QueryResult;
 			setResult(data);
 		} catch {
-			setResult({ error: "Failed to reach the server. Make sure wrangler dev is running." });
+			setResult({
+				error: "Failed to reach the server. Make sure wrangler dev is running.",
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -50,10 +56,22 @@ export default function App() {
 	return (
 		<div className={styles.page}>
 			<div className={styles.header}>
-				<h1 className={`${styles.title}${typing ? ` ${styles.titleTyping}` : ""}`}>{displayedTitle}</h1>
+				<h1
+					className={`${styles.title}${typing ? ` ${styles.titleTyping}` : ""}`}
+				>
+					{displayedTitle}
+				</h1>
 				<p className={styles.subtitle}>
-					A Discord bot and web tool for searching in-game details for Stardew Valley, sourced from the{" "}
-					<a href="https://stardewvalleywiki.com" target="_blank" rel="noreferrer">official wiki</a>.
+					A Discord bot and web tool for searching in-game details for Stardew
+					Valley, sourced from the{" "}
+					<a
+						href="https://stardewvalleywiki.com"
+						target="_blank"
+						rel="noreferrer"
+					>
+						official wiki
+					</a>
+					.
 				</p>
 				<a
 					href="https://discord.com/oauth2/authorize?client_id=1479385265327046677"
@@ -66,17 +84,17 @@ export default function App() {
 				</a>
 			</div>
 
-			<CommandInput onSubmit={handleSubmit} loading={loading} />
+			<CommandForm onSubmit={handleSubmit} loading={loading} />
 
 			{loading && <p className={styles.loading}>Loading…</p>}
 
-			{result && !loading && (
-				result.error ? (
+			{result &&
+				!loading &&
+				(result.error ? (
 					<div className={styles.error}>{stripMarkdown(result.error)}</div>
 				) : result.embed ? (
 					<EmbedCard embed={result.embed} />
-				) : null
-			)}
+				) : null)}
 
 			<CommandHelp />
 
