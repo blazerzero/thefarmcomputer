@@ -7,12 +7,23 @@ import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
+import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
 import { getStatus } from "./db";
 
+function splitArgs(input: string): string[] {
+	const args: string[] = [];
+	const re = /(['"])(.*?)\1|(\S+)/g;
+	let match: RegExpExecArray | null;
+	while ((match = re.exec(input)) !== null) {
+		args.push(match[2] ?? match[3]!);
+	}
+	return args;
+}
+
 export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Response> {
-	const parts = input.trim().split(/\s+/);
+	const parts = splitArgs(input.trim());
 	const command = parts[0]?.toLowerCase() ?? "";
 	const args = parts.slice(1);
 
@@ -53,6 +64,15 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 			handlerResponse = handleGift(makeInteraction(options), sql);
 			break;
 		}
+		case "schedule": {
+			const options: Array<{ name: string; value: string }> = [
+				{ name: "villager", value: args[0] ?? "" },
+			];
+			if (args[1]) options.push({ name: "day", value: args[1] });
+			if (args[2]) options.push({ name: "season", value: args[2] });
+			handlerResponse = handleSchedule(makeInteraction(options), sql);
+			break;
+		}
 		case "season":
 			handlerResponse = handleSeason(makeInteraction([{ name: "season", value: args[0] ?? "" }]), sql);
 			break;
@@ -89,7 +109,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, season, info`,
+				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, schedule, season, info`,
 			});
 	}
 

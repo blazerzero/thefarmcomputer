@@ -7,6 +7,7 @@ import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
+import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
 import {
@@ -28,6 +29,7 @@ import {
   upsertFruitTree,
   upsertMineral,
   upsertVillager,
+  villagersNeedScheduleRefresh,
 } from "./db";
 import { scrapeBundles } from "./scraper/bundles";
 import { scrapeCraftedItems } from "./scraper/craftedItems";
@@ -166,6 +168,11 @@ export class StardewDO implements DurableObject {
       } else if (countCraftedItems(this.sql) === 0) {
         // Crafted items table was added in a later deploy — populate without full refresh
         await refreshCraftedItems(this.sql);
+      } else if (villagersNeedScheduleRefresh(this.sql)) {
+        // schedule column was added in a later deploy — re-scrape villagers to populate it
+        const villagers = await scrapeVillagers();
+        for (const v of villagers) upsertVillager(this.sql, v);
+        console.log(`Re-scraped ${villagers.length} villagers (schedule migration)`);
       }
     });
   }
@@ -204,6 +211,7 @@ export class StardewDO implements DurableObject {
       if (commandName === "gift") return handleGift(interaction, this.sql);
       if (commandName === "ingredient") return handleIngredient(interaction, this.sql);
       if (commandName === "mineral") return handleMineral(interaction, this.sql);
+      if (commandName === "schedule") return handleSchedule(interaction, this.sql);
       if (commandName === "season") return handleSeason(interaction, this.sql);
 
       if (commandName === "info") {

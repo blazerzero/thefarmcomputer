@@ -32,6 +32,12 @@ export interface Crop extends Omit<CropRow, "seasons"> {
   seasons: string[];
 }
 
+/** A single time+location entry in a villager's schedule. */
+export interface ScheduleEntry {
+  time: string;
+  location: string;
+}
+
 /** A villager row as stored in D1. */
 export interface VillagerRow {
   id?: number;
@@ -42,6 +48,7 @@ export interface VillagerRow {
   neutral_gifts: string;
   disliked_gifts: string;
   hated_gifts: string;
+  schedule: string;        // JSON: Record<season, Record<occasion, ScheduleEntry[]>>
   wiki_url: string;
   image_url: string;
   last_updated: string;
