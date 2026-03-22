@@ -60,7 +60,7 @@ export function handleSchedule(
   const color = SEASON_COLORS[seasonKey] ?? 0x5b8a3c;
 
   return embedResponse({
-    title: `${villager.name}'s Schedule`,
+    title: `${villager.name}'s Schedule - ${seasonKey}${dayFilter && filtered.length === 1 ? ` - ${filtered[0]![0]}` : ''}`,
     url: `${villager.wiki_url}#Schedule`,
     thumbnail: villager.image_url ? { url: villager.image_url } : undefined,
     color,
