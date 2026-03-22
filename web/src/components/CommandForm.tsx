@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import styles from "./CommandForm.module.scss";
 
 type FieldDef =
@@ -237,7 +237,7 @@ function buildInput(
 			// Middle empty optional field — include as quoted empty string to preserve
 			// positional alignment for the args that follow (web.ts uses truthy checks)
 			args.push('""');
-		} else {
+		} else if (val !== undefined) {
 			args.push(val.includes(" ") ? `"${val}"` : val);
 		}
 	}
@@ -251,9 +251,9 @@ interface Props {
 }
 
 export function CommandForm({ onSubmit, loading }: Props) {
-	const [commandName, setCommandName] = useState(COMMAND_DEFS[0].name);
+	const [commandName, setCommandName] = useState(COMMAND_DEFS[0]!.name);
 	const [values, setValues] = useState<Record<string, string>>(() =>
-		initValues(COMMAND_DEFS[0]),
+		initValues(COMMAND_DEFS[0]!),
 	);
 
 	const currentDef = COMMAND_DEFS.find((d) => d.name === commandName)!;
@@ -279,7 +279,7 @@ export function CommandForm({ onSubmit, loading }: Props) {
 		});
 	}
 
-	function handleSubmit(e: FormEvent) {
+	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		if (!isSubmittable() || loading) return;
 		onSubmit(buildInput(commandName, currentDef, values));
