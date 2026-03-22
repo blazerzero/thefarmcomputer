@@ -111,6 +111,65 @@ function parseVariationsTable(table: HTMLElement): MonsterVariation[] {
   return variations;
 }
 
+// ── Infobox parser ────────────────────────────────────────────────────────────
+
+/**
+ * Parse the #infoboxtable that appears on individual monster pages when there
+ * is no multi-variation wikitable.  Returns null if no infobox is found.
+ *
+ * Infobox row structure:
+ *   <tr><td id="infoboxsection">Label:</td><td id="infoboxdetail">Value</td></tr>
+ * (The wiki reuses the same id on multiple rows, so we walk all rows manually.)
+ */
+function parseInfobox(
+  root: HTMLElement,
+  fallbackName: string,
+): Omit<MonsterRow, "id" | "last_updated" | "wiki_url"> | null {
+  const infobox = root.querySelector("#infoboxtable") as unknown as HTMLElement | null;
+  if (!infobox) return null;
+
+  // Monster name from the header cell
+  const header = infobox.querySelector("#infoboxheader") as unknown as HTMLElement | null;
+  const name = header?.text.trim() || fallbackName;
+
+  // Image — first <img> inside the table
+  const imgEl = infobox.querySelector("img") as unknown as HTMLElement | null;
+  const imgSrc = imgEl?.getAttribute("src") ?? null;
+  const image_url = imgSrc ? (imgSrc.startsWith("http") ? imgSrc : WIKI_BASE + imgSrc) : null;
+
+  // Collect label → detail cell pairs by walking every row
+  const fields: Record<string, HTMLElement> = {};
+  const rows = infobox.querySelectorAll("tr") as unknown as HTMLElement[];
+  for (const row of rows) {
+    const tds = row.querySelectorAll("td") as unknown as HTMLElement[];
+    if (tds.length < 2) continue;
+    const labelTd = tds[0]!;
+    const valueTd = tds[1]!;
+    if (labelTd.getAttribute("id") !== "infoboxsection") continue;
+    if (valueTd.getAttribute("id") !== "infoboxdetail") continue;
+    const label = labelTd.text.trim().toLowerCase().replace(/:$/, "").trim();
+    fields[label] = valueTd;
+  }
+
+  // Build location string by combining "spawns in" + "floors"
+  const spawnsIn = fields["spawns in"]?.text.trim() ?? null;
+  const floors = fields["floors"]?.text.trim() ?? null;
+  const location = spawnsIn
+    ? floors
+      ? `${spawnsIn} (Floors ${floors})`
+      : spawnsIn
+    : null;
+
+  const hp       = fields["base hp"]?.text.trim()     || null;
+  const damage   = fields["base damage"]?.text.trim() || null;
+  const defense  = fields["base def"]?.text.trim()    || null;
+  const speed    = fields["speed"]?.text.trim()       || null;
+  const xp       = fields["xp"]?.text.trim()          || null;
+  const drops    = fields["drops"] ? parseDrops(fields["drops"]) : [];
+
+  return { name, location, hp, damage, defense, speed, xp, drops: JSON.stringify(drops), image_url };
+}
+
 // ── Page-link collector ────────────────────────────────────────────────────────
 
 /**
@@ -195,20 +254,13 @@ export async function scrapeMonsters(): Promise<Omit<MonsterRow, "id" | "last_up
           break; // only need the first variations table per page
         }
 
-        // Fallback: create a minimal entry using the link's display name
+        // Fallback: parse the #infoboxtable that appears on pages without a
+        // multi-variation wikitable (e.g. Dust Sprite, Shadow Brute, etc.)
         if (pageMonsters.length === 0) {
-          pageMonsters.push({
-            name: fallbackName,
-            location: null,
-            hp: null,
-            damage: null,
-            defense: null,
-            speed: null,
-            xp: null,
-            drops: "[]",
-            image_url: null,
-            wiki_url: wikiUrl,
-          });
+          const infoboxData = parseInfobox(root, fallbackName);
+          if (infoboxData) {
+            pageMonsters.push({ ...infoboxData, wiki_url: wikiUrl });
+          }
         }
 
         return pageMonsters;
