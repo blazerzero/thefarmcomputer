@@ -22,10 +22,11 @@ After registering, run `yarn register-manual` to push the commands to Discord. G
 
 ## Web Query API
 
-Every new slash command must also be supported in `src/web.ts`. When implementing a new command:
+Every new slash command must also be supported in the web frontend. When implementing a new command:
 
 1. Import the handler at the top of `src/web.ts`
 2. Add a `case` for it in the `switch` block, constructing a `makeInteraction(...)` call with the appropriate options
 3. Add the command name to the error string in the `default` case
+4. Add an entry to the `COMMANDS` array in `web/src/components/CommandHelp.tsx` (keep alphabetical order)
 
-Omitting this means the web frontend (`/api/query`) won't support the command.
+Omitting any of these means the web frontend (`/api/query`) won't fully support the command.
