@@ -94,26 +94,3 @@
 		align-self: flex-end;
 	}
 }
-
-// Large — Layout B: everything inline in one row
-@media (min-width: 1000px) {
-	.form {
-		flex-direction: row;
-		align-items: flex-end;
-	}
-
-	.commandField {
-		flex-shrink: 0;
-		width: 8.5rem;
-	}
-
-	.params {
-		flex: 1;
-		flex-wrap: nowrap;
-		min-width: 0;
-	}
-
-	.field {
-		min-width: 0;
-	}
-}
