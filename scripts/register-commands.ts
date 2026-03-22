@@ -209,6 +209,20 @@ const commands = [
     ],
   },
   {
+    name: "monster",
+    description: "Look up info about a Stardew Valley monster.",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      {
+        type: 3, // STRING
+        name: "name",
+        description: "Monster name (e.g. Shadow Brute, Frost Bat, Green Slime)",
+        required: true,
+      },
+    ],
+  },
+  {
     name: "info",
     description: "Show the bot's data freshness and record counts.",
     integration_types: [0, 1],

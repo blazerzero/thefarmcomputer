@@ -7,6 +7,7 @@ import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
+import { handleMonster } from "./commands/monster";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
@@ -18,6 +19,7 @@ import {
   countForageables,
   countFruitTrees,
   countMinerals,
+  countMonsters,
   countVillagers,
   getStatus,
   initDb,
@@ -28,6 +30,7 @@ import {
   upsertForageable,
   upsertFruitTree,
   upsertMineral,
+  upsertMonster,
   upsertVillager,
   villagersNeedScheduleRefresh,
 } from "./db";
@@ -38,6 +41,7 @@ import { scrapeFish } from "./scraper/fish";
 import { scrapeForageables } from "./scraper/forageables";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeMinerals } from "./scraper/minerals";
+import { scrapeMonsters } from "./scraper/monsters";
 import { scrapeVillagers } from "./scraper/villagers";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
@@ -85,6 +89,12 @@ async function refreshCraftedItems(sql: SqlStorage): Promise<number> {
   const craftedItems = await scrapeCraftedItems();
   for (const item of craftedItems) upsertCraftedItem(sql, item);
   return craftedItems.length;
+}
+
+async function refreshMonsters(sql: SqlStorage): Promise<number> {
+  const monsters = await scrapeMonsters();
+  for (const m of monsters) upsertMonster(sql, m);
+  return monsters.length;
 }
 
 async function refreshAll(sql: SqlStorage): Promise<void> {
@@ -138,6 +148,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
   } catch (err) {
     console.error("Crafted items scrape failed:", err);
   }
+  try {
+    const n = await refreshMonsters(sql);
+    console.log(`Updated ${n} monsters`);
+  } catch (err) {
+    console.error("Monster scrape failed:", err);
+  }
   console.log("Wiki refresh complete");
 }
 
@@ -168,6 +184,9 @@ export class StardewDO implements DurableObject {
       } else if (countCraftedItems(this.sql) === 0) {
         // Crafted items table was added in a later deploy — populate without full refresh
         await refreshCraftedItems(this.sql);
+      } else if (countMonsters(this.sql) === 0) {
+        // Monsters table was added in a later deploy — populate without full refresh
+        await refreshMonsters(this.sql);
       } else if (villagersNeedScheduleRefresh(this.sql)) {
         // schedule column was added in a later deploy — re-scrape villagers to populate it
         const villagers = await scrapeVillagers();
@@ -211,6 +230,7 @@ export class StardewDO implements DurableObject {
       if (commandName === "gift") return handleGift(interaction, this.sql);
       if (commandName === "ingredient") return handleIngredient(interaction, this.sql);
       if (commandName === "mineral") return handleMineral(interaction, this.sql);
+      if (commandName === "monster") return handleMonster(interaction, this.sql);
       if (commandName === "schedule") return handleSchedule(interaction, this.sql);
       if (commandName === "season") return handleSeason(interaction, this.sql);
 
@@ -225,6 +245,7 @@ export class StardewDO implements DurableObject {
           s.forageablesLastUpdated ? new Date(s.forageablesLastUpdated).getTime() : 0,
           s.fruitTreesLastUpdated ? new Date(s.fruitTreesLastUpdated).getTime() : 0,
           s.mineralsLastUpdated ? new Date(s.mineralsLastUpdated).getTime() : 0,
+          s.monstersLastUpdated ? new Date(s.monstersLastUpdated).getTime() : 0,
           s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
         )
         const lastUpdated = lastUpdatedMs ? formatDate(new Date(lastUpdatedMs).toISOString()) : "never";
@@ -273,6 +294,11 @@ export class StardewDO implements DurableObject {
                   },
                   {
                     name: `Crafted Items: ${s.craftedItemCount}`,
+                    value: "",
+                    inline: false,
+                  },
+                  {
+                    name: `Monsters: ${s.monsterCount}`,
                     value: "",
                     inline: false,
                   },

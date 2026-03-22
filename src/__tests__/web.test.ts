@@ -110,6 +110,20 @@ const fakeVillagerRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeMonsterRow = {
+	name: "Shadow Brute",
+	location: "The Mines (Floors 80-119)",
+	hp: "250",
+	damage: "14-26",
+	defense: "3",
+	speed: "3",
+	xp: "15",
+	drops: '["Solar Essence (75%)"]',
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Shadow_Brute",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
@@ -178,6 +192,13 @@ describe("handleWebQuery — command routing", () => {
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toContain("Spring Crops");
+	});
+
+	it("routes 'monster' and returns an embed with the monster title", async () => {
+		const res = await handleWebQuery("monster shadow brute", makeSql([fakeMonsterRow]));
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Shadow Brute");
 	});
 
 	it("routes 'info' and returns an embed with the status title", async () => {

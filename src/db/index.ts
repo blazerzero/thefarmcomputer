@@ -8,3 +8,4 @@ export { getForageable, upsertForageable, countForageables } from "./forageables
 export { getMineral, upsertMineral, countMinerals } from "./minerals";
 export { getCraftedItem, getCraftedItemsByIngredient, upsertCraftedItem, countCraftedItems } from "./craftedItems";
 export { getVillager, upsertVillager, countVillagers, villagersNeedScheduleRefresh } from "./villagers";
+export { getMonster, upsertMonster, countMonsters } from "./monsters";

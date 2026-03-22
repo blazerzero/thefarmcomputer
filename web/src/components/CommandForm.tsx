@@ -154,6 +154,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "monster",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Shadow Brute",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "schedule",
 		fields: [
 			{

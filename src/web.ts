@@ -7,6 +7,7 @@ import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
+import { handleMonster } from "./commands/monster";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
@@ -52,6 +53,9 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		case "mineral":
 			handlerResponse = handleMineral(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
 			break;
+		case "monster":
+			handlerResponse = handleMonster(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
+			break;
 		case "craft":
 			handlerResponse = handleCraft(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
 			break;
@@ -86,6 +90,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 				s.forageablesLastUpdated ? new Date(s.forageablesLastUpdated).getTime() : 0,
 				s.fruitTreesLastUpdated ? new Date(s.fruitTreesLastUpdated).getTime() : 0,
 				s.mineralsLastUpdated ? new Date(s.mineralsLastUpdated).getTime() : 0,
+				s.monstersLastUpdated ? new Date(s.monstersLastUpdated).getTime() : 0,
 				s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs ? formatDate(new Date(lastUpdatedMs).toISOString()) : "never";
@@ -102,6 +107,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 						{ name: `Forageables: ${s.forageableCount}`,  value: "", inline: false },
 						{ name: `Minerals: ${s.mineralCount}`,        value: "", inline: false },
 					{ name: `Crafted Items: ${s.craftedItemCount}`, value: "", inline: false },
+					{ name: `Monsters: ${s.monsterCount}`,        value: "", inline: false },
 					],
 					footer: { text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC` },
 				},
@@ -109,7 +115,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, schedule, season, info`,
+				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, schedule, season, info`,
 			});
 	}
 

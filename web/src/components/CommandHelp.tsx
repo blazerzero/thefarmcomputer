@@ -11,6 +11,7 @@ const COMMANDS = [
 	{ syntax: "ingredient <name>", example: "ingredient wood", desc: "All crafting recipes that use this item as an ingredient" },
 	{ syntax: "info", example: "info", desc: "Database record counts and last update time" },
 	{ syntax: "mineral <name>", example: "mineral quartz", desc: "Category, sources, uses, sell price" },
+	{ syntax: "monster <name>", example: "monster shadow brute", desc: "HP, damage, defense, speed, XP, location, drops" },
 	{ syntax: "schedule <villager> [day] [season]", example: "schedule Harvey Rain", desc: "Villager's schedule. Day filters by occasion (Rain, Monday, etc.). Season defaults to Default." },
 	{ syntax: "season <season>", example: "season Summer", desc: "All crops for Spring, Summer, Fall, or Winter" },
 ];
