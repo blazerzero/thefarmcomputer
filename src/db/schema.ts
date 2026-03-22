@@ -151,4 +151,21 @@ export function initDb(sql: SqlStorage): void {
   `);
   // Add schedule column to existing instances that predate this schema change.
   try { sql.exec("ALTER TABLE villagers ADD COLUMN schedule TEXT"); } catch { /* already exists */ }
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS monsters (
+      id           INTEGER PRIMARY KEY,
+      name         TEXT UNIQUE NOT NULL,
+      location     TEXT,
+      hp           TEXT,
+      damage       TEXT,
+      defense      TEXT,
+      speed        TEXT,
+      xp           TEXT,
+      drops        TEXT,
+      image_url    TEXT,
+      wiki_url     TEXT,
+      last_updated TEXT
+    )
+  `);
 }

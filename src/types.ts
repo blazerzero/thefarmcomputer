@@ -213,6 +213,27 @@ export interface CraftedItem extends Omit<CraftedItemRow, "ingredients"> {
   ingredients: CraftIngredient[];
 }
 
+/** A monster or monster variation row as stored in SQLite. */
+export interface MonsterRow {
+  id?: number;
+  name: string;
+  location: string | null;   // e.g. "The Mines (Floors 1-29), Secret Woods"
+  hp: string | null;         // TEXT because can be "3 × original slime"
+  damage: string | null;
+  defense: string | null;
+  speed: string | null;
+  xp: string | null;
+  drops: string;             // JSON array of drop strings
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A monster row with drops already decoded. */
+export interface Monster extends Omit<MonsterRow, "drops"> {
+  drops: string[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,
