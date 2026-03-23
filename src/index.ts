@@ -162,7 +162,7 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 export class StardewDO implements DurableObject {
   private sql: SqlStorage;
 
-  constructor(private state: DurableObjectState, _env: Env) {
+  constructor(private state: DurableObjectState, private env: Env) {
     this.sql = state.storage.sql;
 
     // Create tables on first boot (safe to call repeatedly — IF NOT EXISTS)
@@ -172,6 +172,8 @@ export class StardewDO implements DurableObject {
     state.blockConcurrencyWhile(async () => {
       if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0 && countFruitTrees(this.sql) === 0 && countBundles(this.sql) === 0) {
         await refreshAll(this.sql);
+        // Mark refresh time so the cold-start check below doesn't double-refresh
+        await state.storage.put("lastStartupRefresh", Date.now());
       } else if (countFish(this.sql) === 0) {
         // Fish table was added in a later deploy — populate without full refresh
         await refreshFish(this.sql);
@@ -194,6 +196,24 @@ export class StardewDO implements DurableObject {
         console.log(`Re-scraped ${villagers.length} villagers (schedule migration)`);
       }
     });
+
+    // On each cold start (e.g. after a deploy), refresh in the background so data stays current.
+    // Throttled to once per hour to avoid hammering the wiki on frequent eviction/re-activation cycles.
+    // Skipped in local dev (DEV_MODE=true in .dev.vars) to avoid slow network scraping on hot reloads.
+    if (env.DEV_MODE !== "true") {
+      state.waitUntil(
+        (async () => {
+          const lastRefresh = await state.storage.get<number>("lastStartupRefresh");
+          const oneHourAgo = Date.now() - 60 * 60 * 1000;
+          if (!lastRefresh || lastRefresh < oneHourAgo) {
+            console.log("Cold-start refresh: updating datastore in background...");
+            await state.storage.put("lastStartupRefresh", Date.now());
+            await refreshAll(this.sql);
+            console.log("Cold-start refresh complete.");
+          }
+        })()
+      );
+    }
   }
 
   // Receives forwarded requests from the thin Worker

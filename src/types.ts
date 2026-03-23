@@ -7,6 +7,7 @@ export interface Env {
   DISCORD_TOKEN: string;
   BOT_OWNER_TOKEN: string;
   OVERRIDE_DISCORD_AUTH?: string;  // For testing: if set to true, skip signature verification and auth checks.
+  DEV_MODE?: string;               // If set to "true", skip auto-refresh on cold start (set in .dev.vars for local dev).
 }
 
 /** A crop row as stored in D1. */
