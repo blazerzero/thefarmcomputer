@@ -1,9 +1,9 @@
-import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
+import { DEFAULT_COLOR, SEASON_COLORS, SEASONS } from "../constants";
 import { getCropsBySeason } from "../db";
 import { InteractionResponseType } from "../types";
 import { getOption, notFoundResponse, renderDotForListContent } from "./utils";
 
-const VALID_SEASONS = new Set(["Spring", "Summer", "Fall", "Winter"]);
+const VALID_SEASONS = new Set(SEASONS);
 
 function normalize(input: string): string {
   return input.trim().charAt(0).toUpperCase() + input.trim().slice(1).toLowerCase();

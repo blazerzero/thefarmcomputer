@@ -1,10 +1,11 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
+import { SEASONS } from "../constants";
 import type { FishRow } from "../types";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
-const SEASON_NAMES = new Set(["Spring", "Summer", "Fall", "Winter"]);
+const SEASON_NAMES = new Set(SEASONS);
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 

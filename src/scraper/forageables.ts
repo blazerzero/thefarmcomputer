@@ -4,11 +4,11 @@ import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
 import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
+import { SEASONS } from "../constants";
 import type { ForageableRow } from "../types";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
-const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
 
 function parseUsedInCell(cell: HTMLElement): string[] {
     const items = cell.querySelectorAll(":scope > span, :scope > p");

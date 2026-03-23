@@ -1,3 +1,6 @@
+export const SEASONS: readonly string[] = ["Spring", "Summer", "Fall", "Winter"];
+export type Season = "Spring" | "Summer" | "Fall" | "Winter";
+
 export const SEASON_COLORS: Record<string, number> = {
   Spring: 0x78b84a,
   Summer: 0xe8c13a,

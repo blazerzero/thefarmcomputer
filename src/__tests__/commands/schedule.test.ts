@@ -46,7 +46,7 @@ describe("handleSchedule", () => {
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
-		expect(embed?.title).toBe("Harvey's Schedule");
+		expect(embed?.title).toBe("Harvey's Schedule - Default");
 		expect(embed?.url).toContain("Harvey");
 		expect(embed?.url).toContain("#Schedule");
 	});
@@ -90,15 +90,27 @@ describe("handleSchedule", () => {
 		expect(json.data.content).toContain("No villager named");
 	});
 
-	it("returns an ephemeral error when the season is not found", async () => {
+	it("falls back to Default schedule when the specified season is not found", async () => {
 		const res = handleSchedule(
 			makeInteraction("harvey", undefined, "winter"),
 			makeSql([fakeVillagerRow]),
 		);
 		const json = (await res.json()) as DiscordResponse;
 
+		const embed = json.data.embeds?.[0];
+		expect(embed?.title).toBe("Harvey's Schedule - Default");
+	});
+
+	it("returns an ephemeral error when the day's season prefix mismatches the specified season", async () => {
+		const res = handleSchedule(
+			makeInteraction("harvey", "Winter 16", "Spring"),
+			makeSql([fakeVillagerRow]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+
 		expect(json.data.flags).toBe(64);
-		expect(json.data.content).toContain("No");
+		expect(json.data.content).toContain("Winter");
+		expect(json.data.content).toContain("Spring");
 	});
 
 	it("returns an ephemeral error when no occasion matches the day filter", async () => {

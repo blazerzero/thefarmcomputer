@@ -4,6 +4,7 @@ import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
 import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
+import { SEASONS } from "../constants";
 import type { ScheduleEntry, VillagerRow } from "../types";
 import { fetchPage } from "./wiki";
 
@@ -90,7 +91,6 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
   return gifts;
 }
 
-const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
 const SCHEDULE_GROUPS = [...SEASONS, "Marriage"];
 
 /** Extract time/location rows from a wikitable. */

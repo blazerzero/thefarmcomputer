@@ -1,4 +1,4 @@
-import { formatDate, SEASON_COLORS } from "../constants";
+import { formatDate, SEASON_COLORS, SEASONS } from "../constants";
 import { getVillager } from "../db";
 import type { ScheduleEntry } from "../types";
 import { embedResponse, getOption, notFoundResponse } from "./utils";
@@ -8,7 +8,8 @@ export function handleSchedule(
   sql: SqlStorage,
 ): Response {
   const villagerName = getOption(interaction, "villager");
-  const season = getOption(interaction, "season") || "Default";
+  const rawSeason = getOption(interaction, "season");
+  const season = rawSeason || "Default";
   const dayFilter = getOption(interaction, "day");
 
   const villager = getVillager(sql, villagerName);
@@ -24,17 +25,28 @@ export function handleSchedule(
   >;
 
   // Find the season key case-insensitively
-  const seasonKey = Object.keys(schedule).find(
+  let seasonKey = Object.keys(schedule).find(
     (s) => s.toLowerCase() === season.toLowerCase(),
   );
 
   if (!seasonKey || !schedule[seasonKey]) {
-    return notFoundResponse(
-      `No **${season}** schedule found for **${villager.name}**. Please specify a season.`,
-    );
+    // Fall back to Default schedule
+    seasonKey = "Default"
   }
 
   const seasonData = schedule[seasonKey];
+  if (Object.keys(schedule).length === 0) {
+    // Villager has no season data
+    return notFoundResponse(
+      `**${villager.name}** has no set schedule.`
+    )
+  }
+  if (!seasonData) {
+    // Villager has no data for the specified season
+    return notFoundResponse(
+      `**${villager.name}** has no schedule specifically for ${seasonKey}.`
+    )
+  }
   const occasions = Object.entries(seasonData);
 
   // Filter by day/occasion if provided
@@ -45,6 +57,18 @@ export function handleSchedule(
     : occasions;
 
   if (!filtered.length) {
+    // If the day has a season prefix that mismatches the specified season, that's
+    // likely why nothing matched — surface a more specific error.
+    if (rawSeason && dayFilter) {
+      const daySeasonPrefix = SEASONS.find((s) =>
+        dayFilter.toLowerCase().startsWith(s.toLowerCase()),
+      );
+      if (daySeasonPrefix && daySeasonPrefix.toLowerCase() !== rawSeason.toLowerCase()) {
+        return notFoundResponse(
+          `The day **${dayFilter}** is in **${daySeasonPrefix}**, but you specified season **${rawSeason}**. Did you mean to use season \`${daySeasonPrefix}\`?`,
+        );
+      }
+    }
     return notFoundResponse(
       `No schedule matching **${dayFilter}** found for **${villager.name}** in **${seasonKey}**.`,
     );

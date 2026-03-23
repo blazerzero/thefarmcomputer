@@ -1,9 +1,9 @@
 import { parse } from "node-html-parser";
+import { SEASONS } from "../constants";
 import type { CropRow } from "../types";
 import { fetchPage } from "./wiki";
 
 const WIKI_BASE = "https://stardewvalleywiki.com";
-const SEASONS: string[] = ["Spring", "Summer", "Fall", "Winter"];
 
 function parseIntFrom(text: string): number | null {
   const m = text.replace(/,/g, "").match(/\d+/);
@@ -16,7 +16,7 @@ function parseSeasons(text: string): string[] {
     .filter((s) => !s.includes('sale') && !s.includes('seed') && !s.includes('sell'))
     .join('. ');
   if (textToRead.includes("all seasons") || textToRead.includes("any season")) {
-    return SEASONS;
+    return [...SEASONS];
   }
   return SEASONS.filter((s) => (
     textToRead.toLowerCase() === `${s.toLowerCase()} crops` ||
