@@ -97,6 +97,12 @@ async function refreshMonsters(sql: SqlStorage): Promise<number> {
   return monsters.length;
 }
 
+async function refreshVillagers(sql: SqlStorage): Promise<number> {
+  const villagers = await scrapeVillagers();
+  for (const v of villagers) upsertVillager(sql, v);
+  return villagers.length;
+}
+
 async function refreshAll(sql: SqlStorage): Promise<void> {
   console.log("Wiki refresh starting…");
   try {
@@ -112,9 +118,8 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
     console.error("Fruit tree scrape failed:", err);
   }
   try {
-    const villagers = await scrapeVillagers();
-    for (const v of villagers) upsertVillager(sql, v);
-    console.log(`Updated ${villagers.length} villagers`);
+    const n = await refreshVillagers(sql);
+    console.log(`Updated ${n} villagers`);
   } catch (err) {
     console.error("Villager scrape failed:", err);
   }
@@ -162,7 +167,7 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 export class StardewDO implements DurableObject {
   private sql: SqlStorage;
 
-  constructor(private state: DurableObjectState, private env: Env) {
+  constructor(private state: DurableObjectState, _env: Env) {
     this.sql = state.storage.sql;
 
     // Create tables on first boot (safe to call repeatedly — IF NOT EXISTS)
@@ -172,8 +177,6 @@ export class StardewDO implements DurableObject {
     state.blockConcurrencyWhile(async () => {
       if (countCrops(this.sql) === 0 && countVillagers(this.sql) === 0 && countFruitTrees(this.sql) === 0 && countBundles(this.sql) === 0) {
         await refreshAll(this.sql);
-        // Mark refresh time so the cold-start check below doesn't double-refresh
-        await state.storage.put("lastStartupRefresh", Date.now());
       } else if (countFish(this.sql) === 0) {
         // Fish table was added in a later deploy — populate without full refresh
         await refreshFish(this.sql);
@@ -196,24 +199,6 @@ export class StardewDO implements DurableObject {
         console.log(`Re-scraped ${villagers.length} villagers (schedule migration)`);
       }
     });
-
-    // On each cold start (e.g. after a deploy), refresh in the background so data stays current.
-    // Throttled to once per hour to avoid hammering the wiki on frequent eviction/re-activation cycles.
-    // Skipped in local dev (DEV_MODE=true in .dev.vars) to avoid slow network scraping on hot reloads.
-    if (env.DEV_MODE !== "true") {
-      state.waitUntil(
-        (async () => {
-          const lastRefresh = await state.storage.get<number>("lastStartupRefresh");
-          const oneHourAgo = Date.now() - 60 * 60 * 1000;
-          if (!lastRefresh || lastRefresh < oneHourAgo) {
-            console.log("Cold-start refresh: updating datastore in background...");
-            await state.storage.put("lastStartupRefresh", Date.now());
-            await refreshAll(this.sql);
-            console.log("Cold-start refresh complete.");
-          }
-        })()
-      );
-    }
   }
 
   // Receives forwarded requests from the thin Worker
@@ -241,18 +226,54 @@ export class StardewDO implements DurableObject {
     if (type === InteractionType.APPLICATION_COMMAND) {
       const commandName = (interaction.data as Record<string, unknown>)?.name as string;
 
-      if (commandName === "bundle") return handleBundle(interaction, this.sql);
-      if (commandName === "craft") return handleCraft(interaction, this.sql);
-      if (commandName === "crop") return handleCrop(interaction, this.sql);
-      if (commandName === "fish") return handleFish(interaction, this.sql);
-      if (commandName === "forage") return handleForage(interaction, this.sql);
-      if (commandName === "fruit-tree") return handleFruitTree(interaction, this.sql);
-      if (commandName === "gift") return handleGift(interaction, this.sql);
-      if (commandName === "ingredient") return handleIngredient(interaction, this.sql);
-      if (commandName === "mineral") return handleMineral(interaction, this.sql);
-      if (commandName === "monster") return handleMonster(interaction, this.sql);
-      if (commandName === "schedule") return handleSchedule(interaction, this.sql);
-      if (commandName === "season") return handleSeason(interaction, this.sql);
+      if (commandName === "bundle") {
+        if (countBundles(this.sql) === 0) await refreshBundles(this.sql);
+        return handleBundle(interaction, this.sql);
+      }
+      if (commandName === "craft") {
+        if (countCraftedItems(this.sql) === 0) await refreshCraftedItems(this.sql);
+        return handleCraft(interaction, this.sql);
+      }
+      if (commandName === "crop") {
+        if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
+        return handleCrop(interaction, this.sql);
+      }
+      if (commandName === "fish") {
+        if (countFish(this.sql) === 0) await refreshFish(this.sql);
+        return handleFish(interaction, this.sql);
+      }
+      if (commandName === "forage") {
+        if (countForageables(this.sql) === 0) await refreshForageables(this.sql);
+        return handleForage(interaction, this.sql);
+      }
+      if (commandName === "fruit-tree") {
+        if (countFruitTrees(this.sql) === 0) await refreshFruitTrees(this.sql);
+        return handleFruitTree(interaction, this.sql);
+      }
+      if (commandName === "gift") {
+        if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
+        return handleGift(interaction, this.sql);
+      }
+      if (commandName === "ingredient") {
+        if (countCraftedItems(this.sql) === 0) await refreshCraftedItems(this.sql);
+        return handleIngredient(interaction, this.sql);
+      }
+      if (commandName === "mineral") {
+        if (countMinerals(this.sql) === 0) await refreshMinerals(this.sql);
+        return handleMineral(interaction, this.sql);
+      }
+      if (commandName === "monster") {
+        if (countMonsters(this.sql) === 0) await refreshMonsters(this.sql);
+        return handleMonster(interaction, this.sql);
+      }
+      if (commandName === "schedule") {
+        if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
+        return handleSchedule(interaction, this.sql);
+      }
+      if (commandName === "season") {
+        if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
+        return handleSeason(interaction, this.sql);
+      }
 
       if (commandName === "info") {
         const s = getStatus(this.sql);
