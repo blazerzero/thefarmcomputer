@@ -243,9 +243,9 @@ export interface WeaponRow {
   max_damage: number | null;
   speed: number | null;
   defense: number | null;
+  weight: number | null;
   crit_chance: number | null;   // 0–100 scale (e.g. 2.0 for 2%)
-  crit_multiplier: number | null;
-  mining: number | null;
+  crit_power: number | null;
   level: number | null;
   description: string | null;
   image_url: string | null;

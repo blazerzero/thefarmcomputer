@@ -41,16 +41,16 @@ export function handleWeapon(
     fields.push({ name: "Defense", value: String(weapon.defense), inline: true });
   }
 
-  if (weapon.mining !== null) {
-    fields.push({ name: "Mining", value: String(weapon.mining), inline: true });
+  if (weapon.weight !== null) {
+    fields.push({ name: "Weight", value: String(weapon.weight), inline: true });
   }
 
   if (weapon.crit_chance !== null) {
     fields.push({ name: "Crit. Chance", value: `${weapon.crit_chance}%`, inline: true });
   }
 
-  if (weapon.crit_multiplier !== null) {
-    fields.push({ name: "Crit. Multiplier", value: `${weapon.crit_multiplier}x`, inline: true });
+  if (weapon.crit_power !== null) {
+    fields.push({ name: "Crit. Power", value: String(weapon.crit_power), inline: true });
   }
 
   if (weapon.description) {

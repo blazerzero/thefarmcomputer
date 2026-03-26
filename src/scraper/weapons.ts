@@ -104,9 +104,9 @@ export async function scrapeWeapons(): Promise<Omit<WeaponRow, "id" | "last_upda
       else if (text.includes("damage") && !text.includes("min") && !text.includes("max")) colIdx.damage = colI;
       else if (text === "speed") colIdx.speed = colI;
       else if (text === "defense" || text === "def") colIdx.defense = colI;
+      else if (text === "weight" || text === "knockback") colIdx.weight = colI;
       else if (text.includes("crit") && text.includes("chance")) colIdx.crit_chance = colI;
-      else if (text.includes("crit") && text.includes("multi")) colIdx.crit_multiplier = colI;
-      else if (text === "mining") colIdx.mining = colI;
+      else if (text.includes("crit") && (text.includes("power") || text.includes("multi"))) colIdx.crit_power = colI;
       else if (text === "level" || text === "lvl") colIdx.level = colI;
       else if (text === "description" || text === "desc" || text === "source" || text === "notes") colIdx.description = colI;
 
@@ -164,12 +164,12 @@ export async function scrapeWeapons(): Promise<Omit<WeaponRow, "id" | "last_upda
       }
 
       // Stats
-      const speed       = parseInt2(get("speed")?.text.trim() ?? "");
-      const defense     = parseInt2(get("defense")?.text.trim() ?? "");
-      const mining      = parseInt2(get("mining")?.text.trim() ?? "");
-      const level       = parseInt2(get("level")?.text.trim() ?? "");
-      const critChance  = parseCritChance(get("crit_chance")?.text.trim() ?? "");
-      const critMulti   = parseFloat2(get("crit_multiplier")?.text.trim() ?? "");
+      const speed      = parseInt2(get("speed")?.text.trim() ?? "");
+      const defense    = parseInt2(get("defense")?.text.trim() ?? "");
+      const weight     = parseFloat2(get("weight")?.text.trim() ?? "");
+      const level      = parseInt2(get("level")?.text.trim() ?? "");
+      const critChance = parseCritChance(get("crit_chance")?.text.trim() ?? "");
+      const critPower  = parseFloat2(get("crit_power")?.text.trim() ?? "");
 
       // Description / source
       const descText = get("description")?.text.replace(/\s+/g, " ").trim() || null;
@@ -181,9 +181,9 @@ export async function scrapeWeapons(): Promise<Omit<WeaponRow, "id" | "last_upda
         max_damage: maxDamage,
         speed,
         defense,
+        weight,
         crit_chance: critChance,
-        crit_multiplier: critMulti,
-        mining,
+        crit_power: critPower,
         level,
         description: descText,
         image_url: imageUrl,
