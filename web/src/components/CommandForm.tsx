@@ -208,6 +208,18 @@ const COMMAND_DEFS: CommandDef[] = [
 			},
 		],
 	},
+	{
+		name: "weapon",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Infinity Blade",
+				required: true,
+			},
+		],
+	},
 ];
 
 function initValues(def: CommandDef): Record<string, string> {

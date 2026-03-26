@@ -9,3 +9,4 @@ export { getMineral, upsertMineral, countMinerals } from "./minerals";
 export { getCraftedItem, getCraftedItemsByIngredient, upsertCraftedItem, countCraftedItems } from "./craftedItems";
 export { getVillager, upsertVillager, countVillagers, villagersNeedScheduleRefresh } from "./villagers";
 export { getMonster, upsertMonster, countMonsters } from "./monsters";
+export { getWeapon, upsertWeapon, countWeapons } from "./weapons";

@@ -168,4 +168,24 @@ export function initDb(sql: SqlStorage): void {
       last_updated TEXT
     )
   `);
+
+  sql.exec(`
+    CREATE TABLE IF NOT EXISTS weapons (
+      id              INTEGER PRIMARY KEY,
+      name            TEXT UNIQUE NOT NULL,
+      category        TEXT,
+      min_damage      INTEGER,
+      max_damage      INTEGER,
+      speed           INTEGER,
+      defense         INTEGER,
+      crit_chance     REAL,
+      crit_multiplier REAL,
+      mining          INTEGER,
+      level           INTEGER,
+      description     TEXT,
+      image_url       TEXT,
+      wiki_url        TEXT,
+      last_updated    TEXT
+    )
+  `);
 }

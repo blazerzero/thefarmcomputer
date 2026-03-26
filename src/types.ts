@@ -234,6 +234,28 @@ export interface Monster extends Omit<MonsterRow, "drops"> {
   drops: string[];
 }
 
+/** A weapon row as stored in SQLite. */
+export interface WeaponRow {
+  id?: number;
+  name: string;
+  category: string;             // "Sword" | "Dagger" | "Club" | etc.
+  min_damage: number | null;
+  max_damage: number | null;
+  speed: number | null;
+  defense: number | null;
+  crit_chance: number | null;   // 0–100 scale (e.g. 2.0 for 2%)
+  crit_multiplier: number | null;
+  mining: number | null;
+  level: number | null;
+  description: string | null;
+  image_url: string | null;
+  wiki_url: string;
+  last_updated: string;
+}
+
+/** A weapon row (no JSON fields to decode). */
+export interface Weapon extends WeaponRow {}
+
 /** Discord interaction types. */
 export const InteractionType = {
   PING: 1,

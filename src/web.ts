@@ -9,6 +9,7 @@ import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
 import { handleSchedule } from "./commands/schedule";
+import { handleWeapon } from "./commands/weapon";
 import { handleSeason } from "./commands/season";
 import { formatDate } from "./constants";
 import { getStatus } from "./db";
@@ -80,6 +81,9 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		case "season":
 			handlerResponse = handleSeason(makeInteraction([{ name: "season", value: args[0] ?? "" }]), sql);
 			break;
+		case "weapon":
+			handlerResponse = handleWeapon(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
+			break;
 		case "info": {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
@@ -92,6 +96,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 				s.mineralsLastUpdated ? new Date(s.mineralsLastUpdated).getTime() : 0,
 				s.monstersLastUpdated ? new Date(s.monstersLastUpdated).getTime() : 0,
 				s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
+				s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs ? formatDate(new Date(lastUpdatedMs).toISOString()) : "never";
 			return Response.json({
@@ -108,6 +113,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 						{ name: `Minerals: ${s.mineralCount}`,        value: "", inline: false },
 					{ name: `Crafted Items: ${s.craftedItemCount}`, value: "", inline: false },
 					{ name: `Monsters: ${s.monsterCount}`,        value: "", inline: false },
+					{ name: `Weapons: ${s.weaponCount}`,         value: "", inline: false },
 					],
 					footer: { text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC` },
 				},
@@ -115,7 +121,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, schedule, season, info`,
+				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, weapon, schedule, season, info`,
 			});
 	}
 

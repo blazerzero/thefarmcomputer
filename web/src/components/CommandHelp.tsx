@@ -14,6 +14,7 @@ const COMMANDS = [
 	{ syntax: "monster <name>", example: "monster shadow brute", desc: "HP, damage, defense, speed, XP, location, drops" },
 	{ syntax: "schedule <villager> [day] [season]", example: "schedule Harvey Rain", desc: "Villager's schedule. Day filters by occasion (Rain, Monday, etc.). Season defaults to Default." },
 	{ syntax: "season <season>", example: "season Summer", desc: "All crops for Spring, Summer, Fall, or Winter" },
+	{ syntax: "weapon <name>", example: "weapon infinity blade", desc: "Type, damage, speed, defense, crit stats, level" },
 ];
 
 export function CommandHelp() {
