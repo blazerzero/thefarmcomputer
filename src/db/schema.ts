@@ -207,8 +207,24 @@ export function initDb(sql: SqlStorage): void {
       last_updated    TEXT
     )
   `);
-	try { sql.exec("ALTER TABLE weapons ADD COLUMN extra_stats TEXT"); } catch { /* already exists */ }
-	try { sql.exec("ALTER TABLE weapons ADD COLUMN sell_price INTEGER"); } catch { /* already exists */ }
-	try { sql.exec("ALTER TABLE weapons ADD COLUMN purchase_price INTEGER"); } catch { /* already exists */ }
-	try { sql.exec("ALTER TABLE weapons ADD COLUMN location TEXT"); } catch { /* already exists */ }
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN extra_stats TEXT");
+	} catch {
+		/* already exists */
+	}
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN sell_price INTEGER");
+	} catch {
+		/* already exists */
+	}
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN purchase_price INTEGER");
+	} catch {
+		/* already exists */
+	}
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN location TEXT");
+	} catch {
+		/* already exists */
+	}
 }

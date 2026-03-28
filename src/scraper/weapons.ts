@@ -94,11 +94,11 @@ function parseStatsCell(cell: HTMLElement): {
 	) as unknown as HTMLElement[];
 
 	for (const elem of elems) {
-		const link = elem.tagName === 'A' ? elem : elem.querySelector("a");
+		const link = elem.tagName === "A" ? elem : elem.querySelector("a");
 		if (!link) continue;
-		const isEnchantment = elem.attributes.title === 'Forge';
+		const isEnchantment = elem.attributes.title === "Forge";
 		let statName = link.text.trim();
-		if (isEnchantment) statName = `Enchantment: ${statName}`
+		if (isEnchantment) statName = `Enchantment: ${statName}`;
 		const statKey = statName.toLowerCase();
 		// Normalize Unicode minus sign (U+2212) to ASCII hyphen before parsing
 		const text = elem.text.replace(/\u2212/g, "-");
@@ -112,9 +112,9 @@ function parseStatsCell(cell: HTMLElement): {
 			result.defense = isNaN(n) ? null : n;
 		} else if (statKey === "weight") {
 			result.weight = isNaN(n) ? null : n;
-		} else if (statKey === 'crit. chance') {
+		} else if (statKey === "crit. chance") {
 			result.crit_chance = isNaN(n) ? null : n;
-		} else if (statKey === 'crit. power') {
+		} else if (statKey === "crit. power") {
 			result.crit_power = isNaN(n) ? null : n;
 		} else {
 			result.extra_stats.push({ name: statName, value: rawValue });
@@ -192,9 +192,17 @@ export async function scrapeWeapons(): Promise<
 				colIdx.crit_power = colI;
 			else if (text === "level" || text === "lvl") colIdx.level = colI;
 			else if (text.includes("sell")) colIdx.sell_price = colI;
-			else if (text.includes("purchase") || text.includes("buy") || text === "price")
+			else if (
+				text.includes("purchase") ||
+				text.includes("buy") ||
+				text === "price"
+			)
 				colIdx.purchase_price = colI;
-			else if (text.includes("location") || text === "obtain" || text === "obtained from")
+			else if (
+				text.includes("location") ||
+				text === "obtain" ||
+				text === "obtained from"
+			)
 				colIdx.location = colI;
 			else if (
 				text === "description" ||
@@ -302,11 +310,14 @@ export async function scrapeWeapons(): Promise<
 			const sellPriceCell = getCol(colIdx, cells, "sell_price");
 			const sellPrice = sellPriceCell ? parseGoldPrice(sellPriceCell) : null;
 			const purchasePriceCell = getCol(colIdx, cells, "purchase_price");
-			const purchasePrice = purchasePriceCell ? parseGoldPrice(purchasePriceCell) : null;
+			const purchasePrice = purchasePriceCell
+				? parseGoldPrice(purchasePriceCell)
+				: null;
 
 			// Location
 			const location =
-				getCol(colIdx, cells, "location")?.text.replace(/\s+/g, " ").trim() || null;
+				getCol(colIdx, cells, "location")?.text.replace(/\s+/g, " ").trim() ||
+				null;
 
 			// Description / source
 			const descText =

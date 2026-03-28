@@ -1,6 +1,12 @@
 import { formatDate } from "../constants";
 import { getWeapon } from "../db";
-import { embedResponse, getOption, notFoundResponse, sign, unbulletList } from "./utils";
+import {
+	embedResponse,
+	getOption,
+	notFoundResponse,
+	sign,
+	unbulletList,
+} from "./utils";
 
 const WEAPON_COLOR = 0xc0392b;
 
@@ -35,12 +41,15 @@ export function handleWeapon(
 
 	let statLines: string[] = [];
 	if (weapon.speed !== null) statLines.push(`• Speed ${sign(weapon.speed)}`);
-	if (weapon.defense !== null) statLines.push(`• Defense ${sign(weapon.defense)}`);
+	if (weapon.defense !== null)
+		statLines.push(`• Defense ${sign(weapon.defense)}`);
 	if (weapon.weight !== null) statLines.push(`• Weight ${sign(weapon.weight)}`);
-	if (weapon.crit_chance !== null) statLines.push(`• Crit. Chance ${sign(weapon.crit_chance)}`);
-	if (weapon.crit_power !== null) statLines.push(`• Crit. Power ${sign(weapon.crit_power)}`);
+	if (weapon.crit_chance !== null)
+		statLines.push(`• Crit. Chance ${sign(weapon.crit_chance)}`);
+	if (weapon.crit_power !== null)
+		statLines.push(`• Crit. Power ${sign(weapon.crit_power)}`);
 	if (statLines.length > 0) {
-		if (statLines.length === 1) statLines = unbulletList(statLines)
+		if (statLines.length === 1) statLines = unbulletList(statLines);
 		fields.push({ name: "Stats", value: statLines.join("\n"), inline: true });
 	}
 
@@ -53,7 +62,7 @@ export function handleWeapon(
 			if (extras.length > 0) {
 				let extraItems = extras.map((e) => {
 					if (e.value) return `• ${e.name}: ${e.value}`;
-					else return `• ${e.name}`
+					else return `• ${e.name}`;
 				});
 				if (extras.length === 1) extraItems = unbulletList(extraItems);
 				const text = extraItems.join("\n");
@@ -64,17 +73,21 @@ export function handleWeapon(
 		}
 	}
 
-	fields.push({ name: "Location", value: weapon.location || 'N/A', inline: true });
+	fields.push({
+		name: "Location",
+		value: weapon.location || "N/A",
+		inline: true,
+	});
 
 	fields.push({
 		name: "Purchase Price",
-		value: weapon.purchase_price ? `${weapon.purchase_price}g` : 'N/A',
+		value: weapon.purchase_price ? `${weapon.purchase_price}g` : "N/A",
 		inline: true,
 	});
 
 	fields.push({
 		name: "Sells For",
-		value: weapon.sell_price ? `${weapon.sell_price}g` : 'N/A',
+		value: weapon.sell_price ? `${weapon.sell_price}g` : "N/A",
 		inline: true,
 	});
 
