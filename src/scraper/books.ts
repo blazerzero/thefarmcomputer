@@ -1,6 +1,6 @@
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 import type { BookRow } from "../types";
-import { fetchPage, parseListCell, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 
@@ -74,12 +74,7 @@ export async function scrapeBooks(): Promise<
 				":scope > td",
 			) as unknown as HTMLElement[];
 
-			const get = (key: string): HTMLElement | null => {
-				const idx = colIdx[key];
-				return idx !== undefined ? (cells[idx] ?? null) : null;
-			};
-
-			const nameCell = get("name");
+				const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
 			const nameLink = nameCell.querySelector(
@@ -97,7 +92,7 @@ export async function scrapeBooks(): Promise<
 			const wikiUrl = href.startsWith("http") ? href : WIKI_BASE + href;
 
 			// Image
-			const imageCell = get("image");
+			const imageCell = getCol(colIdx, cells, "image");
 			let imageUrl: string | null = null;
 			if (imageCell) {
 				const img = imageCell.querySelector(
@@ -109,17 +104,25 @@ export async function scrapeBooks(): Promise<
 
 			// Description
 			const description =
-				get("description")?.text.trim().replace(/\s+/g, " ") || null;
+				getCol(colIdx, cells, "description")?.text.trim().replace(/\s+/g, " ") || null;
 
 			// Subsequent reading (optional column)
-			const subCell = get("subsequent_reading");
+			const subCell = getCol(colIdx, cells, "subsequent_reading");
 			const subsequentReading = subCell
 				? subCell.text.trim().replace(/\s+/g, " ") || null
 				: null;
 
 			// Location (may be a bulleted list)
-			const locationCell = get("location");
-			const locationList = locationCell ? parseListCell(locationCell) : [];
+			const locationCell = getCol(colIdx, cells, "location");
+			// const locationList = locationCell ? parseListCell(locationCell) : [];
+			// console.log(locationList)
+			const locationList: string[] = [];
+			if (locationCell) {
+				const items = locationCell.querySelectorAll(':scope > ul > li');
+				for (const item of items) {
+					locationList.push(item.text.trim());
+				}
+			}
 
 			books.push({
 				name: bookName,

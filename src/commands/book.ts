@@ -32,7 +32,7 @@ export function handleBook(
 
 	if (book.location.length > 0) {
 		fields.push({
-			name: "Location",
+			name: "Location(s)",
 			value: renderDotList(book.location),
 			inline: false,
 		});
