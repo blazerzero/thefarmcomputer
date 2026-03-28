@@ -46,7 +46,8 @@ export default function App() {
 			setResult(data);
 		} catch {
 			setResult({
-				error: "Failed to reach the server. Make sure it's running and try again.",
+				error:
+					"Failed to reach the server. Make sure it's running and try again.",
 			});
 		} finally {
 			setLoading(false);

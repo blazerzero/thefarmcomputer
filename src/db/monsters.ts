@@ -3,24 +3,27 @@ import type { Monster, MonsterRow } from "../types";
 const now = () => new Date().toISOString();
 
 export function getMonster(sql: SqlStorage, name: string): Monster | null {
-  try {
-    const row = sql
-      .exec("SELECT * FROM monsters WHERE name LIKE ? LIMIT 1", `%${name}%`)
-      .one() as unknown as MonsterRow | null;
-    if (!row) return null;
-    return {
-      ...row,
-      drops: JSON.parse(row.drops || "[]") as string[],
-    };
-  } catch (err) {
-    console.error("DB error in getMonster:", err);
-    return null;
-  }
+	try {
+		const row = sql
+			.exec("SELECT * FROM monsters WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.one() as unknown as MonsterRow | null;
+		if (!row) return null;
+		return {
+			...row,
+			drops: JSON.parse(row.drops || "[]") as string[],
+		};
+	} catch (err) {
+		console.error("DB error in getMonster:", err);
+		return null;
+	}
 }
 
-export function upsertMonster(sql: SqlStorage, data: Omit<MonsterRow, "id" | "last_updated">): void {
-  sql.exec(
-    `INSERT INTO monsters
+export function upsertMonster(
+	sql: SqlStorage,
+	data: Omit<MonsterRow, "id" | "last_updated">,
+): void {
+	sql.exec(
+		`INSERT INTO monsters
        (name, location, hp, damage, defense, speed, xp, drops, image_url, wiki_url, last_updated)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
@@ -34,11 +37,26 @@ export function upsertMonster(sql: SqlStorage, data: Omit<MonsterRow, "id" | "la
        image_url    = excluded.image_url,
        wiki_url     = excluded.wiki_url,
        last_updated = excluded.last_updated`,
-    data.name, data.location, data.hp, data.damage, data.defense,
-    data.speed, data.xp, data.drops, data.image_url, data.wiki_url, now(),
-  );
+		data.name,
+		data.location,
+		data.hp,
+		data.damage,
+		data.defense,
+		data.speed,
+		data.xp,
+		data.drops,
+		data.image_url,
+		data.wiki_url,
+		now(),
+	);
 }
 
 export function countMonsters(sql: SqlStorage): number {
-  return (sql.exec("SELECT COUNT(*) AS n FROM monsters").one() as { n: number } | null)?.n ?? 0;
+	return (
+		(
+			sql.exec("SELECT COUNT(*) AS n FROM monsters").one() as {
+				n: number;
+			} | null
+		)?.n ?? 0
+	);
 }

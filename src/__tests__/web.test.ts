@@ -153,28 +153,40 @@ describe("handleWebQuery — command routing", () => {
 	});
 
 	it("routes 'fruit-tree' and returns an embed with the tree title", async () => {
-		const res = await handleWebQuery("fruit-tree apple", makeSql([fakeFruitTreeRow]));
+		const res = await handleWebQuery(
+			"fruit-tree apple",
+			makeSql([fakeFruitTreeRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Apple Tree");
 	});
 
 	it("routes 'forage' and returns an embed with the item title", async () => {
-		const res = await handleWebQuery("forage daffodil", makeSql([fakeForageRow]));
+		const res = await handleWebQuery(
+			"forage daffodil",
+			makeSql([fakeForageRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Daffodil");
 	});
 
 	it("routes 'bundle' and returns an embed with the bundle title", async () => {
-		const res = await handleWebQuery("bundle spring foraging", makeSql([fakeBundleRow]));
+		const res = await handleWebQuery(
+			"bundle spring foraging",
+			makeSql([fakeBundleRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Spring Foraging Bundle");
 	});
 
 	it("routes 'mineral' and returns an embed with the mineral title", async () => {
-		const res = await handleWebQuery("mineral quartz", makeSql([fakeMineralRow]));
+		const res = await handleWebQuery(
+			"mineral quartz",
+			makeSql([fakeMineralRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Quartz");
@@ -195,7 +207,10 @@ describe("handleWebQuery — command routing", () => {
 	});
 
 	it("routes 'monster' and returns an embed with the monster title", async () => {
-		const res = await handleWebQuery("monster shadow brute", makeSql([fakeMonsterRow]));
+		const res = await handleWebQuery(
+			"monster shadow brute",
+			makeSql([fakeMonsterRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Shadow Brute");
@@ -214,14 +229,20 @@ describe("handleWebQuery — command routing", () => {
 
 describe("handleWebQuery — argument handling", () => {
 	it("joins multi-word args into a single query value", async () => {
-		const res = await handleWebQuery("bundle spring foraging bundle", makeSql([fakeBundleRow]));
+		const res = await handleWebQuery(
+			"bundle spring foraging bundle",
+			makeSql([fakeBundleRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Spring Foraging Bundle");
 	});
 
 	it("passes tier as second argument to gift command", async () => {
-		const res = await handleWebQuery("gift emily loved_gifts", makeSql([fakeVillagerRow]));
+		const res = await handleWebQuery(
+			"gift emily loved_gifts",
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as WebApiResponse;
 		const fields = json.embed?.fields ?? [];
 

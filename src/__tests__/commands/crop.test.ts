@@ -46,19 +46,34 @@ describe("handleCrop", () => {
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Growth Time", value: "4 days" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Seed Price", value: "20g" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Trellis", value: "No" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Regrowth", value: "Single harvest" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Growth Time", value: "4 days" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Seed Price", value: "20g" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Trellis", value: "No" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Regrowth", value: "Single harvest" }),
+		);
 	});
 
 	it("shows trellis and regrowth for a trellis crop", async () => {
-		const res = handleCrop(makeInteraction("green bean"), makeSql([fakeTrellisRow]));
+		const res = handleCrop(
+			makeInteraction("green bean"),
+			makeSql([fakeTrellisRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Trellis", value: "Yes" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Regrowth", value: "3 days" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Trellis", value: "Yes" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Regrowth", value: "3 days" }),
+		);
 	});
 
 	it("returns an ephemeral error for an unknown crop", async () => {

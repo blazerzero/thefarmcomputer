@@ -34,7 +34,9 @@ const fakeVillagerRow = {
 };
 
 function makeInteraction(villager: string, day?: string, season?: string) {
-	const options: Array<{ name: string; value: string }> = [{ name: "villager", value: villager }];
+	const options: Array<{ name: string; value: string }> = [
+		{ name: "villager", value: villager },
+	];
 	if (day) options.push({ name: "day", value: day });
 	if (season) options.push({ name: "season", value: season });
 	return { data: { options } };
@@ -42,7 +44,10 @@ function makeInteraction(villager: string, day?: string, season?: string) {
 
 describe("handleSchedule", () => {
 	it("returns an embed with the villager's schedule title", async () => {
-		const res = handleSchedule(makeInteraction("harvey"), makeSql([fakeVillagerRow]));
+		const res = handleSchedule(
+			makeInteraction("harvey"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -52,7 +57,10 @@ describe("handleSchedule", () => {
 	});
 
 	it("returns all occasions when no day filter is given", async () => {
-		const res = handleSchedule(makeInteraction("harvey"), makeSql([fakeVillagerRow]));
+		const res = handleSchedule(
+			makeInteraction("harvey"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -61,7 +69,10 @@ describe("handleSchedule", () => {
 	});
 
 	it("filters occasions by day when a day filter is provided", async () => {
-		const res = handleSchedule(makeInteraction("harvey", "rain"), makeSql([fakeVillagerRow]));
+		const res = handleSchedule(
+			makeInteraction("harvey", "rain"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -114,7 +125,10 @@ describe("handleSchedule", () => {
 	});
 
 	it("returns an ephemeral error when no occasion matches the day filter", async () => {
-		const res = handleSchedule(makeInteraction("harvey", "festival"), makeSql([fakeVillagerRow]));
+		const res = handleSchedule(
+			makeInteraction("harvey", "festival"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		expect(json.data.flags).toBe(64);

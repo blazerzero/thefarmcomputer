@@ -27,7 +27,10 @@ function makeInteraction(season: string) {
 
 describe("handleSeason", () => {
 	it("returns an embed titled with the season name and count", async () => {
-		const res = handleSeason(makeInteraction("Spring"), makeSql(springCropRows));
+		const res = handleSeason(
+			makeInteraction("Spring"),
+			makeSql(springCropRows),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -36,7 +39,10 @@ describe("handleSeason", () => {
 	});
 
 	it("lists crop names with growth info in the fields", async () => {
-		const res = handleSeason(makeInteraction("Spring"), makeSql(springCropRows));
+		const res = handleSeason(
+			makeInteraction("Spring"),
+			makeSql(springCropRows),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields;
 
@@ -47,7 +53,10 @@ describe("handleSeason", () => {
 	});
 
 	it("normalizes lowercase season input", async () => {
-		const res = handleSeason(makeInteraction("spring"), makeSql(springCropRows));
+		const res = handleSeason(
+			makeInteraction("spring"),
+			makeSql(springCropRows),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		expect(json.data.embeds?.[0]?.title).toBe("Spring Crops (2)");

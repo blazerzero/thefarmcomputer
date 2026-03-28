@@ -22,7 +22,7 @@ const fakeGemRow = {
 	sell_price: 100,
 	sell_price_gemologist: 130,
 	source: '["Gem Nodes","Fishing Treasure Chests"]',
-	used_in: '[]',
+	used_in: "[]",
 };
 
 function makeInteraction(name: string) {
@@ -31,22 +31,34 @@ function makeInteraction(name: string) {
 
 describe("handleMineral", () => {
 	it("returns an embed with the mineral title and purple color", async () => {
-		const res = handleMineral(makeInteraction("quartz"), makeSql([fakeQuartzRow]));
+		const res = handleMineral(
+			makeInteraction("quartz"),
+			makeSql([fakeQuartzRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
 		expect(embed?.title).toBe("Quartz");
 		expect(embed?.color).toBe(0x8b5cf6);
-		expect(embed?.description).toBe("A clear crystal commonly found in caves and mines.");
+		expect(embed?.description).toBe(
+			"A clear crystal commonly found in caves and mines.",
+		);
 	});
 
 	it("includes category, sell price, source, and used-in fields", async () => {
-		const res = handleMineral(makeInteraction("quartz"), makeSql([fakeQuartzRow]));
+		const res = handleMineral(
+			makeInteraction("quartz"),
+			makeSql([fakeQuartzRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Category", value: "Foraged Mineral" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Sells For", value: "25g" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Category", value: "Foraged Mineral" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Sells For", value: "25g" }),
+		);
 
 		const sourceField = fields.find((f) => f.name === "Source");
 		expect(sourceField?.value).toContain("The Mines");
@@ -56,15 +68,23 @@ describe("handleMineral", () => {
 	});
 
 	it("includes gemologist price for gems", async () => {
-		const res = handleMineral(makeInteraction("amethyst"), makeSql([fakeGemRow]));
+		const res = handleMineral(
+			makeInteraction("amethyst"),
+			makeSql([fakeGemRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Gemologist Price", value: "130g" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Gemologist Price", value: "130g" }),
+		);
 	});
 
 	it("omits gemologist price when null", async () => {
-		const res = handleMineral(makeInteraction("quartz"), makeSql([fakeQuartzRow]));
+		const res = handleMineral(
+			makeInteraction("quartz"),
+			makeSql([fakeQuartzRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);

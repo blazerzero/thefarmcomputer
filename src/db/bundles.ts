@@ -3,21 +3,24 @@ import type { Bundle, BundleItem, BundleRow } from "../types";
 const now = () => new Date().toISOString();
 
 export function getBundle(sql: SqlStorage, name: string): Bundle | null {
-  try {
-    const row = sql
-      .exec("SELECT * FROM bundles WHERE name LIKE ? LIMIT 1", `%${name}%`)
-      .one() as unknown as BundleRow | null;
-    if (!row) return null;
-    return { ...row, items: JSON.parse(row.items || "[]") as BundleItem[] };
-  } catch (err) {
-    console.error("DB error in getBundle:", err);
-    return null;
-  }
+	try {
+		const row = sql
+			.exec("SELECT * FROM bundles WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.one() as unknown as BundleRow | null;
+		if (!row) return null;
+		return { ...row, items: JSON.parse(row.items || "[]") as BundleItem[] };
+	} catch (err) {
+		console.error("DB error in getBundle:", err);
+		return null;
+	}
 }
 
-export function upsertBundle(sql: SqlStorage, data: Omit<BundleRow, "id" | "last_updated">): void {
-  sql.exec(
-    `INSERT INTO bundles
+export function upsertBundle(
+	sql: SqlStorage,
+	data: Omit<BundleRow, "id" | "last_updated">,
+): void {
+	sql.exec(
+		`INSERT INTO bundles
        (name, room, items, items_required, reward, image_url, wiki_url, last_updated)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
@@ -28,11 +31,23 @@ export function upsertBundle(sql: SqlStorage, data: Omit<BundleRow, "id" | "last
        image_url      = excluded.image_url,
        wiki_url       = excluded.wiki_url,
        last_updated   = excluded.last_updated`,
-    data.name, data.room, data.items, data.items_required,
-    data.reward, data.image_url, data.wiki_url, now(),
-  );
+		data.name,
+		data.room,
+		data.items,
+		data.items_required,
+		data.reward,
+		data.image_url,
+		data.wiki_url,
+		now(),
+	);
 }
 
 export function countBundles(sql: SqlStorage): number {
-  return (sql.exec("SELECT COUNT(*) AS n FROM bundles").one() as { n: number } | null)?.n ?? 0;
+	return (
+		(
+			sql.exec("SELECT COUNT(*) AS n FROM bundles").one() as {
+				n: number;
+			} | null
+		)?.n ?? 0
+	);
 }

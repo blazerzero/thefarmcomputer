@@ -3,21 +3,24 @@ import type { Fish, FishRow } from "../types";
 const now = () => new Date().toISOString();
 
 export function getFish(sql: SqlStorage, name: string): Fish | null {
-  try {
-    const row = sql
-      .exec("SELECT * FROM fish WHERE name LIKE ? LIMIT 1", `%${name}%`)
-      .one() as unknown as FishRow | null;
-    if (!row) return null;
-    return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };
-  } catch (err) {
-    console.error("DB error in getFish:", err);
-    return null;
-  }
+	try {
+		const row = sql
+			.exec("SELECT * FROM fish WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.one() as unknown as FishRow | null;
+		if (!row) return null;
+		return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };
+	} catch (err) {
+		console.error("DB error in getFish:", err);
+		return null;
+	}
 }
 
-export function upsertFish(sql: SqlStorage, data: Omit<FishRow, "id" | "last_updated">): void {
-  sql.exec(
-    `INSERT INTO fish
+export function upsertFish(
+	sql: SqlStorage,
+	data: Omit<FishRow, "id" | "last_updated">,
+): void {
+	sql.exec(
+		`INSERT INTO fish
        (name, category, description,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
         location, time, seasons, weather,
@@ -43,14 +46,31 @@ export function upsertFish(sql: SqlStorage, data: Omit<FishRow, "id" | "last_upd
        image_url          = excluded.image_url,
        wiki_url           = excluded.wiki_url,
        last_updated       = excluded.last_updated`,
-    data.name, data.category, data.description,
-    data.sell_price, data.sell_price_silver, data.sell_price_gold, data.sell_price_iridium,
-    data.location, data.time, data.seasons, data.weather,
-    data.min_size, data.max_size, data.difficulty, data.behavior, data.base_xp,
-    data.image_url, data.wiki_url, now(),
-  );
+		data.name,
+		data.category,
+		data.description,
+		data.sell_price,
+		data.sell_price_silver,
+		data.sell_price_gold,
+		data.sell_price_iridium,
+		data.location,
+		data.time,
+		data.seasons,
+		data.weather,
+		data.min_size,
+		data.max_size,
+		data.difficulty,
+		data.behavior,
+		data.base_xp,
+		data.image_url,
+		data.wiki_url,
+		now(),
+	);
 }
 
 export function countFish(sql: SqlStorage): number {
-  return (sql.exec("SELECT COUNT(*) AS n FROM fish").one() as { n: number } | null)?.n ?? 0;
+	return (
+		(sql.exec("SELECT COUNT(*) AS n FROM fish").one() as { n: number } | null)
+			?.n ?? 0
+	);
 }

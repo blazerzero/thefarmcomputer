@@ -32,7 +32,10 @@ function makeInteraction(name: string) {
 
 describe("handleForage", () => {
 	it("returns an embed with the item title and Spring color", async () => {
-		const res = handleForage(makeInteraction("daffodil"), makeSql([fakeForageRow]));
+		const res = handleForage(
+			makeInteraction("daffodil"),
+			makeSql([fakeForageRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -41,12 +44,22 @@ describe("handleForage", () => {
 	});
 
 	it("includes season, locations, energy/health, and sell price fields", async () => {
-		const res = handleForage(makeInteraction("daffodil"), makeSql([fakeForageRow]));
+		const res = handleForage(
+			makeInteraction("daffodil"),
+			makeSql([fakeForageRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Season", value: "Spring" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Energy / Health", value: "22 energy / 9 health" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Season", value: "Spring" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({
+				name: "Energy / Health",
+				value: "22 energy / 9 health",
+			}),
+		);
 
 		const foundField = fields.find((f) => f.name === "Found");
 		expect(foundField?.value).toContain("Pelican Town");
@@ -57,19 +70,32 @@ describe("handleForage", () => {
 	});
 
 	it("includes Used In field when recipes are present", async () => {
-		const res = handleForage(makeInteraction("daffodil"), makeSql([fakeForageRow]));
+		const res = handleForage(
+			makeInteraction("daffodil"),
+			makeSql([fakeForageRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Used In", value: expect.stringContaining("Dye Pots") }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({
+				name: "Used In",
+				value: expect.stringContaining("Dye Pots"),
+			}),
+		);
 	});
 
 	it("shows All Seasons when seasons array is empty", async () => {
-		const res = handleForage(makeInteraction("artifact"), makeSql([fakeAllSeasonRow]));
+		const res = handleForage(
+			makeInteraction("artifact"),
+			makeSql([fakeAllSeasonRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Season", value: "All Seasons" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Season", value: "All Seasons" }),
+		);
 	});
 
 	it("returns an ephemeral error for an unknown item", async () => {
