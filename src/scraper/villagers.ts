@@ -6,9 +6,9 @@ import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
 import { SEASONS } from "../constants";
 import type { ScheduleEntry, VillagerRow } from "../types";
-import { fetchPage } from "./wiki";
+import { fetchPage, WIKI_BASE } from "./wiki";
 
-const WIKI_BASE = "https://stardewvalleywiki.com";
+
 const GIFT_TIERS = ["loved", "liked", "neutral", "disliked", "hated"] as const;
 type GiftTier = (typeof GIFT_TIERS)[number];
 

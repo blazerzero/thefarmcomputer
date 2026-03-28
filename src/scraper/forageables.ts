@@ -6,9 +6,9 @@ import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
 import { SEASONS } from "../constants";
 import type { ForageableRow } from "../types";
-import { fetchPage } from "./wiki";
+import { fetchPage, WIKI_BASE } from "./wiki";
 
-const WIKI_BASE = "https://stardewvalleywiki.com";
+
 
 function parseUsedInCell(cell: HTMLElement): string[] {
     const items = cell.querySelectorAll(":scope > span, :scope > p");

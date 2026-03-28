@@ -1,37 +1,6 @@
-import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { BookRow } from "../types";
-import { fetchPage } from "./wiki";
-
-const WIKI_BASE = "https://stardewvalleywiki.com";
-
-// ── Cell parsers ──────────────────────────────────────────────────────────────
-
-/**
- * Parse a table cell that may contain multiple locations separated by <br> tags
- * or other block-like elements. Mirrors the approach used in minerals.ts.
- */
-function parseListCell(cell: HTMLElement): string[] {
-  const items = cell.childNodes;
-  const parsedItems: string[] = [];
-  let goToNewline = false;
-  let text = "";
-  items.forEach((item, index) => {
-    if (item.rawTagName === "img") return;
-    if (item.rawTagName && item.rawTagName !== "a") {
-      goToNewline = true;
-      if (item.rawTagName === "br") return;
-    }
-    const itemText = item.text.replace(/\s+/g, " ");
-    text += itemText;
-    if (goToNewline || index === items.length - 1) {
-      if (text.trim()) parsedItems.push(text.trim());
-      text = "";
-      goToNewline = false;
-    }
-  });
-  return parsedItems;
-}
+import { fetchPage, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 

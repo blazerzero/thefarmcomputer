@@ -1,9 +1,9 @@
 import { parse } from "node-html-parser";
 import { SEASONS } from "../constants";
 import type { FruitTreeRow } from "../types";
-import { fetchPage } from "./wiki";
+import { fetchPage, WIKI_BASE } from "./wiki";
 
-const WIKI_BASE = "https://stardewvalleywiki.com";
+
 
 function parseIntFrom(text: string): number | null {
   const m = text.replace(/,/g, "").match(/\d+/);
