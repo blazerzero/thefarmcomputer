@@ -15,6 +15,7 @@ export {
 } from "./forageables";
 export { countFruitTrees, getFruitTree, upsertFruitTree } from "./fruitTrees";
 export { countMinerals, getMineral, upsertMineral } from "./minerals";
+export { countRings, getRing, upsertRing } from "./rings";
 export { countMonsters, getMonster, upsertMonster } from "./monsters";
 export { initDb } from "./schema";
 export { getStatus } from "./status";
