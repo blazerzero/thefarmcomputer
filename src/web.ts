@@ -1,3 +1,4 @@
+import { handleBook } from "./commands/book";
 import { handleBundle } from "./commands/bundle";
 import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
@@ -35,6 +36,9 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 	let handlerResponse: Response;
 
 	switch (command) {
+		case "book":
+			handlerResponse = handleBook(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
+			break;
 		case "crop":
 			handlerResponse = handleCrop(makeInteraction([{ name: "name", value: args.join(" ") }]), sql);
 			break;
@@ -115,7 +119,7 @@ export async function handleWebQuery(input: string, sql: SqlStorage): Promise<Re
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, schedule, season, info`,
+				error: `Unknown command "${command}". Try: book, crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, schedule, season, info`,
 			});
 	}
 

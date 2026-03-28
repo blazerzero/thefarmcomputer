@@ -32,6 +32,18 @@ const SEASON_OPTIONS = [
 
 const COMMAND_DEFS: CommandDef[] = [
 	{
+		name: "book",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Price Catalogue",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "bundle",
 		fields: [
 			{
