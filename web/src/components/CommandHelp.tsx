@@ -71,6 +71,11 @@ const COMMANDS = [
 		example: "season Summer",
 		desc: "All crops for Spring, Summer, Fall, or Winter",
 	},
+	{
+		syntax: "weapon <name>",
+		example: "weapon infinity blade",
+		desc: "Type, damage, speed, defense, crit stats, level",
+	},
 ];
 
 export function CommandHelp() {

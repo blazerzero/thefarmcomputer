@@ -355,10 +355,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workers-types@npm:^4.20250224.0":
-  version: 4.20260307.1
-  resolution: "@cloudflare/workers-types@npm:4.20260307.1"
-  checksum: 10c0/994ef7a35a3d9b32dc514df89f94d47e4e024e91ea8fe35aae432b76f17cd66531da2ef4047709a510780b531405defaab45d3f6dce5585a08b35e4153c1accf
+"@cloudflare/workers-types@npm:4.20250224.0":
+  version: 4.20250224.0
+  resolution: "@cloudflare/workers-types@npm:4.20250224.0"
+  checksum: 10c0/7227e0c6ca1e2d2eb1b32816a6bf7eef6ddd42ce65b7b95cdd98b0cdb82f7705250657a26d99c97da8be86939411d6526baec1b12acb1de0ae05de4861946a12
   languageName: node
   linkType: hard
 
@@ -4562,7 +4562,7 @@ __metadata:
   resolution: "thefarmcomputer@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^2.4.8"
-    "@cloudflare/workers-types": "npm:^4.20250224.0"
+    "@cloudflare/workers-types": "npm:4.20250224.0"
     "@types/node": "npm:^25.5.0"
     "@types/pluralize": "npm:^0.0.33"
     husky: "npm:^9.1.7"
@@ -4577,7 +4577,7 @@ __metadata:
     tsx: "npm:^4.21.0"
     typescript: "npm:^5.9.3"
     vitest: "npm:^3.2.4"
-    wrangler: "npm:^4.73.0"
+    wrangler: "npm:4.73.0"
   languageName: unknown
   linkType: soft
 
@@ -5092,7 +5092,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrangler@npm:^4.73.0":
+"wrangler@npm:4.73.0":
   version: 4.73.0
   resolution: "wrangler@npm:4.73.0"
   dependencies:

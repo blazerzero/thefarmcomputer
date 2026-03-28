@@ -9,6 +9,28 @@ const USER_AGENT =
  * @param path  Wiki path, e.g. "/Crops" or "/Abigail"
  * @returns     HTML string
  */
+/**
+ * Retrieve a table cell by its logical column name, resolving the position
+ * via a pre-built column-index map. Hidden child elements are stripped so
+ * callers always see the visible text/content only.
+ *
+ * @param colIdx  Map of column key → zero-based cell index
+ * @param cells   Array of `<td>` / `<th>` elements for the current row
+ * @param key     Column key to look up
+ */
+export function getCol(
+	colIdx: Record<string, number>,
+	cells: HTMLElement[],
+	key: string,
+): HTMLElement | null {
+	const idx = colIdx[key];
+	const cell = idx !== undefined ? (cells[idx] ?? null) : null;
+	cell
+		?.querySelectorAll('[style*="display: none"]')
+		.forEach((el) => el.remove());
+	return cell;
+}
+
 export async function fetchPage(path: string): Promise<string> {
 	const url = WIKI_BASE + path;
 	const delays = [2000, 4000, 8000];

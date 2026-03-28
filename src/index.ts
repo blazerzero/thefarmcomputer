@@ -11,6 +11,7 @@ import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
+import { handleWeapon } from "./commands/weapon";
 import { formatDate } from "./constants";
 import {
 	countBooks,
@@ -23,6 +24,7 @@ import {
 	countMinerals,
 	countMonsters,
 	countVillagers,
+	countWeapons,
 	getStatus,
 	initDb,
 	upsertBook,
@@ -35,6 +37,7 @@ import {
 	upsertMineral,
 	upsertMonster,
 	upsertVillager,
+	upsertWeapon,
 	villagersNeedScheduleRefresh,
 } from "./db";
 import { scrapeBooks } from "./scraper/books";
@@ -47,6 +50,7 @@ import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeMonsters } from "./scraper/monsters";
 import { scrapeVillagers } from "./scraper/villagers";
+import { scrapeWeapons } from "./scraper/weapons";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
 import { handleWebQuery } from "./web";
@@ -105,6 +109,12 @@ async function refreshMonsters(sql: SqlStorage): Promise<number> {
 	const monsters = await scrapeMonsters();
 	for (const m of monsters) upsertMonster(sql, m);
 	return monsters.length;
+}
+
+async function refreshWeapons(sql: SqlStorage): Promise<number> {
+	const weapons = await scrapeWeapons();
+	for (const w of weapons) upsertWeapon(sql, w);
+	return weapons.length;
 }
 
 async function refreshVillagers(sql: SqlStorage): Promise<number> {
@@ -175,6 +185,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	} catch (err) {
 		console.error("Book scrape failed:", err);
 	}
+	try {
+		const n = await refreshWeapons(sql);
+		console.log(`Updated ${n} weapons`);
+	} catch (err) {
+		console.error("Weapon scrape failed:", err);
+	}
 	console.log("Wiki refresh complete");
 }
 
@@ -219,6 +235,9 @@ export class StardewDO implements DurableObject {
 			} else if (countBooks(this.sql) === 0) {
 				// Books table was added in a later deploy — populate without full refresh
 				await refreshBooks(this.sql);
+			} else if (countWeapons(this.sql) === 0) {
+				// Weapons table was added in a later deploy — populate without full refresh
+				await refreshWeapons(this.sql);
 			} else if (villagersNeedScheduleRefresh(this.sql)) {
 				// schedule column was added in a later deploy — re-scrape villagers to populate it
 				const villagers = await scrapeVillagers();
@@ -303,6 +322,10 @@ export class StardewDO implements DurableObject {
 				if (countMonsters(this.sql) === 0) await refreshMonsters(this.sql);
 				return handleMonster(interaction, this.sql);
 			}
+			if (commandName === "weapon") {
+				if (countWeapons(this.sql) === 0) await refreshWeapons(this.sql);
+				return handleWeapon(interaction, this.sql);
+			}
 			if (commandName === "schedule") {
 				if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
 				return handleSchedule(interaction, this.sql);
@@ -333,6 +356,7 @@ export class StardewDO implements DurableObject {
 					s.villagersLastUpdated
 						? new Date(s.villagersLastUpdated).getTime()
 						: 0,
+					s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
 				);
 				const lastUpdated = lastUpdatedMs
 					? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -387,6 +411,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Monsters: ${s.monsterCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Weapons: ${s.weaponCount}`,
 										value: "",
 										inline: false,
 									},

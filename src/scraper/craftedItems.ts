@@ -1,7 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
-import type { CraftIngredient, CraftedItemRow } from "../types";
-import { fetchPage, WIKI_BASE } from "./wiki";
+import type { CraftedItemRow, CraftIngredient } from "../types";
+import { fetchPage, getCol, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
@@ -151,18 +151,8 @@ export async function scrapeCraftedItems(): Promise<
 			) as unknown as HTMLElement[];
 			if (cells.length === 0) continue;
 
-			const getCell = (key: string): HTMLElement | null => {
-				const idx = colIdx[key];
-				const cell = idx !== undefined ? (cells[idx] ?? null) : null;
-				if (!cell) return cell;
-				cell
-					.querySelectorAll('[style*="display: none"]')
-					.forEach((el) => el.remove());
-				return cell;
-			};
-
 			// Name
-			const nameCell = getCell("name");
+			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
 			const nameLink = nameCell.querySelector(
@@ -181,7 +171,7 @@ export async function scrapeCraftedItems(): Promise<
 
 			// Image
 			let imageUrl: string | null = null;
-			const imageCell = getCell("image");
+			const imageCell = getCol(colIdx, cells, "image");
 			if (imageCell) {
 				const img = imageCell.querySelector(
 					"img",
@@ -192,38 +182,40 @@ export async function scrapeCraftedItems(): Promise<
 
 			// Description
 			const description =
-				getCell("description")?.text.trim().replace(/\s+/g, " ") || null;
+				getCol(colIdx, cells, "description")
+					?.text.trim()
+					.replace(/\s+/g, " ") || null;
 
 			// Duration (Days)
-			const daysCell = getCell("duration_days");
+			const daysCell = getCol(colIdx, cells, "duration_days");
 			const durationDays = daysCell ? parseNumber(daysCell.text) : null;
 
 			// Duration (Seasons)
-			const seasonsCell = getCell("duration_seasons");
+			const seasonsCell = getCol(colIdx, cells, "duration_seasons");
 			const durationSeasons = seasonsCell
 				? seasonsCell.text.trim().replace(/\s+/g, " ") || null
 				: null;
 
 			// Radius
-			const radiusCell = getCell("radius");
+			const radiusCell = getCol(colIdx, cells, "radius");
 			const radius = radiusCell ? parseNumber(radiusCell.text) : null;
 
 			// Ingredients
-			const ingredientsCell = getCell("ingredients");
+			const ingredientsCell = getCol(colIdx, cells, "ingredients");
 			const ingredients: CraftIngredient[] = ingredientsCell
 				? parseIngredients(ingredientsCell)
 				: [];
 
 			// Energy
-			const energyCell = getCell("energy");
+			const energyCell = getCol(colIdx, cells, "energy");
 			const energy = energyCell ? parseNumber(energyCell.text) : null;
 
 			// Health
-			const healthCell = getCell("health");
+			const healthCell = getCol(colIdx, cells, "health");
 			const health = healthCell ? parseNumber(healthCell.text) : null;
 
 			// Recipe source
-			const recipeSourceCell = getCell("recipe_source");
+			const recipeSourceCell = getCol(colIdx, cells, "recipe_source");
 			const recipeSource = recipeSourceCell
 				? recipeSourceCell.text.trim().replace(/\s+/g, " ") || null
 				: null;

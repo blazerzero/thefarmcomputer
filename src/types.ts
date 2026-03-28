@@ -258,6 +258,32 @@ export interface Book extends Omit<BookRow, "location"> {
 	location: string[];
 }
 
+/** A weapon row as stored in SQLite. */
+export interface WeaponRow {
+	id?: number;
+	name: string;
+	category: string; // "Sword" | "Dagger" | "Club" | etc.
+	min_damage: number | null;
+	max_damage: number | null;
+	speed: number | null;
+	defense: number | null;
+	weight: number | null;
+	crit_chance: number | null; // 0–100 scale (e.g. 2.0 for 2%)
+	crit_power: number | null;
+	level: number | null;
+	sell_price: number | null;
+	purchase_price: number | null;
+	location: string | null;
+	description: string | null;
+	extra_stats: string | null; // JSON: Array<{name: string, value: string}>
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A weapon row (no JSON fields to decode). */
+export interface Weapon extends WeaponRow {}
+
 /** Discord interaction types. */
 export const InteractionType = {
 	PING: 1,

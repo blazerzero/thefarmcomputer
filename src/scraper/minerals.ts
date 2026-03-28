@@ -1,7 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { MineralRow } from "../types";
-import { fetchPage, parseListCell, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
@@ -97,12 +97,7 @@ export async function scrapeMinerals(): Promise<
 				":scope > td",
 			) as unknown as HTMLElement[];
 
-			const get = (key: string): HTMLElement | null => {
-				const idx = colIdx[key];
-				return idx !== undefined ? (cells[idx] ?? null) : null;
-			};
-
-			const nameCell = get("name");
+			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
 			const nameLink = nameCell.querySelector(
@@ -120,7 +115,7 @@ export async function scrapeMinerals(): Promise<
 			const wikiUrl = href.startsWith("http") ? href : WIKI_BASE + href;
 
 			// Image
-			const imageCell = get("image");
+			const imageCell = getCol(colIdx, cells, "image");
 			let imageUrl: string | null = null;
 			if (imageCell) {
 				const img = imageCell.querySelector(
@@ -132,22 +127,24 @@ export async function scrapeMinerals(): Promise<
 
 			// Description
 			const description =
-				get("description")?.text.trim().replace(/\s+/g, " ") || null;
+				getCol(colIdx, cells, "description")
+					?.text.trim()
+					.replace(/\s+/g, " ") || null;
 
 			// Sell price
-			const sellPriceCell = get("sell_price");
+			const sellPriceCell = getCol(colIdx, cells, "sell_price");
 			const sellPrice = sellPriceCell ? parseSellPrice(sellPriceCell) : null;
 
 			// Gemologist sell price (absent for Geodes)
-			const gemCell = get("sell_price_gemologist");
+			const gemCell = getCol(colIdx, cells, "sell_price_gemologist");
 			const sellPriceGemologist = gemCell ? parseSellPrice(gemCell) : null;
 
 			// Source
-			const sourceCell = get("source");
+			const sourceCell = getCol(colIdx, cells, "source");
 			const source = sourceCell ? parseListCell(sourceCell) : [];
 
 			// Used in
-			const usedInCell = get("used_in");
+			const usedInCell = getCol(colIdx, cells, "used_in");
 			const usedIn = usedInCell ? parseListCell(usedInCell) : [];
 
 			minerals.push({

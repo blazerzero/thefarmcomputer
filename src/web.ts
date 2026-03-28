@@ -11,6 +11,7 @@ import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
+import { handleWeapon } from "./commands/weapon";
 import { formatDate } from "./constants";
 import { getStatus } from "./db";
 
@@ -124,6 +125,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case "weapon":
+			handlerResponse = handleWeapon(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case "info": {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
@@ -142,6 +149,7 @@ export async function handleWebQuery(
 				s.mineralsLastUpdated ? new Date(s.mineralsLastUpdated).getTime() : 0,
 				s.monstersLastUpdated ? new Date(s.monstersLastUpdated).getTime() : 0,
 				s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
+				s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -172,6 +180,7 @@ export async function handleWebQuery(
 							inline: false,
 						},
 						{ name: `Monsters: ${s.monsterCount}`, value: "", inline: false },
+						{ name: `Weapons: ${s.weaponCount}`, value: "", inline: false },
 					],
 					footer: {
 						text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC`,
@@ -181,7 +190,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: book, crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, schedule, season, info`,
+				error: `Unknown command "${command}". Try: book, crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, weapon, schedule, season, info`,
 			});
 	}
 

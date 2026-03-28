@@ -246,6 +246,20 @@ const commands = [
 		integration_types: [0, 1],
 		contexts: [0, 1, 2],
 	},
+	{
+		name: "weapon",
+		description: "Look up info about a Stardew Valley weapon.",
+		integration_types: [0, 1],
+		contexts: [0, 1, 2],
+		options: [
+			{
+				type: 3, // STRING
+				name: "name",
+				description: "Weapon name (e.g. Infinity Blade, Wood Club, Elf Blade)",
+				required: true,
+			},
+		],
+	},
 ];
 
 const url = `https://discord.com/api/v10/applications/${APPLICATION_ID}/commands`;
@@ -270,3 +284,5 @@ console.log("Registered commands:");
 for (const cmd of registered) {
 	console.log(`  /${cmd.name} (id: ${cmd.id})`);
 }
+
+export {};

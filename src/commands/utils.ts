@@ -69,3 +69,15 @@ export const renderDotList = (items: string[]): string =>
 		.map((s, _, { length: n }) => `${renderDotForListContent(n)}${s}`)
 		.join("\n")
 		.slice(0, 1024);
+
+/** Format a number with an explicit sign: +3, -2, +0. */
+export const sign = (n: number): string => (n >= 0 ? `+${n}` : String(n));
+
+export const unbulletList = (list: string[]): string[] => {
+	const bullet = "• ";
+	return list.reduce((acc, item) => {
+		if (item.startsWith(bullet)) acc.push(item.replace(bullet, ""));
+		else acc.push(item);
+		return acc;
+	}, [] as string[]);
+};

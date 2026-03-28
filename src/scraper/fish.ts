@@ -2,7 +2,7 @@ import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import { SEASONS } from "../constants";
 import type { FishRow } from "../types";
-import { fetchPage, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, WIKI_BASE } from "./wiki";
 
 const SEASON_NAMES = new Set(SEASONS);
 
@@ -166,13 +166,7 @@ export async function scrapeFish(): Promise<
 				":scope > td",
 			) as unknown as HTMLElement[];
 
-			// Helper: safely retrieve a cell by column key (returns null if column not mapped)
-			const get = (key: string): HTMLElement | null => {
-				const idx = colIdx[key];
-				return idx !== undefined ? (cells[idx] ?? null) : null;
-			};
-
-			const nameCell = get("name");
+			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
 			// Skip continuation rows: the name cell won't have an <a> link in the right slot
@@ -190,7 +184,7 @@ export async function scrapeFish(): Promise<
 			const wikiUrl = href.startsWith("http") ? href : WIKI_BASE + href;
 
 			// Image
-			const imageCell = get("image");
+			const imageCell = getCol(colIdx, cells, "image");
 			let imageUrl: string | null = null;
 			if (imageCell) {
 				const img = imageCell.querySelector("img");
@@ -199,24 +193,26 @@ export async function scrapeFish(): Promise<
 			}
 
 			// Description
-			const description = get("description")?.text.trim() || null;
+			const description =
+				getCol(colIdx, cells, "description")?.text.trim() || null;
 
 			// Prices
-			const priceCell = get("price");
+			const priceCell = getCol(colIdx, cells, "price");
 			const [sellPrice, sellSilver, sellGold, sellIridium] = priceCell
 				? parsePrices(priceCell)
 				: [null, null, null, null];
 
 			// Location
 			let location: string | null =
-				get("location")?.text.trim().replace(/\s+/g, " ") || null;
+				getCol(colIdx, cells, "location")?.text.trim().replace(/\s+/g, " ") ||
+				null;
 
 			// Time
-			const timeCell = get("time");
+			const timeCell = getCol(colIdx, cells, "time");
 			let time = timeCell ? parseTime(timeCell) : "Anytime";
 
 			// Season
-			const seasonCell = get("season");
+			const seasonCell = getCol(colIdx, cells, "season");
 			let seasons: string[];
 			if (seasonCell) {
 				seasons = parseSeasons(seasonCell);
@@ -227,7 +223,7 @@ export async function scrapeFish(): Promise<
 			}
 
 			// Weather
-			const weatherCell = get("weather");
+			const weatherCell = getCol(colIdx, cells, "weather");
 			let weather: string | null = weatherCell
 				? parseWeather(weatherCell)
 				: null;
@@ -240,13 +236,15 @@ export async function scrapeFish(): Promise<
 			}
 
 			// Size
-			const [minSize, maxSize] = parseSize(get("size"));
+			const [minSize, maxSize] = parseSize(getCol(colIdx, cells, "size"));
 
 			// Difficulty & Behavior
-			const [difficulty, behavior] = parseDifficultyBehavior(get("difficulty"));
+			const [difficulty, behavior] = parseDifficultyBehavior(
+				getCol(colIdx, cells, "difficulty"),
+			);
 
 			// Base XP
-			const xpText = get("xp")?.text.trim() ?? "";
+			const xpText = getCol(colIdx, cells, "xp")?.text.trim() ?? "";
 			const baseXp = xpText ? parseInt(xpText, 10) || null : null;
 
 			fish.push({

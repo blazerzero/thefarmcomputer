@@ -196,4 +196,48 @@ export function initDb(sql: SqlStorage): void {
       last_updated TEXT
     )
   `);
+
+	sql.exec(`
+    CREATE TABLE IF NOT EXISTS weapons (
+      id              INTEGER PRIMARY KEY,
+      name            TEXT UNIQUE NOT NULL,
+      category        TEXT,
+      min_damage      INTEGER,
+      max_damage      INTEGER,
+      speed           INTEGER,
+      defense         INTEGER,
+      weight          REAL,
+      crit_chance     REAL,
+      crit_power      REAL,
+      level           INTEGER,
+      sell_price      INTEGER,
+      purchase_price  INTEGER,
+      location        TEXT,
+      description     TEXT,
+      extra_stats     TEXT,
+      image_url       TEXT,
+      wiki_url        TEXT,
+      last_updated    TEXT
+    )
+  `);
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN extra_stats TEXT");
+	} catch {
+		/* already exists */
+	}
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN sell_price INTEGER");
+	} catch {
+		/* already exists */
+	}
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN purchase_price INTEGER");
+	} catch {
+		/* already exists */
+	}
+	try {
+		sql.exec("ALTER TABLE weapons ADD COLUMN location TEXT");
+	} catch {
+		/* already exists */
+	}
 }
