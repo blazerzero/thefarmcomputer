@@ -36,7 +36,10 @@ function makeInteraction(name: string) {
 
 describe("handleMonster", () => {
 	it("returns an embed with the monster title and color", async () => {
-		const res = handleMonster(makeInteraction("shadow brute"), makeSql([fakeMonsterRow]));
+		const res = handleMonster(
+			makeInteraction("shadow brute"),
+			makeSql([fakeMonsterRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -46,19 +49,35 @@ describe("handleMonster", () => {
 	});
 
 	it("includes stat fields HP, Damage, Defense, Speed, XP", async () => {
-		const res = handleMonster(makeInteraction("shadow brute"), makeSql([fakeMonsterRow]));
+		const res = handleMonster(
+			makeInteraction("shadow brute"),
+			makeSql([fakeMonsterRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "HP", value: "250" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Damage", value: "14-26" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Defense", value: "3" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Speed", value: "3" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "XP", value: "15" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "HP", value: "250" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Damage", value: "14-26" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Defense", value: "3" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Speed", value: "3" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "XP", value: "15" }),
+		);
 	});
 
 	it("includes Location and Drops fields", async () => {
-		const res = handleMonster(makeInteraction("shadow brute"), makeSql([fakeMonsterRow]));
+		const res = handleMonster(
+			makeInteraction("shadow brute"),
+			makeSql([fakeMonsterRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -71,7 +90,10 @@ describe("handleMonster", () => {
 	});
 
 	it("omits null stat fields", async () => {
-		const res = handleMonster(makeInteraction("green slime"), makeSql([fakeMinimalMonsterRow]));
+		const res = handleMonster(
+			makeInteraction("green slime"),
+			makeSql([fakeMinimalMonsterRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);

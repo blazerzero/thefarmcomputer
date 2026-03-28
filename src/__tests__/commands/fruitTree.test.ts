@@ -23,7 +23,10 @@ function makeInteraction(name: string) {
 
 describe("handleFruitTree", () => {
 	it("returns an embed with the tree title and Fall color", async () => {
-		const res = handleFruitTree(makeInteraction("apple"), makeSql([fakeFruitTreeRow]));
+		const res = handleFruitTree(
+			makeInteraction("apple"),
+			makeSql([fakeFruitTreeRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -32,18 +35,32 @@ describe("handleFruitTree", () => {
 	});
 
 	it("includes harvest season, growth time, sapling price, and fruit fields", async () => {
-		const res = handleFruitTree(makeInteraction("apple"), makeSql([fakeFruitTreeRow]));
+		const res = handleFruitTree(
+			makeInteraction("apple"),
+			makeSql([fakeFruitTreeRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Harvest Season", value: "Fall" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Growth Time", value: "28 days" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Sapling Price", value: "4,000g" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Fruit", value: "Apple" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Harvest Season", value: "Fall" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Growth Time", value: "28 days" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Sapling Price", value: "4,000g" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Fruit", value: "Apple" }),
+		);
 	});
 
 	it("includes quality price tiers for the fruit", async () => {
-		const res = handleFruitTree(makeInteraction("apple"), makeSql([fakeFruitTreeRow]));
+		const res = handleFruitTree(
+			makeInteraction("apple"),
+			makeSql([fakeFruitTreeRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const sellField = fields.find((f) => f.name === "Fruit Sells For");

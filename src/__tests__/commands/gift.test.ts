@@ -5,7 +5,8 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 const fakeVillagerRow = {
 	name: "Emily",
 	birthday: "Spring 27",
-	loved_gifts: '["Amethyst","Aquamarine","Cloth","Emerald","Jade","Ruby","Topaz","Wool"]',
+	loved_gifts:
+		'["Amethyst","Aquamarine","Cloth","Emerald","Jade","Ruby","Topaz","Wool"]',
 	liked_gifts: '["Daffodil","Leek"]',
 	neutral_gifts: '["Common Mushroom"]',
 	disliked_gifts: '["Sugar","Wheat Flour"]',
@@ -16,14 +17,19 @@ const fakeVillagerRow = {
 };
 
 function makeInteraction(villager: string, tier?: string) {
-	const options: Array<{ name: string; value: string }> = [{ name: "villager", value: villager }];
+	const options: Array<{ name: string; value: string }> = [
+		{ name: "villager", value: villager },
+	];
 	if (tier) options.push({ name: "tier", value: tier });
 	return { data: { options } };
 }
 
 describe("handleGift", () => {
 	it("returns an embed with the villager name, color, and birthday", async () => {
-		const res = handleGift(makeInteraction("emily"), makeSql([fakeVillagerRow]));
+		const res = handleGift(
+			makeInteraction("emily"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -33,7 +39,10 @@ describe("handleGift", () => {
 	});
 
 	it("returns all gift tiers when no tier filter is given", async () => {
-		const res = handleGift(makeInteraction("emily"), makeSql([fakeVillagerRow]));
+		const res = handleGift(
+			makeInteraction("emily"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
@@ -46,7 +55,10 @@ describe("handleGift", () => {
 	});
 
 	it("returns only the requested tier when a filter is provided", async () => {
-		const res = handleGift(makeInteraction("emily", "loved_gifts"), makeSql([fakeVillagerRow]));
+		const res = handleGift(
+			makeInteraction("emily", "loved_gifts"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -56,7 +68,10 @@ describe("handleGift", () => {
 	});
 
 	it("lists loved gifts in the Loved field", async () => {
-		const res = handleGift(makeInteraction("emily"), makeSql([fakeVillagerRow]));
+		const res = handleGift(
+			makeInteraction("emily"),
+			makeSql([fakeVillagerRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const lovedField = fields.find((f) => f.name.includes("Loved"));

@@ -10,7 +10,8 @@ const fakeCopperOreRecipes = [
 		duration_days: null,
 		duration_seasons: null,
 		radius: null,
-		ingredients: '[{"name":"Copper Ore","quantity":20},{"name":"Stone","quantity":25}]',
+		ingredients:
+			'[{"name":"Copper Ore","quantity":20},{"name":"Stone","quantity":25}]',
 		energy: null,
 		health: null,
 		recipe_source: "Clint (Introduction)",
@@ -24,7 +25,8 @@ const fakeCopperOreRecipes = [
 		duration_days: null,
 		duration_seasons: null,
 		radius: null,
-		ingredients: '[{"name":"Copper Ore","quantity":5},{"name":"Coal","quantity":1}]',
+		ingredients:
+			'[{"name":"Copper Ore","quantity":5},{"name":"Coal","quantity":1}]',
 		energy: null,
 		health: null,
 		recipe_source: null,
@@ -40,7 +42,10 @@ function makeInteraction(name: string) {
 
 describe("handleIngredient", () => {
 	it("returns an embed listing recipes that use the ingredient", async () => {
-		const res = handleIngredient(makeInteraction("copper ore"), makeSql(fakeCopperOreRecipes));
+		const res = handleIngredient(
+			makeInteraction("copper ore"),
+			makeSql(fakeCopperOreRecipes),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -50,7 +55,10 @@ describe("handleIngredient", () => {
 	});
 
 	it("includes a Recipes field listing each recipe with quantity", async () => {
-		const res = handleIngredient(makeInteraction("copper ore"), makeSql(fakeCopperOreRecipes));
+		const res = handleIngredient(
+			makeInteraction("copper ore"),
+			makeSql(fakeCopperOreRecipes),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -61,7 +69,10 @@ describe("handleIngredient", () => {
 	});
 
 	it("pluralizes 'recipe' correctly for multiple results", async () => {
-		const res = handleIngredient(makeInteraction("copper ore"), makeSql(fakeCopperOreRecipes));
+		const res = handleIngredient(
+			makeInteraction("copper ore"),
+			makeSql(fakeCopperOreRecipes),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const embed = json.data.embeds?.[0];
 
@@ -69,7 +80,10 @@ describe("handleIngredient", () => {
 	});
 
 	it("uses singular 'recipe' for a single result", async () => {
-		const res = handleIngredient(makeInteraction("stone"), makeSql([fakeCopperOreRecipes[0]!]));
+		const res = handleIngredient(
+			makeInteraction("stone"),
+			makeSql([fakeCopperOreRecipes[0]!]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const embed = json.data.embeds?.[0];
 

@@ -52,7 +52,7 @@ function FieldsGrid({ fields }: FieldsGridProps) {
 		}
 	}
 	if (currentRow.length > 0) rows.push(currentRow);
-	const maxColCount = Math.max(...rows.map(r => r.length));
+	const maxColCount = Math.max(...rows.map((r) => r.length));
 
 	return (
 		<div className={styles.fields}>
@@ -63,7 +63,9 @@ function FieldsGrid({ fields }: FieldsGridProps) {
 				>
 					{row.map((field, i) => (
 						<div key={i}>
-							{field.name && <div className={styles.fieldName}>{field.name}</div>}
+							{field.name && (
+								<div className={styles.fieldName}>{field.name}</div>
+							)}
 							{field.value && <FieldValue value={field.value} />}
 						</div>
 					))}
@@ -76,7 +78,9 @@ function FieldsGrid({ fields }: FieldsGridProps) {
 export function EmbedCard({ embed }: Props) {
 	const accentColor = colorToHex(embed.color);
 
-	const hasHeaderContent = Boolean(embed.title || embed.description || embed.thumbnail?.url);
+	const hasHeaderContent = Boolean(
+		embed.title || embed.description || embed.thumbnail?.url,
+	);
 	const hasTitleOrDescription = Boolean(embed.title || embed.description);
 
 	return (
@@ -89,8 +93,8 @@ export function EmbedCard({ embed }: Props) {
 					<div className={styles.header}>
 						{hasTitleOrDescription && (
 							<div className={styles.headerContent}>
-								{embed.title && (
-									embed.url ? (
+								{embed.title &&
+									(embed.url ? (
 										<a
 											href={embed.url}
 											target="_blank"
@@ -103,12 +107,9 @@ export function EmbedCard({ embed }: Props) {
 										<div className={`${styles.title} ${styles.plain}`}>
 											{embed.title}
 										</div>
-									)
-								)}
+									))}
 
-								{embed.description && (
-									<Markdown>{embed.description}</Markdown>
-								)}
+								{embed.description && <Markdown>{embed.description}</Markdown>}
 							</div>
 						)}
 
