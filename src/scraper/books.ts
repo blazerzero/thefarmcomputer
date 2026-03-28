@@ -74,7 +74,7 @@ export async function scrapeBooks(): Promise<
 				":scope > td",
 			) as unknown as HTMLElement[];
 
-				const nameCell = getCol(colIdx, cells, "name");
+			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
 			const nameLink = nameCell.querySelector(
@@ -104,7 +104,9 @@ export async function scrapeBooks(): Promise<
 
 			// Description
 			const description =
-				getCol(colIdx, cells, "description")?.text.trim().replace(/\s+/g, " ") || null;
+				getCol(colIdx, cells, "description")
+					?.text.trim()
+					.replace(/\s+/g, " ") || null;
 
 			// Subsequent reading (optional column)
 			const subCell = getCol(colIdx, cells, "subsequent_reading");
@@ -118,7 +120,7 @@ export async function scrapeBooks(): Promise<
 			// console.log(locationList)
 			const locationList: string[] = [];
 			if (locationCell) {
-				const items = locationCell.querySelectorAll(':scope > ul > li');
+				const items = locationCell.querySelectorAll(":scope > ul > li");
 				for (const item of items) {
 					locationList.push(item.text.trim());
 				}

@@ -84,7 +84,10 @@ describe("handleWeapon", () => {
 			expect.objectContaining({ name: "Damage", value: "80–100" }),
 		);
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Location(s)", value: "Three-Sword Challenge" }),
+			expect.objectContaining({
+				name: "Location(s)",
+				value: "Three-Sword Challenge",
+			}),
 		);
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Sells For", value: "1000g" }),
