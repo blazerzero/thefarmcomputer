@@ -1,1 +1,1 @@
-yarn format
+yarn biome format .
