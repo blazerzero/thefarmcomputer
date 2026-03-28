@@ -42,7 +42,11 @@ export function handleMonster(
 	}
 
 	if (monster.location) {
-		fields.push({ name: "Location", value: monster.location, inline: false });
+		fields.push({
+			name: "Location(s)",
+			value: monster.location,
+			inline: false,
+		});
 	}
 
 	if (monster.drops.length > 0) {

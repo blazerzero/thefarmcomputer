@@ -1,9 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { MonsterRow } from "../types";
-import { fetchPage } from "./wiki";
-
-const WIKI_BASE = "https://stardewvalleywiki.com";
+import { fetchPage, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 

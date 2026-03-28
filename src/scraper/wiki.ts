@@ -1,6 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 
-const BASE_URL = "https://stardewvalleywiki.com";
+export const WIKI_BASE = "https://stardewvalleywiki.com";
 const USER_AGENT =
 	"StardewBot/1.0 (Discord lookup bot; github.com/blazerzero/thefarmcomputer)";
 
@@ -32,7 +32,7 @@ export function getCol(
 }
 
 export async function fetchPage(path: string): Promise<string> {
-	const url = BASE_URL + path;
+	const url = WIKI_BASE + path;
 	const delays = [2000, 4000, 8000];
 
 	let lastError: unknown;
@@ -54,4 +54,31 @@ export async function fetchPage(path: string): Promise<string> {
 	}
 
 	throw new Error(`Failed to fetch ${url} after retries: ${lastError}`);
+}
+
+/**
+ * Parse a table cell whose items are separated by <br> tags or other
+ * non-anchor block elements (e.g. Source, Location, Used In columns).
+ * Images are ignored; link text is preserved inline.
+ */
+export function parseListCell(cell: HTMLElement): string[] {
+	const items = cell.childNodes;
+	const parsedItems: string[] = [];
+	let goToNewline = false;
+	let text = "";
+	items.forEach((item, index) => {
+		if (item.rawTagName === "img") return;
+		if (item.rawTagName && item.rawTagName !== "a") {
+			goToNewline = true;
+			if (item.rawTagName === "br") return;
+		}
+		const itemText = item.text.replace(/\s+/g, " ");
+		text += itemText;
+		if (goToNewline || index === items.length - 1) {
+			if (text.trim()) parsedItems.push(text.trim());
+			text = "";
+			goToNewline = false;
+		}
+	});
+	return parsedItems;
 }

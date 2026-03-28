@@ -1,3 +1,4 @@
+import { handleBook } from "./commands/book";
 import { handleBundle } from "./commands/bundle";
 import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
@@ -9,10 +10,11 @@ import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
 import { handleSchedule } from "./commands/schedule";
-import { handleWeapon } from "./commands/weapon";
 import { handleSeason } from "./commands/season";
+import { handleWeapon } from "./commands/weapon";
 import { formatDate } from "./constants";
 import {
+	countBooks,
 	countBundles,
 	countCraftedItems,
 	countCrops,
@@ -25,6 +27,7 @@ import {
 	countWeapons,
 	getStatus,
 	initDb,
+	upsertBook,
 	upsertBundle,
 	upsertCraftedItem,
 	upsertCrop,
@@ -37,6 +40,7 @@ import {
 	upsertWeapon,
 	villagersNeedScheduleRefresh,
 } from "./db";
+import { scrapeBooks } from "./scraper/books";
 import { scrapeBundles } from "./scraper/bundles";
 import { scrapeCraftedItems } from "./scraper/craftedItems";
 import { scrapeCrops } from "./scraper/crops";
@@ -52,6 +56,12 @@ import { verifyDiscordRequest } from "./verify";
 import { handleWebQuery } from "./web";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function refreshBooks(sql: SqlStorage): Promise<number> {
+	const books = await scrapeBooks();
+	for (const book of books) upsertBook(sql, book);
+	return books.length;
+}
 
 async function refreshCrops(sql: SqlStorage): Promise<number> {
 	const crops = await scrapeCrops();
@@ -170,6 +180,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Monster scrape failed:", err);
 	}
 	try {
+		const n = await refreshBooks(sql);
+		console.log(`Updated ${n} books`);
+	} catch (err) {
+		console.error("Book scrape failed:", err);
+	}
+	try {
 		const n = await refreshWeapons(sql);
 		console.log(`Updated ${n} weapons`);
 	} catch (err) {
@@ -216,6 +232,9 @@ export class StardewDO implements DurableObject {
 			} else if (countMonsters(this.sql) === 0) {
 				// Monsters table was added in a later deploy — populate without full refresh
 				await refreshMonsters(this.sql);
+			} else if (countBooks(this.sql) === 0) {
+				// Books table was added in a later deploy — populate without full refresh
+				await refreshBooks(this.sql);
 			} else if (countWeapons(this.sql) === 0) {
 				// Weapons table was added in a later deploy — populate without full refresh
 				await refreshWeapons(this.sql);
@@ -256,6 +275,10 @@ export class StardewDO implements DurableObject {
 			const commandName = (interaction.data as Record<string, unknown>)
 				?.name as string;
 
+			if (commandName === "book") {
+				if (countBooks(this.sql) === 0) await refreshBooks(this.sql);
+				return handleBook(interaction, this.sql);
+			}
 			if (commandName === "bundle") {
 				if (countBundles(this.sql) === 0) await refreshBundles(this.sql);
 				return handleBundle(interaction, this.sql);

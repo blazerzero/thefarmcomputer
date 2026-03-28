@@ -16,6 +16,20 @@ if (!APPLICATION_ID || !TOKEN) {
 
 const commands = [
 	{
+		name: "book",
+		description: "Look up a Stardew Valley book.",
+		integration_types: [0, 1],
+		contexts: [0, 1, 2],
+		options: [
+			{
+				type: 3, // STRING
+				name: "name",
+				description: "Book name (e.g. Price Catalogue, Animal Catalogue)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "crop",
 		description: "Look up info about a Stardew Valley crop.",
 		integration_types: [0, 1],
@@ -270,3 +284,5 @@ console.log("Registered commands:");
 for (const cmd of registered) {
 	console.log(`  /${cmd.name} (id: ${cmd.id})`);
 }
+
+export {};

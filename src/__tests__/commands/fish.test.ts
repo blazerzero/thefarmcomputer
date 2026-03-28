@@ -79,7 +79,7 @@ describe("handleFish", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
 
-		expect(fieldNames).not.toContain("Location");
+		expect(fieldNames).not.toContain("Location(s)");
 		expect(fieldNames).not.toContain("Weather");
 		expect(fieldNames).not.toContain("Size");
 		expect(fieldNames).not.toContain("Difficulty");

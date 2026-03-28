@@ -2,6 +2,11 @@ import styles from "./CommandHelp.module.scss";
 
 const COMMANDS = [
 	{
+		syntax: "book <name>",
+		example: "book price catalogue",
+		desc: "Description, subsequent reading effect, location",
+	},
+	{
 		syntax: "bundle <name>",
 		example: "bundle spring",
 		desc: "Room, required items, reward",

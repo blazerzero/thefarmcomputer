@@ -74,7 +74,7 @@ export function handleWeapon(
 	}
 
 	fields.push({
-		name: "Location",
+		name: "Location(s)",
 		value: weapon.location || "N/A",
 		inline: true,
 	});

@@ -31,7 +31,7 @@ export function handleFish(
 	];
 
 	if (fish.location) {
-		fields.push({ name: "Location", value: fish.location, inline: true });
+		fields.push({ name: "Location(s)", value: fish.location, inline: true });
 	}
 
 	fields.push({ name: "Time", value: fish.time ?? "Anytime", inline: true });

@@ -1,8 +1,6 @@
 import { parse } from "node-html-parser";
 import type { BundleItem, BundleRow } from "../types";
-import { fetchPage } from "./wiki";
-
-const WIKI_BASE = "https://stardewvalleywiki.com";
+import { fetchPage, WIKI_BASE } from "./wiki";
 
 function parseQuantity(text: string, itemName: string): number {
 	// Look for "(N)" after the item name in the cell text, e.g. "Wood (99)"

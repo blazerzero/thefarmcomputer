@@ -241,6 +241,23 @@ export interface Monster extends Omit<MonsterRow, "drops"> {
 	drops: string[];
 }
 
+/** A book row as stored in SQLite. */
+export interface BookRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	subsequent_reading: string | null; // null when no subsequent reading effect
+	location: string; // JSON array of location strings
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A book row with location already decoded. */
+export interface Book extends Omit<BookRow, "location"> {
+	location: string[];
+}
+
 /** A weapon row as stored in SQLite. */
 export interface WeaponRow {
 	id?: number;

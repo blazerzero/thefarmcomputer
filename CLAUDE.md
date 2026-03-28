@@ -31,3 +31,19 @@ Every new slash command must also be supported in the web frontend. When impleme
 5. Add an entry to the `COMMAND_DEFS` array in `web/src/components/CommandForm.tsx` (keep alphabetical order)
 
 Omitting any of these means the web frontend (`/api/query`) won't fully support the command.
+
+## Testing
+
+Every command must have an accompanying test suite covering both:
+
+1. **The command handler** — add a file at `src/__tests__/commands/<commandName>.test.ts` using the `makeSql` helper from `../helpers`. Cover the happy path, all optional fields (present and absent), and the not-found error case.
+2. **The web API** — add a case to the web handler tests in `src/__tests__/web.test.ts`.
+
+## Code Reuse
+
+Always use shared utility functions and constants instead of duplicating logic:
+
+- Use `getCol(colIdx, cells, key)` from `./wiki` in scrapers instead of inline index lookups.
+- Use `renderDotList`, `renderDotForListContent`, `sign`, `formatPriceTiers`, `seasonColor`, etc. from `src/commands/utils.ts`.
+- Use `DEFAULT_COLOR` and other constants from `src/constants.ts`.
+- Before writing a new helper, check if an equivalent already exists in these files.

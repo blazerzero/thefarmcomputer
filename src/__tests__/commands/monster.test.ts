@@ -103,7 +103,7 @@ describe("handleMonster", () => {
 		expect(fieldNames).not.toContain("Defense");
 		expect(fieldNames).not.toContain("Speed");
 		expect(fieldNames).not.toContain("XP");
-		expect(fieldNames).not.toContain("Location");
+		expect(fieldNames).not.toContain("Location(s)");
 		expect(fieldNames).not.toContain("Drops");
 	});
 

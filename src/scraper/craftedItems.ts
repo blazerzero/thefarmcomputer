@@ -1,9 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { CraftedItemRow, CraftIngredient } from "../types";
-import { fetchPage, getCol } from "./wiki";
-
-const WIKI_BASE = "https://stardewvalleywiki.com";
+import { fetchPage, getCol, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
