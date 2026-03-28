@@ -56,14 +56,25 @@ describe("handleFish", () => {
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Location", value: "Ocean" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Weather", value: "Any" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Size", value: "14–50 inches" }));
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Difficulty", value: "70 (dart)" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Location", value: "Ocean" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Weather", value: "Any" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Size", value: "14–50 inches" }),
+		);
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Difficulty", value: "70 (dart)" }),
+		);
 	});
 
 	it("omits optional fields when data is null", async () => {
-		const res = handleFish(makeInteraction("crab"), makeSql([fakeAllSeasonFishRow]));
+		const res = handleFish(
+			makeInteraction("crab"),
+			makeSql([fakeAllSeasonFishRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
@@ -75,11 +86,16 @@ describe("handleFish", () => {
 	});
 
 	it("shows All Seasons when seasons array is empty", async () => {
-		const res = handleFish(makeInteraction("crab"), makeSql([fakeAllSeasonFishRow]));
+		const res = handleFish(
+			makeInteraction("crab"),
+			makeSql([fakeAllSeasonFishRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(expect.objectContaining({ name: "Season", value: "All Seasons" }));
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Season", value: "All Seasons" }),
+		);
 	});
 
 	it("returns an ephemeral error for an unknown fish", async () => {
