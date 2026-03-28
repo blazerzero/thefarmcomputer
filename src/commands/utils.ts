@@ -81,3 +81,37 @@ export const unbulletList = (list: string[]): string[] => {
 		return acc;
 	}, [] as string[]);
 };
+
+/** The canonical set of item stats shared across footwear, weapons, rings, etc. */
+export const ITEM_STAT_KEYS = [
+	"defense",
+	"immunity",
+	"crit_chance",
+	"crit_power",
+	"weight",
+] as const;
+export type ItemStatKey = (typeof ITEM_STAT_KEYS)[number];
+
+const ITEM_STAT_LABELS: Record<ItemStatKey, string> = {
+	defense: "Defense",
+	immunity: "Immunity",
+	crit_chance: "Crit. Chance",
+	crit_power: "Crit. Power",
+	weight: "Weight",
+};
+
+/**
+ * Format any subset of the 5 core item stats into a bullet list suitable for
+ * a Discord embed "Stats" field value. Returns null if all provided values are null/undefined.
+ */
+export function formatItemStats(
+	stats: Partial<Record<ItemStatKey, number | null>>,
+): string | null {
+	const lines: string[] = [];
+	for (const key of ITEM_STAT_KEYS) {
+		const val = stats[key];
+		if (val != null) lines.push(`${ITEM_STAT_LABELS[key]} ${sign(val)}`);
+	}
+	if (lines.length === 0) return null;
+	return renderDotList(lines);
+}

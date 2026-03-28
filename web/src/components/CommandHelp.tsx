@@ -27,6 +27,11 @@ const COMMANDS = [
 		desc: "Location, season, weather, difficulty, sell price",
 	},
 	{
+		syntax: "footwear <name>",
+		example: "footwear sneakers",
+		desc: "Defense boost, immunity boost, source, sell price",
+	},
+	{
 		syntax: "forage <name>",
 		example: "forage daffodil",
 		desc: "Seasons, locations, energy, health, sell price",

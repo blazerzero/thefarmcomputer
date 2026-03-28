@@ -124,6 +124,21 @@ const fakeMonsterRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeFootwearRow = {
+	name: "Sneakers",
+	defense: 0,
+	immunity: 0,
+	crit_chance: null,
+	crit_power: null,
+	weight: null,
+	description: null,
+	sell_price: 100,
+	source: '["Krobus Shop"]',
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Sneakers",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
@@ -204,6 +219,16 @@ describe("handleWebQuery — command routing", () => {
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toContain("Spring Crops");
+	});
+
+	it("routes 'footwear' and returns an embed with the footwear title", async () => {
+		const res = await handleWebQuery(
+			"footwear sneakers",
+			makeSql([fakeFootwearRow]),
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Sneakers");
 	});
 
 	it("routes 'monster' and returns an embed with the monster title", async () => {

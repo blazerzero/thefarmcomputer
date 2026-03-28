@@ -284,6 +284,28 @@ export interface WeaponRow {
 /** A weapon row (no JSON fields to decode). */
 export interface Weapon extends WeaponRow {}
 
+/** A footwear row as stored in SQLite. */
+export interface FootwearRow {
+	id?: number;
+	name: string;
+	defense: number | null;
+	immunity: number | null;
+	crit_chance: number | null;
+	crit_power: number | null;
+	weight: number | null;
+	description: string | null;
+	sell_price: number | null;
+	source: string | null; // JSON: string[]
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A footwear row with source decoded to string[]. */
+export interface Footwear extends Omit<FootwearRow, "source"> {
+	source: string[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
 	PING: 1,
