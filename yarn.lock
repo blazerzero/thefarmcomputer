@@ -4554,6 +4554,7 @@ __metadata:
     sass: "npm:^1.98.0"
     typescript: "npm:^5.9.3"
     vite: "npm:^6.4.1"
+    vite-plugin-open-graph: "npm:^2.0.6"
   languageName: unknown
   linkType: soft
 
@@ -4867,6 +4868,13 @@ __metadata:
   bin:
     vite-node: vite-node.mjs
   checksum: 10c0/6ceca67c002f8ef6397d58b9539f80f2b5d79e103a18367288b3f00a8ab55affa3d711d86d9112fce5a7fa658a212a087a005a045eb8f4758947dd99af2a6c6b
+  languageName: node
+  linkType: hard
+
+"vite-plugin-open-graph@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "vite-plugin-open-graph@npm:2.0.6"
+  checksum: 10c0/d1cec3052437d1d6084feb30a77f8d8c44c15ea64f2d231d4fc03edf4fd6fa925fd64df85954c94b20ae23cf142c1449eb840f3fa694cb7dcb006e83a5cce94d
   languageName: node
   linkType: hard
 

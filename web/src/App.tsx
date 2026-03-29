@@ -89,8 +89,8 @@ export default function App() {
 					{displayedTitle}
 				</h1>
 				<p className={styles.subtitle}>
-					A Discord bot and web tool for searching in-game details for Stardew
-					Valley, sourced from the{" "}
+					A nifty Discord bot and web tool for searching in-game details for
+					Stardew Valley, sourced from the{" "}
 					<a
 						href="https://stardewvalleywiki.com"
 						target="_blank"

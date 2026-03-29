@@ -1,6 +1,6 @@
 # The Farm Computer
 
-A Discord bot and web app that provide real-time Stardew Valley game data lookups, powered by Cloudflare Workers. It scrapes the [Stardew Valley Wiki](https://stardewvalleywiki.com) and stores data in a SQLite database (via Cloudflare Durable Objects), refreshing automatically every Sunday at 8 AM UTC.
+A nifty Discord bot and web app that provide real-time Stardew Valley game data lookups, powered by Cloudflare Workers. It scrapes the [Stardew Valley Wiki](https://stardewvalleywiki.com) and stores data in a SQLite database (via Cloudflare Durable Objects), refreshing automatically on the 1st of every month at 8 AM UTC.
 
 ## Commands
 
@@ -18,7 +18,7 @@ A Discord bot and web app that provide real-time Stardew Valley game data lookup
 
 ## Web App
 
-The web app provides a browser-based interface to the same data as the Discord bot. Type a command (e.g. `crop parsnip` or `gift Penny`) into the search bar and get back the same formatted results, rendered as Discord-style embed cards.
+The web app provides a browser-based interface to the same data as the Discord bot. Pick a command (e.g. `crop` or `gift`), fill out the provided fields, and get back the same formatted results, rendered as Discord-style embed cards.
 
 An "Add to Discord" button is also available to install the bot directly from the web.
 
@@ -46,6 +46,13 @@ DISCORD_APPLICATION_ID=your_app_id
 DISCORD_TOKEN=your_bot_token
 DISCORD_PUBLIC_KEY=your_public_key
 BOT_OWNER_TOKEN=your_admin_token
+```
+
+Create a `.env` file in `web/`:
+
+```env
+DEPLOY_URL=your_deploy_url
+OG_IMAGE_URL=your_og_image
 ```
 
 ### Register Discord Commands
