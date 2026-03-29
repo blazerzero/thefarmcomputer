@@ -39,6 +39,14 @@ Every command must have an accompanying test suite covering both:
 1. **The command handler** — add a file at `src/__tests__/commands/<commandName>.test.ts` using the `makeSql` helper from `../helpers`. Cover the happy path, all optional fields (present and absent), and the not-found error case.
 2. **The web API** — add a case to the web handler tests in `src/__tests__/web.test.ts`.
 
+## README Maintenance
+
+The `README.md` Commands table must stay in sync with the actual set of slash commands. Whenever a command is added, removed, or its options change:
+
+1. Update the corresponding row in the Commands table in `README.md`.
+2. Keep entries in alphabetical order (with `/info` last as a utility command).
+3. The description should summarize the key fields returned, not just restate the command name.
+
 ## Code Reuse
 
 Always use shared utility functions and constants instead of duplicating logic:

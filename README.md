@@ -6,14 +6,23 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 
 | Command | Description |
 |---------|-------------|
-| `/crop <name>` | Look up a crop — seasons, growth time, seed price, and sell prices by quality |
-| `/gift <villager> <tier (optional)>` | Look up a villager's gift preferences (loved, liked, neutral, disliked, hated) and birthday |
-| `/season <season>` | List all crops available in Spring, Summer, Fall, or Winter |
-| `/fruit-tree <name>` | Look up a fruit tree — harvest season, growth time, sapling price, and sell prices by quality |
-| `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
-| `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health, and sell prices by quality |
+| `/book <name>` | Look up a book — description, effect on subsequent readings, and where to find it |
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |
+| `/craft <name>` | Look up a crafted item — ingredients, recipe source, duration, and stats |
+| `/crop <name>` | Look up a crop — seasons, growth time, seed price, and sell prices by quality |
+| `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
+| `/footwear <name>` | Look up a piece of footwear — stats, source, purchase price, and sell price |
+| `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health, and sell prices by quality |
+| `/fruit-tree <name>` | Look up a fruit tree — harvest season, growth time, sapling price, and sell prices by quality |
+| `/gift <villager> [tier]` | Look up a villager's gift preferences (loved, liked, neutral, disliked, hated) and birthday |
+| `/ingredient <name>` | Find all crafting recipes that use the given item as an ingredient |
 | `/mineral <name>` | Look up a mineral — category, sell price, Gemologist sell price, source, and uses |
+| `/monster <name>` | Look up a monster — location, HP, damage, defense, speed, XP, and drops |
+| `/recipe <name>` | Look up a cooked food recipe — ingredients, energy/health, buffs, and sell price |
+| `/ring <name>` | Look up a ring — effects, sell price, and where to find it |
+| `/schedule <villager> [season] [day]` | Look up a villager's daily schedule, optionally filtered by season and occasion |
+| `/season <season>` | List all crops harvestable in Spring, Summer, Fall, or Winter |
+| `/weapon <name>` | Look up a weapon — type, level, damage, stats, location, and price |
 | `/info` | Show the bot's data freshness and record counts |
 
 ## Web App
