@@ -67,6 +67,11 @@ const COMMANDS = [
 		desc: "HP, damage, defense, speed, XP, location, drops",
 	},
 	{
+		syntax: "recipe <name>",
+		example: "recipe fried egg",
+		desc: "Ingredients, energy, health, buffs, buff duration, recipe source, sell price",
+	},
+	{
 		syntax: "schedule <villager> [day] [season]",
 		example: "schedule Harvey Rain",
 		desc: "Villager's schedule. Day filters by occasion (Rain, Monday, etc.). Season defaults to Default.",

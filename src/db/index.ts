@@ -8,6 +8,7 @@ export {
 } from "./craftedItems";
 export { countCrops, getCrop, getCropsBySeason, upsertCrop } from "./crops";
 export { countFish, getFish, upsertFish } from "./fish";
+export { countFootwear, getFootwear, upsertFootwear } from "./footwear";
 export {
 	countForageables,
 	getForageable,
@@ -15,8 +16,9 @@ export {
 } from "./forageables";
 export { countFruitTrees, getFruitTree, upsertFruitTree } from "./fruitTrees";
 export { countMinerals, getMineral, upsertMineral } from "./minerals";
-export { countRings, getRing, upsertRing } from "./rings";
 export { countMonsters, getMonster, upsertMonster } from "./monsters";
+export { countRecipes, getRecipe, upsertRecipe } from "./recipes";
+export { countRings, getRing, upsertRing } from "./rings";
 export { initDb } from "./schema";
 export { getStatus } from "./status";
 export {
@@ -26,4 +28,3 @@ export {
 	villagersNeedScheduleRefresh,
 } from "./villagers";
 export { countWeapons, getWeapon, upsertWeapon } from "./weapons";
-export { countFootwear, getFootwear, upsertFootwear } from "./footwear";

@@ -10,6 +10,7 @@ import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
+import { handleRecipe } from "./commands/recipe";
 import { handleRing } from "./commands/ring";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
@@ -26,6 +27,7 @@ import {
 	countFruitTrees,
 	countMinerals,
 	countMonsters,
+	countRecipes,
 	countRings,
 	countVillagers,
 	countWeapons,
@@ -41,6 +43,7 @@ import {
 	upsertFruitTree,
 	upsertMineral,
 	upsertMonster,
+	upsertRecipe,
 	upsertRing,
 	upsertVillager,
 	upsertWeapon,
@@ -51,13 +54,14 @@ import { scrapeBundles } from "./scraper/bundles";
 import { scrapeCraftedItems } from "./scraper/craftedItems";
 import { scrapeCrops } from "./scraper/crops";
 import { scrapeFish } from "./scraper/fish";
+import { scrapeFootwear } from "./scraper/footwear";
 import { scrapeForageables } from "./scraper/forageables";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeMonsters } from "./scraper/monsters";
+import { scrapeRecipes } from "./scraper/recipes";
 import { scrapeRings } from "./scraper/rings";
 import { scrapeVillagers } from "./scraper/villagers";
-import { scrapeFootwear } from "./scraper/footwear";
 import { scrapeWeapons } from "./scraper/weapons";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";
@@ -129,6 +133,12 @@ async function refreshWeapons(sql: SqlStorage): Promise<number> {
 	const weapons = await scrapeWeapons();
 	for (const w of weapons) upsertWeapon(sql, w);
 	return weapons.length;
+}
+
+async function refreshRecipes(sql: SqlStorage): Promise<number> {
+	const recipes = await scrapeRecipes();
+	for (const r of recipes) upsertRecipe(sql, r);
+	return recipes.length;
 }
 
 async function refreshFootwear(sql: SqlStorage): Promise<number> {
@@ -212,6 +222,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Weapon scrape failed:", err);
 	}
 	try {
+		const n = await refreshRecipes(sql);
+		console.log(`Updated ${n} recipes`);
+	} catch (err) {
+		console.error("Recipe scrape failed:", err);
+	}
+	try {
 		const n = await refreshFootwear(sql);
 		console.log(`Updated ${n} footwear items`);
 	} catch (err) {
@@ -270,9 +286,15 @@ export class StardewDO implements DurableObject {
 			} else if (countWeapons(this.sql) === 0) {
 				// Weapons table was added in a later deploy — populate without full refresh
 				await refreshWeapons(this.sql);
+			} else if (countRecipes(this.sql) === 0) {
+				// Recipes table was added in a later deploy — populate without full refresh
+				await refreshRecipes(this.sql);
 			} else if (countFootwear(this.sql) === 0) {
 				// Footwear table was added in a later deploy — populate without full refresh
 				await refreshFootwear(this.sql);
+			} else if (countRings(this.sql) === 0) {
+				// Rings table was added in a later deploy — populate without full refresh
+				await refreshRings(this.sql);
 			} else if (villagersNeedScheduleRefresh(this.sql)) {
 				// schedule column was added in a later deploy — re-scrape villagers to populate it
 				const villagers = await scrapeVillagers();
@@ -357,6 +379,10 @@ export class StardewDO implements DurableObject {
 				if (countMonsters(this.sql) === 0) await refreshMonsters(this.sql);
 				return handleMonster(interaction, this.sql);
 			}
+			if (commandName === "recipe") {
+				if (countRecipes(this.sql) === 0) await refreshRecipes(this.sql);
+				return handleRecipe(interaction, this.sql);
+			}
 			if (commandName === "footwear") {
 				if (countFootwear(this.sql) === 0) await refreshFootwear(this.sql);
 				return handleFootwear(interaction, this.sql);
@@ -400,6 +426,7 @@ export class StardewDO implements DurableObject {
 						? new Date(s.villagersLastUpdated).getTime()
 						: 0,
 					s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
+					s.recipesLastUpdated ? new Date(s.recipesLastUpdated).getTime() : 0,
 					s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 				);
 				const lastUpdated = lastUpdatedMs
@@ -455,6 +482,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Monsters: ${s.monsterCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Recipes: ${s.recipeCount}`,
 										value: "",
 										inline: false,
 									},
