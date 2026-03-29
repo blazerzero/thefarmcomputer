@@ -39,20 +39,15 @@ yarn install
 
 ### Configure Environment
 
-Create a `.dev.vars` file in the project root:
+Create a `.env` file in the project root:
 
 ```env
 DISCORD_APPLICATION_ID=your_app_id
 DISCORD_TOKEN=your_bot_token
 DISCORD_PUBLIC_KEY=your_public_key
 BOT_OWNER_TOKEN=your_admin_token
-```
-
-Create a `.env` file in `web/`:
-
-```env
-VITE_DEPLOY_URL=your_deploy_url
-VITE_OG_IMAGE_URL=your_og_image
+VITE_DEPLOY_URL=your_web_deploy_url
+VITE_OG_IMAGE_URL=your_web_og_image
 ```
 
 ### Register Discord Commands
