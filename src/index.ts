@@ -49,6 +49,7 @@ import {
 	upsertWeapon,
 	villagersNeedScheduleRefresh,
 } from "@/db";
+import type { Env } from "@/env";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
@@ -63,12 +64,7 @@ import { scrapeRecipes } from "@/scraper/recipes";
 import { scrapeRings } from "@/scraper/rings";
 import { scrapeVillagers } from "@/scraper/villagers";
 import { scrapeWeapons } from "@/scraper/weapons";
-import {
-	Command,
-	type Env,
-	InteractionResponseType,
-	InteractionType,
-} from "@/types";
+import { Command, InteractionResponseType, InteractionType } from "@/types";
 import { verifyDiscordRequest } from "@/verify";
 import { handleWebQuery } from "@/web";
 
