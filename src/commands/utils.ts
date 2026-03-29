@@ -63,12 +63,24 @@ export function formatPriceTiers(
 export const renderDotForListContent = (count: number): string =>
 	count > 1 ? "• " : "";
 
-/** Prepend bullet dots to each item and join into a Discord embed field value (max 1024 chars). */
-export const renderDotList = (items: string[]): string =>
-	items
-		.map((s, _, { length: n }) => `${renderDotForListContent(n)}${s}`)
+/** Prepend bullet dots to each item and join into a Discord embed field value (max 1024 chars).
+ * Items that follow a conditional header (a line ending in ":") are indented one level with "- ". */
+export const renderDotList = (items: string[]): string => {
+	const n = items.length;
+	let afterHeader = false;
+	return items
+		.map((s) => {
+			const isHeader = s.trimEnd().endsWith(":");
+			if (isHeader) {
+				afterHeader = true;
+				return `${renderDotForListContent(n)}${s}`;
+			}
+			if (afterHeader) return `  - ${s}`;
+			return `${renderDotForListContent(n)}${s}`;
+		})
 		.join("\n")
 		.slice(0, 1024);
+};
 
 /** Format a number with an explicit sign: +3, -2, +0. */
 export const sign = (n: number): string => (n >= 0 ? `+${n}` : String(n));

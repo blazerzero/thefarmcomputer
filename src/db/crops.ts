@@ -23,7 +23,13 @@ export function getCropsBySeason(sql: SqlStorage, season: string): Crop[] {
 export function getCrop(sql: SqlStorage, name: string): Crop | null {
 	try {
 		const row = sql
-			.exec("SELECT * FROM crops WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.exec(
+				`SELECT * FROM crops WHERE name LIKE ?
+         ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
+         LIMIT 1`,
+				`%${name}%`,
+				name,
+			)
 			.one() as unknown as CropRow | null;
 		if (!row) return null;
 		return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };

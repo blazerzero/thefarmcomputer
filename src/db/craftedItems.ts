@@ -9,8 +9,11 @@ export function getCraftedItem(
 	try {
 		const row = sql
 			.exec(
-				"SELECT * FROM crafted_items WHERE name LIKE ? LIMIT 1",
+				`SELECT * FROM crafted_items WHERE name LIKE ?
+         ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
+         LIMIT 1`,
 				`%${name}%`,
+				name,
 			)
 			.one() as unknown as CraftedItemRow | null;
 		if (!row) return null;
