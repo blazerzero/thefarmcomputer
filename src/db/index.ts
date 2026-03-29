@@ -15,6 +15,7 @@ export {
 } from "./forageables";
 export { countFruitTrees, getFruitTree, upsertFruitTree } from "./fruitTrees";
 export { countMinerals, getMineral, upsertMineral } from "./minerals";
+export { countRings, getRing, upsertRing } from "./rings";
 export { countMonsters, getMonster, upsertMonster } from "./monsters";
 export { countRecipes, getRecipe, upsertRecipe } from "./recipes";
 export { initDb } from "./schema";
@@ -26,3 +27,4 @@ export {
 	villagersNeedScheduleRefresh,
 } from "./villagers";
 export { countWeapons, getWeapon, upsertWeapon } from "./weapons";
+export { countFootwear, getFootwear, upsertFootwear } from "./footwear";

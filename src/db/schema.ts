@@ -258,4 +258,33 @@ export function initDb(sql: SqlStorage): void {
 	} catch {
 		/* already exists */
 	}
+
+	sql.exec(`
+    CREATE TABLE IF NOT EXISTS footwear (
+      id           		INTEGER PRIMARY KEY,
+      name         		TEXT UNIQUE NOT NULL,
+      stats        		TEXT,
+      description  		TEXT,
+      purchase_price 	INTEGER,
+      sell_price   		INTEGER,
+      source       		TEXT,
+      image_url    		TEXT,
+      wiki_url     		TEXT,
+      last_updated 		TEXT
+    )
+  `);
+
+	sql.exec(`
+    CREATE TABLE IF NOT EXISTS rings (
+      id            INTEGER PRIMARY KEY,
+      name          TEXT UNIQUE NOT NULL,
+      description   TEXT,
+      sell_price    INTEGER,
+      effects       TEXT,
+      where_to_find TEXT,
+      image_url     TEXT,
+      wiki_url      TEXT,
+      last_updated  TEXT
+    )
+  `);
 }

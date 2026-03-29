@@ -36,7 +36,8 @@ const fakeBuffedRecipeRow = {
 const fakeMinimalRecipeRow = {
 	name: "Strange Bun",
 	description: "What's in this bun?",
-	ingredients: '[{"name":"Wheat Flour","quantity":1},{"name":"Periwinkle","quantity":1},{"name":"Void Mayonnaise","quantity":1}]',
+	ingredients:
+		'[{"name":"Wheat Flour","quantity":1},{"name":"Periwinkle","quantity":1},{"name":"Void Mayonnaise","quantity":1}]',
 	energy: null,
 	health: null,
 	buffs: null,

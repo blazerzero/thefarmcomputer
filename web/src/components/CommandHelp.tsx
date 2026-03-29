@@ -27,6 +27,11 @@ const COMMANDS = [
 		desc: "Location, season, weather, difficulty, sell price",
 	},
 	{
+		syntax: "footwear <name>",
+		example: "footwear sneakers",
+		desc: "Defense boost, immunity boost, source, sell price",
+	},
+	{
 		syntax: "forage <name>",
 		example: "forage daffodil",
 		desc: "Seasons, locations, energy, health, sell price",
@@ -70,6 +75,11 @@ const COMMANDS = [
 		syntax: "schedule <villager> [day] [season]",
 		example: "schedule Harvey Rain",
 		desc: "Villager's schedule. Day filters by occasion (Rain, Monday, etc.). Season defaults to Default.",
+	},
+	{
+		syntax: "ring <name>",
+		example: "ring lucky ring",
+		desc: "Effects, sell price, where to find",
 	},
 	{
 		syntax: "season <season>",

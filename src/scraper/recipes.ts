@@ -16,7 +16,9 @@ function parseNumber(text: string): number | null {
  */
 function parseIngredients(cell: HTMLElement): CraftIngredient[] {
 	const ingredients: CraftIngredient[] = [];
-	const spans = cell.querySelectorAll(":scope > span") as unknown as HTMLElement[];
+	const spans = cell.querySelectorAll(
+		":scope > span",
+	) as unknown as HTMLElement[];
 
 	for (const span of spans) {
 		const text = span.text.trim().replace(/\s+/g, " ");
@@ -75,9 +77,7 @@ export async function scrapeRecipes(): Promise<
 	const content = root.querySelector("#mw-content-text") ?? root;
 
 	// Find the "Recipes" h2 heading
-	const allH2s = content.querySelectorAll(
-		"h2",
-	) as unknown as HTMLElement[];
+	const allH2s = content.querySelectorAll("h2") as unknown as HTMLElement[];
 	const recipesH2 = allH2s.find(
 		(h) =>
 			(h.querySelector(".mw-headline")?.text.trim() ?? h.text.trim()) ===
@@ -137,7 +137,9 @@ export async function scrapeRecipes(): Promise<
 		if (seenNameCells.has(nameCell)) continue;
 		seenNameCells.add(nameCell);
 
-		const nameLink = nameCell.querySelector("a") as unknown as HTMLElement | null;
+		const nameLink = nameCell.querySelector(
+			"a",
+		) as unknown as HTMLElement | null;
 		if (!nameLink) continue;
 		const name = nameLink.text.trim();
 		if (!name || name.toLowerCase() === "name") continue;
@@ -149,16 +151,17 @@ export async function scrapeRecipes(): Promise<
 		let imageUrl: string | null = null;
 		const imageCell = getCol(colIdx, cells, "image");
 		if (imageCell) {
-			const img = imageCell.querySelector("img") as unknown as HTMLElement | null;
+			const img = imageCell.querySelector(
+				"img",
+			) as unknown as HTMLElement | null;
 			const src = img?.getAttribute("src") ?? "";
 			if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
 		}
 
 		// Description
 		const description =
-			getCol(colIdx, cells, "description")
-				?.text.trim()
-				.replace(/\s+/g, " ") || null;
+			getCol(colIdx, cells, "description")?.text.trim().replace(/\s+/g, " ") ||
+			null;
 
 		// Ingredients
 		const ingredientsCell = getCol(colIdx, cells, "ingredients");

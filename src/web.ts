@@ -4,12 +4,14 @@ import { handleBundle } from "./commands/bundle";
 import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
 import { handleFish } from "./commands/fish";
+import { handleFootwear } from "./commands/footwear";
 import { handleForage } from "./commands/forage";
 import { handleFruitTree } from "./commands/fruitTree";
 import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
+import { handleRing } from "./commands/ring";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { handleWeapon } from "./commands/weapon";
@@ -57,6 +59,12 @@ export async function handleWebQuery(
 			break;
 		case "fish":
 			handlerResponse = handleFish(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
+		case "footwear":
+			handlerResponse = handleFootwear(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
@@ -138,6 +146,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case "ring":
+			handlerResponse = handleRing(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case "info": {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
@@ -158,6 +172,7 @@ export async function handleWebQuery(
 				s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
 				s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
 				s.recipesLastUpdated ? new Date(s.recipesLastUpdated).getTime() : 0,
+				s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -190,6 +205,7 @@ export async function handleWebQuery(
 						{ name: `Monsters: ${s.monsterCount}`, value: "", inline: false },
 						{ name: `Recipes: ${s.recipeCount}`, value: "", inline: false },
 						{ name: `Weapons: ${s.weaponCount}`, value: "", inline: false },
+						{ name: `Footwear: ${s.footwearCount}`, value: "", inline: false },
 					],
 					footer: {
 						text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC`,
@@ -199,7 +215,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: book, crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: book, crop, fish, footwear, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, weapon, schedule, season, info`,
 			});
 	}
 

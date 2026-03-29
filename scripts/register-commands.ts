@@ -241,6 +241,21 @@ const commands = [
 		],
 	},
 	{
+		name: "footwear",
+		description: "Look up info about Stardew Valley footwear.",
+		integration_types: [0, 1],
+		contexts: [0, 1, 2],
+		options: [
+			{
+				type: 3, // STRING
+				name: "name",
+				description:
+					"Footwear name (e.g. Sneakers, Genie Shoes, Emily's Magic Boots)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "info",
 		description: "Show the bot's data freshness and record counts.",
 		integration_types: [0, 1],
@@ -256,6 +271,20 @@ const commands = [
 				type: 3, // STRING
 				name: "name",
 				description: "Recipe name (e.g. Fried Egg, Salad, Chowder)",
+				required: true,
+			},
+		],
+	},
+	{
+		name: "ring",
+		description: "Look up info about a Stardew Valley ring.",
+		integration_types: [0, 1],
+		contexts: [0, 1, 2],
+		options: [
+			{
+				type: 3, // STRING
+				name: "name",
+				description: "Ring name (e.g. Lucky Ring, Iridium Band, Glow Ring)",
 				required: true,
 			},
 		],
