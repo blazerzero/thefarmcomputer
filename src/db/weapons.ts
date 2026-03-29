@@ -5,7 +5,13 @@ const now = () => new Date().toISOString();
 export function getWeapon(sql: SqlStorage, name: string): Weapon | null {
 	try {
 		const row = sql
-			.exec("SELECT * FROM weapons WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.exec(
+				`SELECT * FROM weapons WHERE name LIKE ?
+         ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
+         LIMIT 1`,
+				`%${name}%`,
+				name,
+			)
 			.one() as unknown as WeaponRow | null;
 		if (!row) return null;
 		return row;
