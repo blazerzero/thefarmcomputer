@@ -284,6 +284,24 @@ export interface WeaponRow {
 /** A weapon row (no JSON fields to decode). */
 export interface Weapon extends WeaponRow {}
 
+/** A ring row as stored in SQLite. */
+export interface RingRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	sell_price: number | null;
+	effects: string | null;
+	where_to_find: string; // JSON array of source strings
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A ring row with where_to_find already decoded. */
+export interface Ring extends Omit<RingRow, "where_to_find"> {
+	where_to_find: string[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
 	PING: 1,

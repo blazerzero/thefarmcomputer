@@ -247,6 +247,20 @@ const commands = [
 		contexts: [0, 1, 2],
 	},
 	{
+		name: "ring",
+		description: "Look up info about a Stardew Valley ring.",
+		integration_types: [0, 1],
+		contexts: [0, 1, 2],
+		options: [
+			{
+				type: 3, // STRING
+				name: "name",
+				description: "Ring name (e.g. Lucky Ring, Iridium Band, Glow Ring)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "weapon",
 		description: "Look up info about a Stardew Valley weapon.",
 		integration_types: [0, 1],
