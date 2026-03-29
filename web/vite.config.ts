@@ -1,7 +1,9 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import ogPlugin from "vite-plugin-open-graph";
+
+const env = loadEnv(process.env.NODE_ENV as string, process.cwd(), "VITE_");
 
 export default defineConfig({
 	plugins: [
@@ -11,8 +13,8 @@ export default defineConfig({
 				title: "The Farm Computer",
 				description:
 					"A nifty Discord bot and web tool for searching in-game details for Stardew Valley, sourced from the official wiki.",
-				url: process.env.DEPLOY_URL,
-				image: process.env.OG_IMAGE_URL,
+				url: env.VITE_DEPLOY_URL,
+				image: env.VITE_OG_IMAGE_URL,
 			},
 		}),
 	],

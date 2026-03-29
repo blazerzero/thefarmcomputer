@@ -51,8 +51,8 @@ BOT_OWNER_TOKEN=your_admin_token
 Create a `.env` file in `web/`:
 
 ```env
-DEPLOY_URL=your_deploy_url
-OG_IMAGE_URL=your_og_image
+VITE_DEPLOY_URL=your_deploy_url
+VITE_OG_IMAGE_URL=your_og_image
 ```
 
 ### Register Discord Commands
