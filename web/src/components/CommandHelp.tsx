@@ -72,6 +72,11 @@ const COMMANDS = [
 		desc: "Villager's schedule. Day filters by occasion (Rain, Monday, etc.). Season defaults to Default.",
 	},
 	{
+		syntax: "ring <name>",
+		example: "ring lucky ring",
+		desc: "Effects, sell price, where to find",
+	},
+	{
 		syntax: "season <season>",
 		example: "season Summer",
 		desc: "All crops for Spring, Summer, Fall, or Winter",

@@ -67,6 +67,10 @@ export function parseListCell(cell: HTMLElement): string[] {
 	let goToNewline = false;
 	let text = "";
 	items.forEach((item, index) => {
+		if (item.rawTagName === "ul") {
+			parsedItems.push(...parseListCell(item as HTMLElement));
+			return;
+		}
 		if (item.rawTagName === "img") return;
 		if (item.rawTagName && item.rawTagName !== "a") {
 			goToNewline = true;

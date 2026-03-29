@@ -5,14 +5,12 @@ const now = () => new Date().toISOString();
 export function getFootwear(sql: SqlStorage, name: string): Footwear | null {
 	try {
 		const row = sql
-			.exec(
-				"SELECT * FROM footwear WHERE name LIKE ? LIMIT 1",
-				`%${name}%`,
-			)
+			.exec("SELECT * FROM footwear WHERE name LIKE ? LIMIT 1", `%${name}%`)
 			.one() as unknown as FootwearRow | null;
 		if (!row) return null;
 		return {
 			...row,
+			stats: JSON.parse(row.stats || "[]") as string[],
 			source: JSON.parse(row.source || "[]") as string[],
 		};
 	} catch (err) {
@@ -27,28 +25,21 @@ export function upsertFootwear(
 ): void {
 	sql.exec(
 		`INSERT INTO footwear
-       (name, defense, immunity, crit_chance, crit_power, weight,
-        description, sell_price, source, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       (name, stats, description, purchase_price, sell_price, source, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
-       defense      = excluded.defense,
-       immunity     = excluded.immunity,
-       crit_chance  = excluded.crit_chance,
-       crit_power   = excluded.crit_power,
-       weight       = excluded.weight,
-       description  = excluded.description,
-       sell_price   = excluded.sell_price,
-       source       = excluded.source,
-       image_url    = excluded.image_url,
-       wiki_url     = excluded.wiki_url,
-       last_updated = excluded.last_updated`,
+       stats        	= excluded.stats,
+       description  	= excluded.description,
+       purchase_price 	= excluded.purchase_price,
+       sell_price   	= excluded.sell_price,
+       source       	= excluded.source,
+       image_url    	= excluded.image_url,
+       wiki_url     	= excluded.wiki_url,
+       last_updated 	= excluded.last_updated`,
 		data.name,
-		data.defense,
-		data.immunity,
-		data.crit_chance,
-		data.crit_power,
-		data.weight,
+		data.stats,
 		data.description,
+		data.purchase_price,
 		data.sell_price,
 		data.source,
 		data.image_url,

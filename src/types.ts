@@ -288,12 +288,9 @@ export interface Weapon extends WeaponRow {}
 export interface FootwearRow {
 	id?: number;
 	name: string;
-	defense: number | null;
-	immunity: number | null;
-	crit_chance: number | null;
-	crit_power: number | null;
-	weight: number | null;
+	stats: string | null; // JSON: string[], e.g. ["Defense +4", "Immunity +2"]
 	description: string | null;
+	purchase_price: number | null;
 	sell_price: number | null;
 	source: string | null; // JSON: string[]
 	image_url: string | null;
@@ -301,9 +298,28 @@ export interface FootwearRow {
 	last_updated: string;
 }
 
-/** A footwear row with source decoded to string[]. */
-export interface Footwear extends Omit<FootwearRow, "source"> {
+/** A ring row as stored in SQLite. */
+export interface RingRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	sell_price: number | null;
+	effects: string | null;
+	where_to_find: string; // JSON array of source strings
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A footwear row with stats and source decoded to string[]. */
+export interface Footwear extends Omit<FootwearRow, "stats" | "source"> {
+	stats: string[];
 	source: string[];
+}
+
+/** A ring row with where_to_find already decoded. */
+export interface Ring extends Omit<RingRow, "where_to_find"> {
+	where_to_find: string[];
 }
 
 /** Discord interaction types. */

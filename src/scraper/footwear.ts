@@ -3,14 +3,6 @@ import { parse } from "node-html-parser";
 import type { FootwearRow } from "../types";
 import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
-/** Parse a plain integer from text (strips leading + or −); returns null if absent. */
-function parseIntOrNull(text: string): number | null {
-	const m = text.match(/(-?\d+)/);
-	if (!m) return null;
-	const n = parseInt(m[1]!, 10);
-	return isNaN(n) ? null : n;
-}
-
 /** Parse a gold price from text like "500g" or "1,500g"; returns null if absent or N/A. */
 function parseGoldPrice(text: string): number | null {
 	const m = text.match(/(\d[\d,]*)\s*g/i);
@@ -53,10 +45,10 @@ export async function scrapeFootwear(): Promise<
 
 			if (text === "image" || text === "img") colIdx.image = colI;
 			else if (text === "name") colIdx.name = colI;
-			else if (text.includes("defense")) colIdx.defense = colI;
-			else if (text.includes("immunity")) colIdx.immunity = colI;
+			else if (text === "stats" || text.includes("stat")) colIdx.stats = colI;
 			else if (text === "description" || text === "desc")
 				colIdx.description = colI;
+			else if (text.includes("purchase")) colIdx.purchase_price = colI;
 			else if (text.includes("sell") || text === "price")
 				colIdx.sell_price = colI;
 			else if (text === "source" || text.includes("obtain"))
@@ -101,20 +93,10 @@ export async function scrapeFootwear(): Promise<
 				if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
 			}
 
-			// Defense boost
-			const defenseText = getCol(colIdx, cells, "defense")?.text.trim() ?? "";
-			const defense =
-				defenseText && !/n\/a/i.test(defenseText)
-					? parseIntOrNull(defenseText)
-					: null;
-
-			// Immunity boost
-			const immunityText =
-				getCol(colIdx, cells, "immunity")?.text.trim() ?? "";
-			const immunity =
-				immunityText && !/n\/a/i.test(immunityText)
-					? parseIntOrNull(immunityText)
-					: null;
+			// Stats — parse bullet list from the stats cell
+			let statsItems: string[] = [];
+			const statsCell = getCol(colIdx, cells, "stats");
+			if (statsCell) statsItems = parseListCell(statsCell);
 
 			// Description
 			const description =
@@ -122,38 +104,29 @@ export async function scrapeFootwear(): Promise<
 					?.text.replace(/\s+/g, " ")
 					.trim() || null;
 
+			// Purchase price
+			const purchaseText =
+				getCol(colIdx, cells, "purchase_price")?.text.trim() ?? "";
+			const purchasePrice =
+				purchaseText && !/n\/a/i.test(purchaseText)
+					? parseGoldPrice(purchaseText)
+					: null;
+
 			// Sell price
-			const sellText =
-				getCol(colIdx, cells, "sell_price")?.text.trim() ?? "";
+			const sellText = getCol(colIdx, cells, "sell_price")?.text.trim() ?? "";
 			const sellPrice =
 				sellText && !/n\/a/i.test(sellText) ? parseGoldPrice(sellText) : null;
 
 			// Source — try <ul><li> items first, fall back to parseListCell
 			let sourceItems: string[] = [];
 			const sourceCell = getCol(colIdx, cells, "source");
-			if (sourceCell) {
-				const liItems = sourceCell.querySelectorAll(
-					"li",
-				) as unknown as HTMLElement[];
-				if (liItems.length > 0) {
-					sourceItems = liItems
-						.map((li) => li.text.replace(/\s+/g, " ").trim())
-						.filter((t) => t.length > 0);
-				} else {
-					sourceItems = parseListCell(sourceCell);
-				}
-				// Filter out bare "N/A" entries
-				sourceItems = sourceItems.filter((s) => !/^n\/a$/i.test(s));
-			}
+			if (sourceCell) sourceItems = parseListCell(sourceCell);
 
 			footwear.push({
 				name: itemName,
-				defense,
-				immunity,
-				crit_chance: null,
-				crit_power: null,
-				weight: null,
+				stats: JSON.stringify(statsItems),
 				description,
+				purchase_price: purchasePrice,
 				sell_price: sellPrice,
 				source: JSON.stringify(sourceItems),
 				image_url: imageUrl,

@@ -4,12 +4,9 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeFootwearRow = {
 	name: "Space Boots",
-	defense: 4,
-	immunity: 2,
-	crit_chance: null,
-	crit_power: null,
-	weight: null,
+	stats: '["Defense +4","Immunity +2"]',
 	description: "Boots from the far reaches of the galaxy.",
+	purchase_price: 2000,
 	sell_price: 500,
 	source: '["Skull Cavern","Volcano Dungeon"]',
 	image_url: "https://example.com/space-boots.png",
@@ -20,9 +17,9 @@ const fakeFootwearRow = {
 const fakeFootwearNulls = {
 	...fakeFootwearRow,
 	name: "Sneakers",
-	defense: null,
-	immunity: null,
+	stats: "[]",
 	description: null,
+	purchase_price: null,
 	sell_price: null,
 	source: "[]",
 };
@@ -42,10 +39,12 @@ describe("handleFootwear", () => {
 		const embed = json.data.embeds?.[0];
 		expect(embed?.title).toBe("Space Boots");
 		expect(embed?.color).toBe(0x5b8a3c);
-		expect(embed?.description).toBe("Boots from the far reaches of the galaxy.");
+		expect(embed?.description).toBe(
+			"Boots from the far reaches of the galaxy.",
+		);
 	});
 
-	it("renders Stats as a bullet list using formatItemStats", async () => {
+	it("renders Stats as a bullet list from the stats array", async () => {
 		const res = handleFootwear(
 			makeInteraction("space boots"),
 			makeSql([fakeFootwearRow]),
@@ -54,13 +53,12 @@ describe("handleFootwear", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
 		const statsField = fields.find((f) => f.name === "Stats");
-		expect(statsField?.value).toContain("Defense");
-		expect(statsField?.value).toContain("+4");
-		expect(statsField?.value).toContain("Immunity");
-		expect(statsField?.value).toContain("+2");
+		expect(statsField?.value).toContain("Defense +4");
+		expect(statsField?.value).toContain("Immunity +2");
+		expect(statsField?.value).toContain("•");
 	});
 
-	it("shows N/A for Stats when all core stats are null", async () => {
+	it("shows N/A for Stats when stats array is empty", async () => {
 		const res = handleFootwear(
 			makeInteraction("sneakers"),
 			makeSql([fakeFootwearNulls]),
@@ -97,6 +95,32 @@ describe("handleFootwear", () => {
 
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Source", value: "N/A" }),
+		);
+	});
+
+	it("shows purchase price when present", async () => {
+		const res = handleFootwear(
+			makeInteraction("space boots"),
+			makeSql([fakeFootwearRow]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Purchase Price", value: "2000g" }),
+		);
+	});
+
+	it("shows N/A for Purchase Price when purchase_price is null", async () => {
+		const res = handleFootwear(
+			makeInteraction("sneakers"),
+			makeSql([fakeFootwearNulls]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Purchase Price", value: "N/A" }),
 		);
 	});
 

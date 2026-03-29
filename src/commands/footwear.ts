@@ -2,7 +2,6 @@ import { DEFAULT_COLOR, formatDate } from "../constants";
 import { getFootwear } from "../db";
 import {
 	embedResponse,
-	formatItemStats,
 	getOption,
 	notFoundResponse,
 	renderDotList,
@@ -23,18 +22,21 @@ export function handleFootwear(
 
 	const fields: Array<{ name: string; value: string; inline: boolean }> = [];
 
-	const statsValue = formatItemStats({
-		defense: item.defense,
-		immunity: item.immunity,
-		crit_chance: item.crit_chance,
-		crit_power: item.crit_power,
-		weight: item.weight,
+	fields.push({
+		name: "Stats",
+		value: item.stats.length > 0 ? renderDotList(item.stats) : "N/A",
+		inline: true,
 	});
-	fields.push({ name: "Stats", value: statsValue ?? "N/A", inline: true });
 
 	fields.push({
 		name: "Source",
 		value: item.source.length > 0 ? renderDotList(item.source) : "N/A",
+		inline: true,
+	});
+
+	fields.push({
+		name: "Purchase Price",
+		value: item.purchase_price != null ? `${item.purchase_price}g` : "N/A",
 		inline: true,
 	});
 

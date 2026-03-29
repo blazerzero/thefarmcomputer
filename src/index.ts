@@ -10,6 +10,7 @@ import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
+import { handleRing } from "./commands/ring";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { handleWeapon } from "./commands/weapon";
@@ -25,6 +26,7 @@ import {
 	countFruitTrees,
 	countMinerals,
 	countMonsters,
+	countRings,
 	countVillagers,
 	countWeapons,
 	getStatus,
@@ -39,6 +41,7 @@ import {
 	upsertFruitTree,
 	upsertMineral,
 	upsertMonster,
+	upsertRing,
 	upsertVillager,
 	upsertWeapon,
 	villagersNeedScheduleRefresh,
@@ -52,6 +55,7 @@ import { scrapeForageables } from "./scraper/forageables";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeMonsters } from "./scraper/monsters";
+import { scrapeRings } from "./scraper/rings";
 import { scrapeVillagers } from "./scraper/villagers";
 import { scrapeFootwear } from "./scraper/footwear";
 import { scrapeWeapons } from "./scraper/weapons";
@@ -101,6 +105,12 @@ async function refreshMinerals(sql: SqlStorage): Promise<number> {
 	const minerals = await scrapeMinerals();
 	for (const m of minerals) upsertMineral(sql, m);
 	return minerals.length;
+}
+
+async function refreshRings(sql: SqlStorage): Promise<number> {
+	const rings = await scrapeRings();
+	for (const r of rings) upsertRing(sql, r);
+	return rings.length;
 }
 
 async function refreshCraftedItems(sql: SqlStorage): Promise<number> {
@@ -206,6 +216,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.log(`Updated ${n} footwear items`);
 	} catch (err) {
 		console.error("Footwear scrape failed:", err);
+	}
+	try {
+		const n = await refreshRings(sql);
+		console.log(`Updated ${n} rings`);
+	} catch (err) {
+		console.error("Ring scrape failed:", err);
 	}
 	console.log("Wiki refresh complete");
 }
@@ -349,6 +365,10 @@ export class StardewDO implements DurableObject {
 				if (countWeapons(this.sql) === 0) await refreshWeapons(this.sql);
 				return handleWeapon(interaction, this.sql);
 			}
+			if (commandName === "ring") {
+				if (countRings(this.sql) === 0) await refreshRings(this.sql);
+				return handleRing(interaction, this.sql);
+			}
 			if (commandName === "schedule") {
 				if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
 				return handleSchedule(interaction, this.sql);
@@ -380,9 +400,7 @@ export class StardewDO implements DurableObject {
 						? new Date(s.villagersLastUpdated).getTime()
 						: 0,
 					s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
-					s.footwearLastUpdated
-						? new Date(s.footwearLastUpdated).getTime()
-						: 0,
+					s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 				);
 				const lastUpdated = lastUpdatedMs
 					? formatDate(new Date(lastUpdatedMs).toISOString())

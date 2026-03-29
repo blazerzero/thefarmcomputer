@@ -190,6 +190,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "ring",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Lucky Ring",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "schedule",
 		fields: [
 			{

@@ -10,6 +10,7 @@ import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
+import { handleRing } from "./commands/ring";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
 import { handleWeapon } from "./commands/weapon";
@@ -138,6 +139,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case "ring":
+			handlerResponse = handleRing(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case "info": {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
@@ -157,9 +164,7 @@ export async function handleWebQuery(
 				s.monstersLastUpdated ? new Date(s.monstersLastUpdated).getTime() : 0,
 				s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
 				s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
-				s.footwearLastUpdated
-					? new Date(s.footwearLastUpdated).getTime()
-					: 0,
+				s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -201,7 +206,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: book, crop, fish, footwear, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: book, crop, fish, footwear, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, ring, weapon, schedule, season, info`,
 			});
 	}
 
