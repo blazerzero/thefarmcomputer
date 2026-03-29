@@ -26,3 +26,4 @@ export {
 	villagersNeedScheduleRefresh,
 } from "./villagers";
 export { countWeapons, getWeapon, upsertWeapon } from "./weapons";
+export { countFootwear, getFootwear, upsertFootwear } from "./footwear";

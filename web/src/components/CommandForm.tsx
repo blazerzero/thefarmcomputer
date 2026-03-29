@@ -92,6 +92,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "footwear",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Sneakers",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "forage",
 		fields: [
 			{

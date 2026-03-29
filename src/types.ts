@@ -284,6 +284,20 @@ export interface WeaponRow {
 /** A weapon row (no JSON fields to decode). */
 export interface Weapon extends WeaponRow {}
 
+/** A footwear row as stored in SQLite. */
+export interface FootwearRow {
+	id?: number;
+	name: string;
+	stats: string | null; // JSON: string[], e.g. ["Defense +4", "Immunity +2"]
+	description: string | null;
+	purchase_price: number | null;
+	sell_price: number | null;
+	source: string | null; // JSON: string[]
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
 /** A ring row as stored in SQLite. */
 export interface RingRow {
 	id?: number;
@@ -295,6 +309,12 @@ export interface RingRow {
 	image_url: string | null;
 	wiki_url: string;
 	last_updated: string;
+}
+
+/** A footwear row with stats and source decoded to string[]. */
+export interface Footwear extends Omit<FootwearRow, "stats" | "source"> {
+	stats: string[];
+	source: string[];
 }
 
 /** A ring row with where_to_find already decoded. */
