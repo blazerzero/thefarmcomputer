@@ -1,4 +1,5 @@
 import { handleBook } from "./commands/book";
+import { handleRecipe } from "./commands/recipe";
 import { handleBundle } from "./commands/bundle";
 import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
@@ -125,6 +126,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case "recipe":
+			handlerResponse = handleRecipe(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case "weapon":
 			handlerResponse = handleWeapon(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
@@ -150,6 +157,7 @@ export async function handleWebQuery(
 				s.monstersLastUpdated ? new Date(s.monstersLastUpdated).getTime() : 0,
 				s.villagersLastUpdated ? new Date(s.villagersLastUpdated).getTime() : 0,
 				s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
+				s.recipesLastUpdated ? new Date(s.recipesLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -180,6 +188,7 @@ export async function handleWebQuery(
 							inline: false,
 						},
 						{ name: `Monsters: ${s.monsterCount}`, value: "", inline: false },
+						{ name: `Recipes: ${s.recipeCount}`, value: "", inline: false },
 						{ name: `Weapons: ${s.weaponCount}`, value: "", inline: false },
 					],
 					footer: {
@@ -190,7 +199,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: book, crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: book, crop, fish, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, weapon, schedule, season, info`,
 			});
 	}
 

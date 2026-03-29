@@ -16,6 +16,7 @@ export {
 export { countFruitTrees, getFruitTree, upsertFruitTree } from "./fruitTrees";
 export { countMinerals, getMineral, upsertMineral } from "./minerals";
 export { countMonsters, getMonster, upsertMonster } from "./monsters";
+export { countRecipes, getRecipe, upsertRecipe } from "./recipes";
 export { initDb } from "./schema";
 export { getStatus } from "./status";
 export {

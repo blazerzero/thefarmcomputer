@@ -284,6 +284,28 @@ export interface WeaponRow {
 /** A weapon row (no JSON fields to decode). */
 export interface Weapon extends WeaponRow {}
 
+/** A cooked food recipe row as stored in SQLite. */
+export interface RecipeRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	ingredients: string; // JSON array of CraftIngredient
+	energy: number | null;
+	health: number | null;
+	buffs: string | null; // plain text, e.g. "Farming +2, Mining +1"
+	buff_duration: string | null; // e.g. "7m 41s"
+	recipe_source: string | null; // e.g. "Queen of Sauce (Spring 28, Year 1)"
+	sell_price: number | null;
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A cooked food recipe row with ingredients already decoded. */
+export interface Recipe extends Omit<RecipeRow, "ingredients"> {
+	ingredients: CraftIngredient[];
+}
+
 /** Discord interaction types. */
 export const InteractionType = {
 	PING: 1,

@@ -247,6 +247,20 @@ const commands = [
 		contexts: [0, 1, 2],
 	},
 	{
+		name: "recipe",
+		description: "Look up a cooked food recipe in Stardew Valley.",
+		integration_types: [0, 1],
+		contexts: [0, 1, 2],
+		options: [
+			{
+				type: 3, // STRING
+				name: "name",
+				description: "Recipe name (e.g. Fried Egg, Salad, Chowder)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "weapon",
 		description: "Look up info about a Stardew Valley weapon.",
 		integration_types: [0, 1],

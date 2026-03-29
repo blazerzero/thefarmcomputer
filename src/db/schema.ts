@@ -198,6 +198,24 @@ export function initDb(sql: SqlStorage): void {
   `);
 
 	sql.exec(`
+    CREATE TABLE IF NOT EXISTS recipes (
+      id             INTEGER PRIMARY KEY,
+      name           TEXT UNIQUE NOT NULL,
+      description    TEXT,
+      ingredients    TEXT,
+      energy         INTEGER,
+      health         INTEGER,
+      buffs          TEXT,
+      buff_duration  TEXT,
+      recipe_source  TEXT,
+      sell_price     INTEGER,
+      image_url      TEXT,
+      wiki_url       TEXT,
+      last_updated   TEXT
+    )
+  `);
+
+	sql.exec(`
     CREATE TABLE IF NOT EXISTS weapons (
       id              INTEGER PRIMARY KEY,
       name            TEXT UNIQUE NOT NULL,

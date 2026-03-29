@@ -124,6 +124,21 @@ const fakeMonsterRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeRecipeRow = {
+	name: "Fried Egg",
+	description: "It's an egg, fried.",
+	ingredients: '[{"name":"Egg","quantity":1}]',
+	energy: 50,
+	health: 22,
+	buffs: null,
+	buff_duration: null,
+	recipe_source: "Starter",
+	sell_price: 35,
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Fried_Egg",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
@@ -214,6 +229,16 @@ describe("handleWebQuery — command routing", () => {
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Shadow Brute");
+	});
+
+	it("routes 'recipe' and returns an embed with the recipe title", async () => {
+		const res = await handleWebQuery(
+			"recipe fried egg",
+			makeSql([fakeRecipeRow]),
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Fried Egg");
 	});
 
 	it("routes 'info' and returns an embed with the status title", async () => {

@@ -178,6 +178,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "recipe",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Fried Egg",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "schedule",
 		fields: [
 			{
