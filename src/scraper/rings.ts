@@ -150,9 +150,7 @@ export async function scrapeRings(): Promise<
 				if (whereToFind.length === 0) {
 					const raw = whereCell.text.trim();
 					whereToFind =
-						raw && raw.toLowerCase() !== "n/a" && raw !== "—"
-							? [raw]
-							: ["N/A"];
+						raw && raw.toLowerCase() !== "n/a" && raw !== "—" ? [raw] : ["N/A"];
 				}
 			} else {
 				whereToFind = ["N/A"];

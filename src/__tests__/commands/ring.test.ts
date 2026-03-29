@@ -34,7 +34,8 @@ const fakeMultiSourceRow = {
 	...fakeLuckyRingRow,
 	name: "Glow Ring",
 	description: "Emits a pleasant light.",
-	where_to_find: '["The Mines (Floor 40+)","Fishing Treasure Chests","Monster Drops"]',
+	where_to_find:
+		'["The Mines (Floor 40+)","Fishing Treasure Chests","Monster Drops"]',
 };
 
 function makeInteraction(name: string) {
@@ -43,7 +44,10 @@ function makeInteraction(name: string) {
 
 describe("handleRing", () => {
 	it("returns an embed with the ring title and gold color", async () => {
-		const res = handleRing(makeInteraction("lucky ring"), makeSql([fakeLuckyRingRow]));
+		const res = handleRing(
+			makeInteraction("lucky ring"),
+			makeSql([fakeLuckyRingRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 
 		const embed = json.data.embeds?.[0];
@@ -53,7 +57,10 @@ describe("handleRing", () => {
 	});
 
 	it("includes sell price, effects, and where to find fields", async () => {
-		const res = handleRing(makeInteraction("lucky ring"), makeSql([fakeLuckyRingRow]));
+		const res = handleRing(
+			makeInteraction("lucky ring"),
+			makeSql([fakeLuckyRingRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -70,7 +77,10 @@ describe("handleRing", () => {
 	});
 
 	it("displays N/A for sell price when null", async () => {
-		const res = handleRing(makeInteraction("iridium band"), makeSql([fakeNaSellRow]));
+		const res = handleRing(
+			makeInteraction("iridium band"),
+			makeSql([fakeNaSellRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -80,7 +90,10 @@ describe("handleRing", () => {
 	});
 
 	it("still includes Sells For field when sell price is null", async () => {
-		const res = handleRing(makeInteraction("iridium band"), makeSql([fakeNaSellRow]));
+		const res = handleRing(
+			makeInteraction("iridium band"),
+			makeSql([fakeNaSellRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
@@ -89,7 +102,10 @@ describe("handleRing", () => {
 	});
 
 	it("displays N/A for effects when null", async () => {
-		const res = handleRing(makeInteraction("copper ring"), makeSql([fakeNaEffectsRow]));
+		const res = handleRing(
+			makeInteraction("copper ring"),
+			makeSql([fakeNaEffectsRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
@@ -99,7 +115,10 @@ describe("handleRing", () => {
 	});
 
 	it("still includes Effects field when effects is null", async () => {
-		const res = handleRing(makeInteraction("copper ring"), makeSql([fakeNaEffectsRow]));
+		const res = handleRing(
+			makeInteraction("copper ring"),
+			makeSql([fakeNaEffectsRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
@@ -108,7 +127,10 @@ describe("handleRing", () => {
 	});
 
 	it("renders multiple where-to-find sources as a dot list", async () => {
-		const res = handleRing(makeInteraction("glow ring"), makeSql([fakeMultiSourceRow]));
+		const res = handleRing(
+			makeInteraction("glow ring"),
+			makeSql([fakeMultiSourceRow]),
+		);
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
