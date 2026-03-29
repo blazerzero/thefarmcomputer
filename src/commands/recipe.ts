@@ -30,7 +30,7 @@ export function handleRecipe(
 			value: renderDotList(
 				recipe.ingredients.map((i) => `${i.quantity}× ${i.name}`),
 			),
-			inline: false,
+			inline: true,
 		});
 	}
 
@@ -43,13 +43,13 @@ export function handleRecipe(
 	}
 
 	if (recipe.buffs !== null) {
-		fields.push({ name: "Buffs", value: recipe.buffs, inline: false });
+		fields.push({ name: "Buffs", value: recipe.buffs, inline: true });
 	}
 
-	if (recipe.buff_duration !== null) {
+	if (recipe.buff_duration.length > 0) {
 		fields.push({
 			name: "Buff Duration",
-			value: recipe.buff_duration,
+			value: renderDotList(recipe.buff_duration),
 			inline: true,
 		});
 	}
@@ -64,7 +64,7 @@ export function handleRecipe(
 
 	if (recipe.recipe_source !== null) {
 		fields.push({
-			name: "Recipe Source",
+			name: "Recipe Source(s)",
 			value: recipe.recipe_source,
 			inline: false,
 		});

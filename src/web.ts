@@ -1,5 +1,4 @@
 import { handleBook } from "./commands/book";
-import { handleRecipe } from "./commands/recipe";
 import { handleBundle } from "./commands/bundle";
 import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
@@ -11,6 +10,7 @@ import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
+import { handleRecipe } from "./commands/recipe";
 import { handleRing } from "./commands/ring";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";

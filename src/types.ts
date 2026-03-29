@@ -293,7 +293,7 @@ export interface RecipeRow {
 	energy: number | null;
 	health: number | null;
 	buffs: string | null; // plain text, e.g. "Farming +2, Mining +1"
-	buff_duration: string | null; // e.g. "7m 41s"
+	buff_duration: string | null; // JSON: string[], e.g. ["7m 41s", "3m 30s"]
 	recipe_source: string | null; // e.g. "Queen of Sauce (Spring 28, Year 1)"
 	sell_price: number | null;
 	image_url: string | null;
@@ -315,9 +315,11 @@ export interface FootwearRow {
 	last_updated: string;
 }
 
-/** A cooked food recipe row with ingredients already decoded. */
-export interface Recipe extends Omit<RecipeRow, "ingredients"> {
+/** A cooked food recipe row with ingredients and buff_duration already decoded. */
+export interface Recipe
+	extends Omit<RecipeRow, "ingredients" | "buff_duration"> {
 	ingredients: CraftIngredient[];
+	buff_duration: string[];
 }
 
 /** A ring row as stored in SQLite. */

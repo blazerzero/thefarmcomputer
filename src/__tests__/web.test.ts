@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { handleWebQuery } from "../web";
-import { type WebApiResponse, makeSql } from "./helpers";
+import { makeSql, type WebApiResponse } from "./helpers";
 
 // ── Shared fake rows ──────────────────────────────────────────────────────────
 

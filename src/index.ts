@@ -1,5 +1,4 @@
 import { handleBook } from "./commands/book";
-import { handleRecipe } from "./commands/recipe";
 import { handleBundle } from "./commands/bundle";
 import { handleCraft } from "./commands/craft";
 import { handleCrop } from "./commands/crop";
@@ -11,6 +10,7 @@ import { handleGift } from "./commands/gift";
 import { handleIngredient } from "./commands/ingredient";
 import { handleMineral } from "./commands/mineral";
 import { handleMonster } from "./commands/monster";
+import { handleRecipe } from "./commands/recipe";
 import { handleRing } from "./commands/ring";
 import { handleSchedule } from "./commands/schedule";
 import { handleSeason } from "./commands/season";
@@ -50,18 +50,18 @@ import {
 	villagersNeedScheduleRefresh,
 } from "./db";
 import { scrapeBooks } from "./scraper/books";
-import { scrapeRecipes } from "./scraper/recipes";
 import { scrapeBundles } from "./scraper/bundles";
 import { scrapeCraftedItems } from "./scraper/craftedItems";
 import { scrapeCrops } from "./scraper/crops";
 import { scrapeFish } from "./scraper/fish";
+import { scrapeFootwear } from "./scraper/footwear";
 import { scrapeForageables } from "./scraper/forageables";
 import { scrapeFruitTrees } from "./scraper/fruitTrees";
 import { scrapeMinerals } from "./scraper/minerals";
 import { scrapeMonsters } from "./scraper/monsters";
+import { scrapeRecipes } from "./scraper/recipes";
 import { scrapeRings } from "./scraper/rings";
 import { scrapeVillagers } from "./scraper/villagers";
-import { scrapeFootwear } from "./scraper/footwear";
 import { scrapeWeapons } from "./scraper/weapons";
 import { type Env, InteractionResponseType, InteractionType } from "./types";
 import { verifyDiscordRequest } from "./verify";

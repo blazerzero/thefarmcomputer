@@ -9,7 +9,7 @@ const fakeRecipeRow = {
 	energy: 50,
 	health: 22,
 	buffs: null,
-	buff_duration: null,
+	buff_duration: "[]",
 	recipe_source: "Starter",
 	sell_price: 35,
 	image_url: "https://example.com/fried_egg.png",
@@ -25,7 +25,7 @@ const fakeBuffedRecipeRow = {
 	energy: 113,
 	health: 50,
 	buffs: "Defense +2",
-	buff_duration: "5m 35s",
+	buff_duration: '["5m 35s"]',
 	recipe_source: "Emily (3 hearts)",
 	sell_price: 110,
 	image_url: null,
@@ -41,7 +41,7 @@ const fakeMinimalRecipeRow = {
 	energy: null,
 	health: null,
 	buffs: null,
-	buff_duration: null,
+	buff_duration: "[]",
 	recipe_source: null,
 	sell_price: null,
 	image_url: null,
@@ -117,12 +117,11 @@ describe("handleRecipe", () => {
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Buffs", value: "Defense +2" }),
 		);
-		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Buff Duration", value: "5m 35s" }),
-		);
+		const buffDurationField = fields.find((f) => f.name === "Buff Duration");
+		expect(buffDurationField?.value).toContain("5m 35s");
 		expect(fields).toContainEqual(
 			expect.objectContaining({
-				name: "Recipe Source",
+				name: "Recipe Source(s)",
 				value: "Emily (3 hearts)",
 			}),
 		);
@@ -167,7 +166,7 @@ describe("handleRecipe", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Recipe Source", value: "Starter" }),
+			expect.objectContaining({ name: "Recipe Source(s)", value: "Starter" }),
 		);
 	});
 

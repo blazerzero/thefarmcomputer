@@ -57,7 +57,7 @@ describe("handleFish", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Location", value: "Ocean" }),
+			expect.objectContaining({ name: "Location(s)", value: "Ocean" }),
 		);
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Weather", value: "Any" }),

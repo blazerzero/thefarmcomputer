@@ -1,4 +1,4 @@
-import { DEFAULT_COLOR, SEASON_COLORS, formatDate } from "../constants";
+import { DEFAULT_COLOR, formatDate, SEASON_COLORS } from "../constants";
 import { getFruitTree } from "../db";
 import {
 	embedResponse,

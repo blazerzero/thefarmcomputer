@@ -1,7 +1,8 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
+import { renderDotList } from "../commands/utils";
 import type { CraftIngredient, RecipeRow } from "../types";
-import { fetchPage, getCol, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
@@ -52,7 +53,8 @@ function buildColIdx(headerRow: HTMLElement): Record<string, number> {
 		else if (text === "name") colIdx.name = colI;
 		else if (text === "description") colIdx.description = colI;
 		else if (text === "ingredients") colIdx.ingredients = colI;
-		else if (text.includes("restore")) colIdx.restores = colI;
+		else if (text.includes("energy") || text.includes("health"))
+			colIdx.restores = colI;
 		else if (text.startsWith("buff") && !text.includes("duration"))
 			colIdx.buffs = colI;
 		else if (text.includes("duration")) colIdx.buff_duration = colI;
@@ -177,17 +179,20 @@ export async function scrapeRecipes(): Promise<
 
 		// Buffs
 		const buffsCell = getCol(colIdx, cells, "buffs");
-		const buffs = buffsCell?.text.trim().replace(/\s+/g, " ") || null;
+		const buffs = buffsCell ? parseListCell(buffsCell) : [];
 
 		// Buff duration
 		const buffDurationCell = getCol(colIdx, cells, "buff_duration");
 		const buffDuration =
 			buffDurationCell?.text.trim().replace(/\s+/g, " ") || null;
+		const buffDurationItems =
+			buffDuration?.replace(/\)\s+(?=\d)/g, "), ").split(", ") ?? [];
 
 		// Recipe source
 		const recipeSourceCell = getCol(colIdx, cells, "recipe_source");
-		const recipeSource =
-			recipeSourceCell?.text.trim().replace(/\s+/g, " ") || null;
+		const recipeSource = recipeSourceCell
+			? parseListCell(recipeSourceCell)
+			: [];
 
 		// Sell price
 		const sellPriceCell = getCol(colIdx, cells, "sell_price");
@@ -199,9 +204,17 @@ export async function scrapeRecipes(): Promise<
 			ingredients: JSON.stringify(ingredients),
 			energy,
 			health,
-			buffs,
-			buff_duration: buffDuration,
-			recipe_source: recipeSource,
+			buffs: renderDotList(buffs),
+			buff_duration: JSON.stringify(buffDurationItems),
+			recipe_source: renderDotList(
+				recipeSource.map((s) => {
+					// add "Hearts" to mail sources that mention a heart count via an image instead of words or emojis
+					if (s.includes("(Mail - ") && (s.endsWith(" )") || s.endsWith(")"))) {
+						return s.replace(/(\([^)]*\d+[^)]*)\)/, "$1 Hearts)");
+					}
+					return s;
+				}),
+			),
 			sell_price: sellPrice,
 			image_url: imageUrl,
 			wiki_url: wikiUrl,

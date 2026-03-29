@@ -17,6 +17,7 @@ export function getRecipe(sql: SqlStorage, name: string): Recipe | null {
 		return {
 			...row,
 			ingredients: JSON.parse(row.ingredients || "[]") as Recipe["ingredients"],
+			buff_duration: JSON.parse(row.buff_duration || "[]") as string[],
 		};
 	} catch (err) {
 		console.error("DB error in getRecipe:", err);
