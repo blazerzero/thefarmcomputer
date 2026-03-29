@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleBook } from "../../commands/book";
+import { handleBook } from "@/commands/book";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeBookRow = {

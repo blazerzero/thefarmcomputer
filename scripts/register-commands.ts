@@ -6,6 +6,14 @@
  *   (requires DISCORD_TOKEN and DISCORD_APPLICATION_ID in .dev.vars or env)
  */
 
+import { COMMAND_DESCRIPTIONS } from "@/constants.js";
+import {
+	COMMAND_CONTEXTS,
+	COMMAND_INTEGRATION_TYPES,
+	Command,
+	OptionType,
+} from "@/types.js";
+
 const APPLICATION_ID = process.env["DISCORD_APPLICATION_ID"];
 const TOKEN = process.env["DISCORD_TOKEN"];
 
@@ -16,13 +24,13 @@ if (!APPLICATION_ID || !TOKEN) {
 
 const commands = [
 	{
-		name: "book",
-		description: "Look up a Stardew Valley book.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.BOOK,
+		description: COMMAND_DESCRIPTIONS[Command.BOOK],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Book name (e.g. Price Catalogue, Animal Catalogue)",
 				required: true,
@@ -30,13 +38,13 @@ const commands = [
 		],
 	},
 	{
-		name: "crop",
-		description: "Look up info about a Stardew Valley crop.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.CROP,
+		description: COMMAND_DESCRIPTIONS[Command.CROP],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Crop name (e.g. Parsnip, Blueberry, Pumpkin)",
 				required: true,
@@ -44,19 +52,19 @@ const commands = [
 		],
 	},
 	{
-		name: "gift",
-		description: "Look up a villager's gift preferences.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.GIFT,
+		description: COMMAND_DESCRIPTIONS[Command.GIFT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "villager",
 				description: "Villager name (e.g. Abigail, Harvey, Emily)",
 				required: true,
 			},
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "tier",
 				description: "Filter to a specific gift tier",
 				required: false,
@@ -71,13 +79,13 @@ const commands = [
 		],
 	},
 	{
-		name: "season",
-		description: "List all crops harvestable in a given season.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.SEASON,
+		description: COMMAND_DESCRIPTIONS[Command.SEASON],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "season",
 				description: "Season name (Spring, Summer, Fall, or Winter)",
 				required: true,
@@ -91,13 +99,13 @@ const commands = [
 		],
 	},
 	{
-		name: "fruit-tree",
-		description: "Look up info about a Stardew Valley fruit tree.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.FRUIT_TREE,
+		description: COMMAND_DESCRIPTIONS[Command.FRUIT_TREE],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Tree or fruit name (e.g. Apricot, Cherry, Peach)",
 				required: true,
@@ -105,13 +113,13 @@ const commands = [
 		],
 	},
 	{
-		name: "fish",
-		description: "Look up info about a Stardew Valley fish.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.FISH,
+		description: COMMAND_DESCRIPTIONS[Command.FISH],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Fish name (e.g. Tuna, Salmon, Legend)",
 				required: true,
@@ -119,13 +127,13 @@ const commands = [
 		],
 	},
 	{
-		name: "forage",
-		description: "Look up info about a forageable item in Stardew Valley.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.FORAGE,
+		description: COMMAND_DESCRIPTIONS[Command.FORAGE],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Item name (e.g. Daffodil, Nautilus Shell, Red Mushroom)",
 				required: true,
@@ -133,13 +141,13 @@ const commands = [
 		],
 	},
 	{
-		name: "bundle",
-		description: "Look up the items required for a Community Center bundle.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.BUNDLE,
+		description: COMMAND_DESCRIPTIONS[Command.BUNDLE],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description:
 					"Bundle name (e.g. Spring Foraging, Construction, Artisan)",
@@ -148,13 +156,13 @@ const commands = [
 		],
 	},
 	{
-		name: "mineral",
-		description: "Look up info about a Stardew Valley mineral.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.MINERAL,
+		description: COMMAND_DESCRIPTIONS[Command.MINERAL],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Mineral name (e.g. Quartz, Emerald, Frozen Geode)",
 				required: true,
@@ -162,13 +170,13 @@ const commands = [
 		],
 	},
 	{
-		name: "craft",
-		description: "Look up a crafted item in Stardew Valley.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.CRAFT,
+		description: COMMAND_DESCRIPTIONS[Command.CRAFT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Item name (e.g. Chest, Furnace, Sprinkler, Scarecrow)",
 				required: true,
@@ -176,13 +184,13 @@ const commands = [
 		],
 	},
 	{
-		name: "ingredient",
-		description: "Find all crafting recipes that use an item as an ingredient.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.INGREDIENT,
+		description: COMMAND_DESCRIPTIONS[Command.INGREDIENT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description:
 					"Ingredient name (e.g. Wood, Stone, Iron Bar, Battery Pack)",
@@ -191,26 +199,26 @@ const commands = [
 		],
 	},
 	{
-		name: "schedule",
-		description: "Look up a villager's schedule.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.SCHEDULE,
+		description: COMMAND_DESCRIPTIONS[Command.SCHEDULE],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "villager",
 				description: "Villager name (e.g. Maru, Abigail, Harvey)",
 				required: true,
 			},
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "day",
 				description:
 					"Filter by occasion or day (e.g. Rain, Monday, Regular, Festival)",
 				required: false,
 			},
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "season",
 				description:
 					"Season group (defaults to Default for villagers without season-specific schedules)",
@@ -227,13 +235,13 @@ const commands = [
 		],
 	},
 	{
-		name: "monster",
-		description: "Look up info about a Stardew Valley monster.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.MONSTER,
+		description: COMMAND_DESCRIPTIONS[Command.MONSTER],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Monster name (e.g. Shadow Brute, Frost Bat, Green Slime)",
 				required: true,
@@ -241,13 +249,13 @@ const commands = [
 		],
 	},
 	{
-		name: "footwear",
-		description: "Look up info about Stardew Valley footwear.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.FOOTWEAR,
+		description: COMMAND_DESCRIPTIONS[Command.FOOTWEAR],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description:
 					"Footwear name (e.g. Sneakers, Genie Shoes, Emily's Magic Boots)",
@@ -256,19 +264,19 @@ const commands = [
 		],
 	},
 	{
-		name: "info",
-		description: "Show the bot's data freshness and record counts.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.INFO,
+		description: COMMAND_DESCRIPTIONS[Command.INFO],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 	},
 	{
-		name: "recipe",
-		description: "Look up a cooked food recipe in Stardew Valley.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.RECIPE,
+		description: COMMAND_DESCRIPTIONS[Command.RECIPE],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Recipe name (e.g. Fried Egg, Salad, Chowder)",
 				required: true,
@@ -276,13 +284,13 @@ const commands = [
 		],
 	},
 	{
-		name: "ring",
-		description: "Look up info about a Stardew Valley ring.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.RING,
+		description: COMMAND_DESCRIPTIONS[Command.RING],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Ring name (e.g. Lucky Ring, Iridium Band, Glow Ring)",
 				required: true,
@@ -290,13 +298,13 @@ const commands = [
 		],
 	},
 	{
-		name: "weapon",
-		description: "Look up info about a Stardew Valley weapon.",
-		integration_types: [0, 1],
-		contexts: [0, 1, 2],
+		name: Command.WEAPON,
+		description: COMMAND_DESCRIPTIONS[Command.WEAPON],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
 		options: [
 			{
-				type: 3, // STRING
+				type: OptionType.STRING,
 				name: "name",
 				description: "Weapon name (e.g. Infinity Blade, Wood Club, Elf Blade)",
 				required: true,

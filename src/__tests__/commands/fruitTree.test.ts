@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleFruitTree } from "../../commands/fruitTree";
+import { handleFruitTree } from "@/commands/fruitTree";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeFruitTreeRow = {

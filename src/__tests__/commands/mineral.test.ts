@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleMineral } from "../../commands/mineral";
+import { handleMineral } from "@/commands/mineral";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeQuartzRow = {

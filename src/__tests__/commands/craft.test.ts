@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleCraft } from "../../commands/craft";
+import { handleCraft } from "@/commands/craft";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeCraftRow = {

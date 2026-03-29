@@ -1,5 +1,5 @@
-import { formatDate } from "../constants";
-import { getRing } from "../db";
+import { formatDate } from "@/constants";
+import { getRing } from "@/db";
 import {
 	embedResponse,
 	getOption,

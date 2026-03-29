@@ -1,5 +1,5 @@
-import { DEFAULT_COLOR, formatDate } from "../constants";
-import { getBundle } from "../db";
+import { DEFAULT_COLOR, formatDate } from "@/constants";
+import { getBundle } from "@/db";
 import {
 	embedResponse,
 	getOption,

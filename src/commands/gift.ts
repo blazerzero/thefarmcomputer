@@ -1,6 +1,6 @@
-import { formatDate } from "../constants";
-import { getVillager } from "../db";
-import type { Villager } from "../types";
+import { formatDate } from "@/constants";
+import { getVillager } from "@/db";
+import type { Villager } from "@/types";
 import {
 	embedResponse,
 	getOption,
@@ -28,11 +28,7 @@ export function handleGift(
 	sql: SqlStorage,
 ): Response {
 	const name = getOption(interaction, "villager");
-	let tierFilter = (
-		(interaction.data as Record<string, unknown>)?.options as
-			| Array<{ name: string; value: string }>
-			| undefined
-	)?.find((o) => o.name === "tier")?.value;
+	let tierFilter = getOption(interaction, "tier") || undefined;
 	if (tierFilter && !tierFilter.endsWith("_gifts")) tierFilter += "_gifts";
 
 	const villager = getVillager(sql, name);

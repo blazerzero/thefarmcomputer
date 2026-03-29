@@ -1,5 +1,5 @@
 import { HTMLElement, parse } from "node-html-parser";
-import type { BookRow } from "../types";
+import type { BookRow } from "@/types";
 import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────

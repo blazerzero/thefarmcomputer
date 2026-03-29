@@ -1,6 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
-import type { WeaponRow } from "../types";
+import type { WeaponRow } from "@/types";
 import { fetchPage, getCol, WIKI_BASE } from "./wiki";
 
 // Map plural heading text → singular category name

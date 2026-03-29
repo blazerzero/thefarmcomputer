@@ -1,7 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
-import { renderDotList } from "../commands/utils";
-import type { CraftIngredient, RecipeRow } from "../types";
+import { renderDotList } from "@/commands/utils";
+import type { CraftIngredient, RecipeRow } from "@/types";
 import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────

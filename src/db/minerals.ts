@@ -1,4 +1,4 @@
-import type { Mineral, MineralRow } from "../types";
+import type { Mineral, MineralRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

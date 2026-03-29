@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleIngredient } from "../../commands/ingredient";
+import { handleIngredient } from "@/commands/ingredient";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 // getCraftedItemsByIngredient returns an array of CraftedItem objects

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleRing } from "../../commands/ring";
+import { handleRing } from "@/commands/ring";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeLuckyRingRow = {

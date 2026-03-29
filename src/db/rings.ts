@@ -1,4 +1,4 @@
-import type { Ring, RingRow } from "../types";
+import type { Ring, RingRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

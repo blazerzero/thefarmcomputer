@@ -4,8 +4,8 @@ import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
 import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
-import { SEASONS } from "../constants";
-import type { ForageableRow } from "../types";
+import { SEASONS } from "@/constants";
+import type { ForageableRow } from "@/types";
 import { fetchPage, WIKI_BASE } from "./wiki";
 
 function parseUsedInCell(cell: HTMLElement): string[] {

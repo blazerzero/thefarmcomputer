@@ -4,6 +4,7 @@
 	background: var(--surface);
 	border-radius: 0.25rem;
 	padding: 0.75rem 1rem;
+	position: relative;
 }
 
 .heading {
@@ -18,7 +19,28 @@
 .list {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 1rem;
+	max-height: 18rem;
+	overflow-y: auto;
+	padding-right: 0.25rem;
+}
+
+.seeMore {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 3rem;
+	background: linear-gradient(to bottom, transparent, var(--surface));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	padding-bottom: 0.25rem;
+	font-size: 0.875rem;
+	color: var(--text-muted);
+	pointer-events: none;
+	border-radius: 0 0 0.25rem 0.25rem;
 }
 
 .item {
@@ -54,4 +76,15 @@
 	font-size: 0.8125rem;
 	color: var(--text-muted);
 	padding-left: 0.25rem;
+}
+
+@media (min-width: 62.5rem) {
+	.list {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: 1.5rem;
+		max-height: none;
+		overflow-y: visible;
+		padding-right: 0;
+	}
 }

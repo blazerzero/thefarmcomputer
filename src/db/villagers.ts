@@ -1,4 +1,4 @@
-import type { Villager, VillagerRow } from "../types";
+import type { Villager, VillagerRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

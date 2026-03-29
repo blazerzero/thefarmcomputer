@@ -1,4 +1,4 @@
-import type { FruitTree, FruitTreeRow } from "../types";
+import type { FruitTree, FruitTreeRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

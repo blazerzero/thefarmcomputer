@@ -1,7 +1,7 @@
 import pluralize from "pluralize";
-import { formatDate } from "../constants";
-import { getCraftedItem } from "../db";
-import type { CraftIngredient } from "../types";
+import { formatDate } from "@/constants";
+import { getCraftedItem } from "@/db";
+import type { CraftIngredient } from "@/types";
 import {
 	embedResponse,
 	getOption,

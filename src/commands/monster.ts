@@ -1,5 +1,5 @@
-import { formatDate } from "../constants";
-import { getMonster } from "../db";
+import { formatDate } from "@/constants";
+import { getMonster } from "@/db";
 import {
 	embedResponse,
 	getOption,

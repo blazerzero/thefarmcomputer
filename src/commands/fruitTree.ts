@@ -1,5 +1,5 @@
-import { DEFAULT_COLOR, formatDate, SEASON_COLORS } from "../constants";
-import { getFruitTree } from "../db";
+import { DEFAULT_COLOR, formatDate, SEASON_COLORS } from "@/constants";
+import { getFruitTree } from "@/db";
 import {
 	embedResponse,
 	formatPriceTiers,

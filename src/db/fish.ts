@@ -1,4 +1,4 @@
-import type { Fish, FishRow } from "../types";
+import type { Fish, FishRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

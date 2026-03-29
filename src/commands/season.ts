@@ -1,7 +1,11 @@
-import { DEFAULT_COLOR, SEASON_COLORS, SEASONS } from "../constants";
-import { getCropsBySeason } from "../db";
-import { InteractionResponseType } from "../types";
-import { getOption, notFoundResponse, renderDotForListContent } from "./utils";
+import { DEFAULT_COLOR, SEASON_COLORS, SEASONS } from "@/constants";
+import { getCropsBySeason } from "@/db";
+import {
+	embedResponse,
+	getOption,
+	notFoundResponse,
+	renderDotForListContent,
+} from "./utils";
 
 const VALID_SEASONS = new Set(SEASONS);
 
@@ -50,19 +54,12 @@ export function handleSeason(
 				]
 			: [{ name: "", value: col1, inline: false }];
 
-	return Response.json({
-		type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-		data: {
-			embeds: [
-				{
-					title: `${season} Crops (${crops.length})`,
-					color: SEASON_COLORS[season] ?? DEFAULT_COLOR,
-					fields,
-					footer: {
-						text: "Growth shown as days to first harvest. (+N) = regrowth. Sell value is for base quality.",
-					},
-				},
-			],
+	return embedResponse({
+		title: `${season} Crops (${crops.length})`,
+		color: SEASON_COLORS[season] ?? DEFAULT_COLOR,
+		fields,
+		footer: {
+			text: "Growth shown as days to first harvest. (+N) = regrowth. Sell value is for base quality.",
 		},
 	});
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleCrop } from "../../commands/crop";
+import { handleCrop } from "@/commands/crop";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeCropRow = {

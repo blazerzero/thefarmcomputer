@@ -1,21 +1,21 @@
-import { handleBook } from "./commands/book";
-import { handleBundle } from "./commands/bundle";
-import { handleCraft } from "./commands/craft";
-import { handleCrop } from "./commands/crop";
-import { handleFish } from "./commands/fish";
-import { handleFootwear } from "./commands/footwear";
-import { handleForage } from "./commands/forage";
-import { handleFruitTree } from "./commands/fruitTree";
-import { handleGift } from "./commands/gift";
-import { handleIngredient } from "./commands/ingredient";
-import { handleMineral } from "./commands/mineral";
-import { handleMonster } from "./commands/monster";
-import { handleRecipe } from "./commands/recipe";
-import { handleRing } from "./commands/ring";
-import { handleSchedule } from "./commands/schedule";
-import { handleSeason } from "./commands/season";
-import { handleWeapon } from "./commands/weapon";
-import { formatDate } from "./constants";
+import { handleBook } from "@/commands/book";
+import { handleBundle } from "@/commands/bundle";
+import { handleCraft } from "@/commands/craft";
+import { handleCrop } from "@/commands/crop";
+import { handleFish } from "@/commands/fish";
+import { handleFootwear } from "@/commands/footwear";
+import { handleForage } from "@/commands/forage";
+import { handleFruitTree } from "@/commands/fruitTree";
+import { handleGift } from "@/commands/gift";
+import { handleIngredient } from "@/commands/ingredient";
+import { handleMineral } from "@/commands/mineral";
+import { handleMonster } from "@/commands/monster";
+import { handleRecipe } from "@/commands/recipe";
+import { handleRing } from "@/commands/ring";
+import { handleSchedule } from "@/commands/schedule";
+import { handleSeason } from "@/commands/season";
+import { handleWeapon } from "@/commands/weapon";
+import { formatDate } from "@/constants";
 import {
 	countBooks,
 	countBundles,
@@ -48,24 +48,29 @@ import {
 	upsertVillager,
 	upsertWeapon,
 	villagersNeedScheduleRefresh,
-} from "./db";
-import { scrapeBooks } from "./scraper/books";
-import { scrapeBundles } from "./scraper/bundles";
-import { scrapeCraftedItems } from "./scraper/craftedItems";
-import { scrapeCrops } from "./scraper/crops";
-import { scrapeFish } from "./scraper/fish";
-import { scrapeFootwear } from "./scraper/footwear";
-import { scrapeForageables } from "./scraper/forageables";
-import { scrapeFruitTrees } from "./scraper/fruitTrees";
-import { scrapeMinerals } from "./scraper/minerals";
-import { scrapeMonsters } from "./scraper/monsters";
-import { scrapeRecipes } from "./scraper/recipes";
-import { scrapeRings } from "./scraper/rings";
-import { scrapeVillagers } from "./scraper/villagers";
-import { scrapeWeapons } from "./scraper/weapons";
-import { type Env, InteractionResponseType, InteractionType } from "./types";
-import { verifyDiscordRequest } from "./verify";
-import { handleWebQuery } from "./web";
+} from "@/db";
+import { scrapeBooks } from "@/scraper/books";
+import { scrapeBundles } from "@/scraper/bundles";
+import { scrapeCraftedItems } from "@/scraper/craftedItems";
+import { scrapeCrops } from "@/scraper/crops";
+import { scrapeFish } from "@/scraper/fish";
+import { scrapeFootwear } from "@/scraper/footwear";
+import { scrapeForageables } from "@/scraper/forageables";
+import { scrapeFruitTrees } from "@/scraper/fruitTrees";
+import { scrapeMinerals } from "@/scraper/minerals";
+import { scrapeMonsters } from "@/scraper/monsters";
+import { scrapeRecipes } from "@/scraper/recipes";
+import { scrapeRings } from "@/scraper/rings";
+import { scrapeVillagers } from "@/scraper/villagers";
+import { scrapeWeapons } from "@/scraper/weapons";
+import {
+	Command,
+	type Env,
+	InteractionResponseType,
+	InteractionType,
+} from "@/types";
+import { verifyDiscordRequest } from "@/verify";
+import { handleWebQuery } from "@/web";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -242,6 +247,58 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	console.log("Wiki refresh complete");
 }
 
+// ── Web query data-seeding ────────────────────────────────────────────────────
+
+async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
+	switch (command) {
+		case Command.BOOK:
+			if (countBooks(sql) === 0) await refreshBooks(sql);
+			break;
+		case Command.BUNDLE:
+			if (countBundles(sql) === 0) await refreshBundles(sql);
+			break;
+		case Command.CRAFT:
+		case Command.INGREDIENT:
+			if (countCraftedItems(sql) === 0) await refreshCraftedItems(sql);
+			break;
+		case Command.CROP:
+		case Command.SEASON:
+			if (countCrops(sql) === 0) await refreshCrops(sql);
+			break;
+		case Command.FISH:
+			if (countFish(sql) === 0) await refreshFish(sql);
+			break;
+		case Command.FOOTWEAR:
+			if (countFootwear(sql) === 0) await refreshFootwear(sql);
+			break;
+		case Command.FORAGE:
+			if (countForageables(sql) === 0) await refreshForageables(sql);
+			break;
+		case Command.FRUIT_TREE:
+			if (countFruitTrees(sql) === 0) await refreshFruitTrees(sql);
+			break;
+		case Command.GIFT:
+		case Command.SCHEDULE:
+			if (countVillagers(sql) === 0) await refreshVillagers(sql);
+			break;
+		case Command.MINERAL:
+			if (countMinerals(sql) === 0) await refreshMinerals(sql);
+			break;
+		case Command.MONSTER:
+			if (countMonsters(sql) === 0) await refreshMonsters(sql);
+			break;
+		case Command.RECIPE:
+			if (countRecipes(sql) === 0) await refreshRecipes(sql);
+			break;
+		case Command.WEAPON:
+			if (countWeapons(sql) === 0) await refreshWeapons(sql);
+			break;
+		case Command.RING:
+			if (countRings(sql) === 0) await refreshRings(sql);
+			break;
+	}
+}
+
 // ── Durable Object ────────────────────────────────────────────────────────────
 
 export class StardewDO implements DurableObject {
@@ -317,7 +374,7 @@ export class StardewDO implements DurableObject {
 
 		if (request.method === "GET" && url.pathname === "/api/query") {
 			const input = url.searchParams.get("input") ?? "";
-			return handleWebQuery(input, this.sql);
+			return handleWebQuery(input, this.sql, ensureWebData);
 		}
 
 		const body = await request.text();
@@ -332,79 +389,79 @@ export class StardewDO implements DurableObject {
 			const commandName = (interaction.data as Record<string, unknown>)
 				?.name as string;
 
-			if (commandName === "book") {
+			if (commandName === Command.BOOK) {
 				if (countBooks(this.sql) === 0) await refreshBooks(this.sql);
 				return handleBook(interaction, this.sql);
 			}
-			if (commandName === "bundle") {
+			if (commandName === Command.BUNDLE) {
 				if (countBundles(this.sql) === 0) await refreshBundles(this.sql);
 				return handleBundle(interaction, this.sql);
 			}
-			if (commandName === "craft") {
+			if (commandName === Command.CRAFT) {
 				if (countCraftedItems(this.sql) === 0)
 					await refreshCraftedItems(this.sql);
 				return handleCraft(interaction, this.sql);
 			}
-			if (commandName === "crop") {
+			if (commandName === Command.CROP) {
 				if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
 				return handleCrop(interaction, this.sql);
 			}
-			if (commandName === "fish") {
+			if (commandName === Command.FISH) {
 				if (countFish(this.sql) === 0) await refreshFish(this.sql);
 				return handleFish(interaction, this.sql);
 			}
-			if (commandName === "forage") {
+			if (commandName === Command.FORAGE) {
 				if (countForageables(this.sql) === 0)
 					await refreshForageables(this.sql);
 				return handleForage(interaction, this.sql);
 			}
-			if (commandName === "fruit-tree") {
+			if (commandName === Command.FRUIT_TREE) {
 				if (countFruitTrees(this.sql) === 0) await refreshFruitTrees(this.sql);
 				return handleFruitTree(interaction, this.sql);
 			}
-			if (commandName === "gift") {
+			if (commandName === Command.GIFT) {
 				if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
 				return handleGift(interaction, this.sql);
 			}
-			if (commandName === "ingredient") {
+			if (commandName === Command.INGREDIENT) {
 				if (countCraftedItems(this.sql) === 0)
 					await refreshCraftedItems(this.sql);
 				return handleIngredient(interaction, this.sql);
 			}
-			if (commandName === "mineral") {
+			if (commandName === Command.MINERAL) {
 				if (countMinerals(this.sql) === 0) await refreshMinerals(this.sql);
 				return handleMineral(interaction, this.sql);
 			}
-			if (commandName === "monster") {
+			if (commandName === Command.MONSTER) {
 				if (countMonsters(this.sql) === 0) await refreshMonsters(this.sql);
 				return handleMonster(interaction, this.sql);
 			}
-			if (commandName === "recipe") {
+			if (commandName === Command.RECIPE) {
 				if (countRecipes(this.sql) === 0) await refreshRecipes(this.sql);
 				return handleRecipe(interaction, this.sql);
 			}
-			if (commandName === "footwear") {
+			if (commandName === Command.FOOTWEAR) {
 				if (countFootwear(this.sql) === 0) await refreshFootwear(this.sql);
 				return handleFootwear(interaction, this.sql);
 			}
-			if (commandName === "weapon") {
+			if (commandName === Command.WEAPON) {
 				if (countWeapons(this.sql) === 0) await refreshWeapons(this.sql);
 				return handleWeapon(interaction, this.sql);
 			}
-			if (commandName === "ring") {
+			if (commandName === Command.RING) {
 				if (countRings(this.sql) === 0) await refreshRings(this.sql);
 				return handleRing(interaction, this.sql);
 			}
-			if (commandName === "schedule") {
+			if (commandName === Command.SCHEDULE) {
 				if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
 				return handleSchedule(interaction, this.sql);
 			}
-			if (commandName === "season") {
+			if (commandName === Command.SEASON) {
 				if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
 				return handleSeason(interaction, this.sql);
 			}
 
-			if (commandName === "info") {
+			if (commandName === Command.INFO) {
 				const s = getStatus(this.sql);
 				// const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
 				const lastUpdatedMs = Math.max(
@@ -502,7 +559,7 @@ export class StardewDO implements DurableObject {
 									},
 								],
 								footer: {
-									text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC`,
+									text: `Last updated: ${lastUpdated}\nWiki data refreshes on the 1st of every month at 8 AM UTC`,
 								},
 							},
 						],

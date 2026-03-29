@@ -1,5 +1,5 @@
-import { formatDate } from "../constants";
-import { getMineral } from "../db";
+import { formatDate } from "@/constants";
+import { getMineral } from "@/db";
 import {
 	embedResponse,
 	getOption,

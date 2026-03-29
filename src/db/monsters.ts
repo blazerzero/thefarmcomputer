@@ -1,4 +1,4 @@
-import type { Monster, MonsterRow } from "../types";
+import type { Monster, MonsterRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

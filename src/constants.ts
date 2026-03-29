@@ -1,3 +1,27 @@
+import { Command } from "./types.js";
+
+export const COMMAND_DESCRIPTIONS: Record<Command, string> = {
+	[Command.BOOK]: "Look up a book.",
+	[Command.BUNDLE]: "Look up the items required for a Community Center bundle.",
+	[Command.CRAFT]: "Look up a crafted item.",
+	[Command.CROP]: "Look up info about a crop.",
+	[Command.FISH]: "Look up info about a fish.",
+	[Command.FOOTWEAR]: "Look up info about a piece of footwear.",
+	[Command.FORAGE]: "Look up info about a forageable item.",
+	[Command.FRUIT_TREE]: "Look up info about a fruit tree.",
+	[Command.GIFT]: "Look up a villager's gift preferences.",
+	[Command.INFO]: "Show the bot's data freshness and record counts.",
+	[Command.INGREDIENT]:
+		"Find all crafting recipes that use the given item as an ingredient.",
+	[Command.MINERAL]: "Look up info about a mineral.",
+	[Command.MONSTER]: "Look up info about a monster.",
+	[Command.RECIPE]: "Look up a cooked food recipe.",
+	[Command.RING]: "Look up info about a ring.",
+	[Command.SCHEDULE]: "Look up a villager's schedule.",
+	[Command.SEASON]: "List all crops harvestable in a given season.",
+	[Command.WEAPON]: "Look up info about a weapon.",
+};
+
 export const SEASONS: readonly string[] = [
 	"Spring",
 	"Summer",

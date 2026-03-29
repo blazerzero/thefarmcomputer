@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleBundle } from "../../commands/bundle";
+import { handleBundle } from "@/commands/bundle";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeSpringBundleRow = {

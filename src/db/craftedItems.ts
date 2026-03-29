@@ -1,4 +1,4 @@
-import type { CraftedItem, CraftedItemRow } from "../types";
+import type { CraftedItem, CraftedItemRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

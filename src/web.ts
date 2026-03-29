@@ -1,22 +1,23 @@
-import { handleBook } from "./commands/book";
-import { handleBundle } from "./commands/bundle";
-import { handleCraft } from "./commands/craft";
-import { handleCrop } from "./commands/crop";
-import { handleFish } from "./commands/fish";
-import { handleFootwear } from "./commands/footwear";
-import { handleForage } from "./commands/forage";
-import { handleFruitTree } from "./commands/fruitTree";
-import { handleGift } from "./commands/gift";
-import { handleIngredient } from "./commands/ingredient";
-import { handleMineral } from "./commands/mineral";
-import { handleMonster } from "./commands/monster";
-import { handleRecipe } from "./commands/recipe";
-import { handleRing } from "./commands/ring";
-import { handleSchedule } from "./commands/schedule";
-import { handleSeason } from "./commands/season";
-import { handleWeapon } from "./commands/weapon";
-import { formatDate } from "./constants";
-import { getStatus } from "./db";
+import { handleBook } from "@/commands/book";
+import { handleBundle } from "@/commands/bundle";
+import { handleCraft } from "@/commands/craft";
+import { handleCrop } from "@/commands/crop";
+import { handleFish } from "@/commands/fish";
+import { handleFootwear } from "@/commands/footwear";
+import { handleForage } from "@/commands/forage";
+import { handleFruitTree } from "@/commands/fruitTree";
+import { handleGift } from "@/commands/gift";
+import { handleIngredient } from "@/commands/ingredient";
+import { handleMineral } from "@/commands/mineral";
+import { handleMonster } from "@/commands/monster";
+import { handleRecipe } from "@/commands/recipe";
+import { handleRing } from "@/commands/ring";
+import { handleSchedule } from "@/commands/schedule";
+import { handleSeason } from "@/commands/season";
+import { handleWeapon } from "@/commands/weapon";
+import { formatDate } from "@/constants";
+import { getStatus } from "@/db";
+import { Command } from "@/types";
 
 function splitArgs(input: string): string[] {
 	const args: string[] = [];
@@ -31,10 +32,13 @@ function splitArgs(input: string): string[] {
 export async function handleWebQuery(
 	input: string,
 	sql: SqlStorage,
+	ensureData: (command: string, sql: SqlStorage) => Promise<void>,
 ): Promise<Response> {
 	const parts = splitArgs(input.trim());
 	const command = parts[0]?.toLowerCase() ?? "";
 	const args = parts.slice(1);
+
+	await ensureData(command, sql);
 
 	const makeInteraction = (
 		options: Array<{ name: string; value: string }>,
@@ -45,73 +49,73 @@ export async function handleWebQuery(
 	let handlerResponse: Response;
 
 	switch (command) {
-		case "book":
+		case Command.BOOK:
 			handlerResponse = handleBook(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "crop":
+		case Command.CROP:
 			handlerResponse = handleCrop(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "fish":
+		case Command.FISH:
 			handlerResponse = handleFish(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "footwear":
+		case Command.FOOTWEAR:
 			handlerResponse = handleFootwear(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "fruit-tree":
+		case Command.FRUIT_TREE:
 			handlerResponse = handleFruitTree(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "forage":
+		case Command.FORAGE:
 			handlerResponse = handleForage(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "bundle":
+		case Command.BUNDLE:
 			handlerResponse = handleBundle(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "mineral":
+		case Command.MINERAL:
 			handlerResponse = handleMineral(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "monster":
+		case Command.MONSTER:
 			handlerResponse = handleMonster(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "craft":
+		case Command.CRAFT:
 			handlerResponse = handleCraft(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "ingredient":
+		case Command.INGREDIENT:
 			handlerResponse = handleIngredient(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "gift": {
+		case Command.GIFT: {
 			const options: Array<{ name: string; value: string }> = [
 				{ name: "villager", value: args[0] ?? "" },
 			];
@@ -119,7 +123,7 @@ export async function handleWebQuery(
 			handlerResponse = handleGift(makeInteraction(options), sql);
 			break;
 		}
-		case "schedule": {
+		case Command.SCHEDULE: {
 			const options: Array<{ name: string; value: string }> = [
 				{ name: "villager", value: args[0] ?? "" },
 			];
@@ -128,31 +132,31 @@ export async function handleWebQuery(
 			handlerResponse = handleSchedule(makeInteraction(options), sql);
 			break;
 		}
-		case "season":
+		case Command.SEASON:
 			handlerResponse = handleSeason(
 				makeInteraction([{ name: "season", value: args[0] ?? "" }]),
 				sql,
 			);
 			break;
-		case "recipe":
+		case Command.RECIPE:
 			handlerResponse = handleRecipe(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "weapon":
+		case Command.WEAPON:
 			handlerResponse = handleWeapon(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "ring":
+		case Command.RING:
 			handlerResponse = handleRing(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
 			break;
-		case "info": {
+		case Command.INFO: {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
 				s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
@@ -208,7 +212,7 @@ export async function handleWebQuery(
 						{ name: `Footwear: ${s.footwearCount}`, value: "", inline: false },
 					],
 					footer: {
-						text: `Last updated: ${lastUpdated}\nWiki data refreshes every Sunday at 8 AM UTC`,
+						text: `Last updated: ${lastUpdated}\nWiki data refreshes on the 1st of every month at 8 AM UTC`,
 					},
 				},
 			});
