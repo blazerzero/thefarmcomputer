@@ -5,7 +5,13 @@ const now = () => new Date().toISOString();
 export function getVillager(sql: SqlStorage, name: string): Villager | null {
 	try {
 		const row = sql
-			.exec("SELECT * FROM villagers WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.exec(
+				`SELECT * FROM villagers WHERE name LIKE ?
+         ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
+         LIMIT 1`,
+				`%${name}%`,
+				name,
+			)
 			.one() as unknown as VillagerRow | null;
 		if (!row) return null;
 		return {

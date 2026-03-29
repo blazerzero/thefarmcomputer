@@ -116,8 +116,6 @@ export async function scrapeBooks(): Promise<
 
 			// Location (may be a bulleted list)
 			const locationCell = getCol(colIdx, cells, "location");
-			// const locationList = locationCell ? parseListCell(locationCell) : [];
-			// console.log(locationList)
 			const locationList: string[] = [];
 			if (locationCell) {
 				const items = locationCell.querySelectorAll(":scope > ul > li");

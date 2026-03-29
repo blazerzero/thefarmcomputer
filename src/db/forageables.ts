@@ -8,7 +8,13 @@ export function getForageable(
 ): Forageable | null {
 	try {
 		const row = sql
-			.exec("SELECT * FROM forageables WHERE name LIKE ? LIMIT 1", `%${name}%`)
+			.exec(
+				`SELECT * FROM forageables WHERE name LIKE ?
+         ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
+         LIMIT 1`,
+				`%${name}%`,
+				name,
+			)
 			.one() as unknown as ForageableRow | null;
 		if (!row) return null;
 		return {

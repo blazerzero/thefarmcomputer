@@ -24,6 +24,14 @@ export function handleMonster(
 
 	const fields: Array<{ name: string; value: string; inline: boolean }> = [];
 
+	if (monster.location) {
+		fields.push({
+			name: "Location(s)",
+			value: monster.location,
+			inline: false,
+		});
+	}
+
 	// Stats row (inline)
 	if (monster.hp !== null) {
 		fields.push({ name: "HP", value: monster.hp, inline: true });
@@ -41,19 +49,11 @@ export function handleMonster(
 		fields.push({ name: "XP", value: monster.xp, inline: true });
 	}
 
-	if (monster.location) {
-		fields.push({
-			name: "Location(s)",
-			value: monster.location,
-			inline: false,
-		});
-	}
-
 	if (monster.drops.length > 0) {
 		fields.push({
 			name: "Drops",
 			value: renderDotList(monster.drops),
-			inline: false,
+			inline: true,
 		});
 	}
 

@@ -6,9 +6,13 @@ export function getFruitTree(sql: SqlStorage, name: string): FruitTree | null {
 	try {
 		const row = sql
 			.exec(
-				"SELECT * FROM fruit_trees WHERE name LIKE ? OR fruit_name LIKE ? LIMIT 1",
+				`SELECT * FROM fruit_trees WHERE name LIKE ? OR fruit_name LIKE ?
+         ORDER BY CASE WHEN lower(name) = lower(?) OR lower(fruit_name) = lower(?) THEN 0 ELSE length(name) END
+         LIMIT 1`,
 				`%${name}%`,
 				`%${name}%`,
+				name,
+				name,
 			)
 			.one() as unknown as FruitTreeRow | null;
 		if (!row) return null;
