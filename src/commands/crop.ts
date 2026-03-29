@@ -1,5 +1,5 @@
-import { formatDate } from "../constants";
-import { getCrop } from "../db";
+import { formatDate } from "@/constants";
+import { getCrop } from "@/db";
 import {
 	embedResponse,
 	formatPriceTiers,

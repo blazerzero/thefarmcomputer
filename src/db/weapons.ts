@@ -1,4 +1,4 @@
-import type { Weapon, WeaponRow } from "../types";
+import type { Weapon, WeaponRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

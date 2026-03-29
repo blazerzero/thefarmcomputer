@@ -1,4 +1,4 @@
-import type { Forageable, ForageableRow } from "../types";
+import type { Forageable, ForageableRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

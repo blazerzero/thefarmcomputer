@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleFootwear } from "../../commands/footwear";
+import { handleFootwear } from "@/commands/footwear";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeFootwearRow = {

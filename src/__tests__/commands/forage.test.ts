@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleForage } from "../../commands/forage";
+import { handleForage } from "@/commands/forage";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeForageRow = {

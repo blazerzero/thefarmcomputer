@@ -1,4 +1,4 @@
-import type { Recipe, RecipeRow } from "../types";
+import type { Recipe, RecipeRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

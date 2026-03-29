@@ -1,6 +1,6 @@
-import { formatDate, SEASON_COLORS, SEASONS } from "../constants";
-import { getVillager } from "../db";
-import type { ScheduleEntry } from "../types";
+import { formatDate, SEASON_COLORS, SEASONS } from "@/constants";
+import { getVillager } from "@/db";
+import type { ScheduleEntry } from "@/types";
 import { embedResponse, getOption, notFoundResponse } from "./utils";
 
 export function handleSchedule(

@@ -1,6 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
-import type { FootwearRow } from "../types";
+import type { FootwearRow } from "@/types";
 import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 /** Parse a gold price from text like "500g" or "1,500g"; returns null if absent or N/A. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleFish } from "../../commands/fish";
+import { handleFish } from "@/commands/fish";
 import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeFishRow = {

@@ -1,4 +1,4 @@
-import type { Footwear, FootwearRow } from "../types";
+import type { Footwear, FootwearRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

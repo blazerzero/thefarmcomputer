@@ -1,14 +1,3 @@
-/** Cloudflare Worker environment bindings. */
-export interface Env {
-	ASSETS: Fetcher;
-	STARDEW_DO: DurableObjectNamespace;
-	DISCORD_APPLICATION_ID: string;
-	DISCORD_PUBLIC_KEY: string;
-	DISCORD_TOKEN: string;
-	BOT_OWNER_TOKEN: string;
-	OVERRIDE_DISCORD_AUTH?: string; // For testing: if set to true, skip signature verification and auth checks.
-}
-
 /** A crop row as stored in D1. */
 export interface CropRow {
 	id?: number;
@@ -346,14 +335,67 @@ export interface Ring extends Omit<RingRow, "where_to_find"> {
 	where_to_find: string[];
 }
 
+/** Discord slash command names. */
+export enum Command {
+	BOOK = "book",
+	BUNDLE = "bundle",
+	CRAFT = "craft",
+	CROP = "crop",
+	FISH = "fish",
+	FOOTWEAR = "footwear",
+	FORAGE = "forage",
+	FRUIT_TREE = "fruit-tree",
+	GIFT = "gift",
+	INFO = "info",
+	INGREDIENT = "ingredient",
+	MINERAL = "mineral",
+	MONSTER = "monster",
+	RECIPE = "recipe",
+	RING = "ring",
+	SCHEDULE = "schedule",
+	SEASON = "season",
+	WEAPON = "weapon",
+}
+
 /** Discord interaction types. */
-export const InteractionType = {
-	PING: 1,
-	APPLICATION_COMMAND: 2,
-} as const;
+export enum InteractionType {
+	PING = 1,
+	APPLICATION_COMMAND = 2,
+}
 
 /** Discord interaction response types. */
-export const InteractionResponseType = {
-	PONG: 1,
-	CHANNEL_MESSAGE_WITH_SOURCE: 4,
-} as const;
+export enum InteractionResponseType {
+	PONG = 1,
+	CHANNEL_MESSAGE_WITH_SOURCE = 4,
+}
+
+/** Where a command can be installed (application-level integration_types). */
+export enum IntegrationType {
+	GUILD_INSTALL = 0,
+	USER_INSTALL = 1,
+}
+
+/** Surfaces where a command can be used (application-level contexts). */
+export enum InteractionContext {
+	GUILD = 0,
+	BOT_DM = 1,
+	PRIVATE_DM = 2,
+}
+
+/** Discord application command option types. */
+export enum OptionType {
+	STRING = 3,
+}
+
+/** Standard integration_types value for all bot commands: guild + user install. */
+export const COMMAND_INTEGRATION_TYPES = [
+	IntegrationType.GUILD_INSTALL,
+	IntegrationType.USER_INSTALL,
+] as const;
+
+/** Standard contexts value for all bot commands: guild, bot DM, and private DM. */
+export const COMMAND_CONTEXTS = [
+	InteractionContext.GUILD,
+	InteractionContext.BOT_DM,
+	InteractionContext.PRIVATE_DM,
+] as const;

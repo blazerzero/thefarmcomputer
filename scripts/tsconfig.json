@@ -3,7 +3,10 @@
 	"compilerOptions": {
 		"types": ["node"],
 		"module": "NodeNext",
-		"moduleResolution": "NodeNext"
+		"moduleResolution": "NodeNext",
+		"paths": {
+			"@/*": ["../src/*"]
+		}
 	},
 	"include": ["./**/*"]
 }

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { handleWebQuery } from "../web";
+import { handleWebQuery } from "@/web";
 import { makeSql, type WebApiResponse } from "./helpers";
+
+const noopEnsure = async () => {
+	/* no-op */
+};
 
 // ── Shared fake rows ──────────────────────────────────────────────────────────
 
@@ -180,14 +184,22 @@ const springCropRow = {
 
 describe("handleWebQuery — command routing", () => {
 	it("routes 'crop' and returns an embed with the crop title", async () => {
-		const res = await handleWebQuery("crop parsnip", makeSql([fakeCropRow]));
+		const res = await handleWebQuery(
+			"crop parsnip",
+			makeSql([fakeCropRow]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Parsnip");
 	});
 
 	it("routes 'fish' and returns an embed with the fish title", async () => {
-		const res = await handleWebQuery("fish tuna", makeSql([fakeFishRow]));
+		const res = await handleWebQuery(
+			"fish tuna",
+			makeSql([fakeFishRow]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Tuna");
@@ -197,6 +209,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"fruit-tree apple",
 			makeSql([fakeFruitTreeRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -207,6 +220,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"forage daffodil",
 			makeSql([fakeForageRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -217,6 +231,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"bundle spring foraging",
 			makeSql([fakeBundleRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -227,6 +242,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"mineral quartz",
 			makeSql([fakeMineralRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -234,14 +250,22 @@ describe("handleWebQuery — command routing", () => {
 	});
 
 	it("routes 'gift' and returns an embed with the villager title", async () => {
-		const res = await handleWebQuery("gift emily", makeSql([fakeVillagerRow]));
+		const res = await handleWebQuery(
+			"gift emily",
+			makeSql([fakeVillagerRow]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Emily");
 	});
 
 	it("routes 'season' and returns an embed listing crops", async () => {
-		const res = await handleWebQuery("season Spring", makeSql([springCropRow]));
+		const res = await handleWebQuery(
+			"season Spring",
+			makeSql([springCropRow]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toContain("Spring Crops");
@@ -251,6 +275,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"footwear sneakers",
 			makeSql([fakeFootwearRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -261,6 +286,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"monster shadow brute",
 			makeSql([fakeMonsterRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -271,6 +297,7 @@ describe("handleWebQuery — command routing", () => {
 		const res = await handleWebQuery(
 			"recipe fried egg",
 			makeSql([fakeRecipeRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -278,14 +305,22 @@ describe("handleWebQuery — command routing", () => {
 	});
 
 	it("routes 'ring' and returns an embed with the ring title", async () => {
-		const res = await handleWebQuery("ring lucky ring", makeSql([fakeRingRow]));
+		const res = await handleWebQuery(
+			"ring lucky ring",
+			makeSql([fakeRingRow]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Lucky Ring");
 	});
 
 	it("routes 'info' and returns an embed with the status title", async () => {
-		const res = await handleWebQuery("info", makeSql([fakeStatusRow]));
+		const res = await handleWebQuery(
+			"info",
+			makeSql([fakeStatusRow]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("The Farm Computer — Status");
@@ -300,6 +335,7 @@ describe("handleWebQuery — argument handling", () => {
 		const res = await handleWebQuery(
 			"bundle spring foraging bundle",
 			makeSql([fakeBundleRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 
@@ -310,6 +346,7 @@ describe("handleWebQuery — argument handling", () => {
 		const res = await handleWebQuery(
 			"gift emily loved_gifts",
 			makeSql([fakeVillagerRow]),
+			noopEnsure,
 		);
 		const json = (await res.json()) as WebApiResponse;
 		const fields = json.embed?.fields ?? [];
@@ -323,7 +360,11 @@ describe("handleWebQuery — argument handling", () => {
 
 describe("handleWebQuery — error handling", () => {
 	it("returns an error for an unknown command", async () => {
-		const res = await handleWebQuery("pizza margherita", makeSql([]));
+		const res = await handleWebQuery(
+			"pizza margherita",
+			makeSql([]),
+			noopEnsure,
+		);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.error).toContain("Unknown command");
@@ -331,7 +372,7 @@ describe("handleWebQuery — error handling", () => {
 	});
 
 	it("returns an error when the item is not found in the database", async () => {
-		const res = await handleWebQuery("crop xyz", makeSql([]));
+		const res = await handleWebQuery("crop xyz", makeSql([]), noopEnsure);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.error).toContain("No crop named");
@@ -339,7 +380,7 @@ describe("handleWebQuery — error handling", () => {
 	});
 
 	it("returns an error for an empty input string", async () => {
-		const res = await handleWebQuery("", makeSql([]));
+		const res = await handleWebQuery("", makeSql([]), noopEnsure);
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.error).toContain("Unknown command");

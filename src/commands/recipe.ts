@@ -1,5 +1,5 @@
-import { formatDate } from "../constants";
-import { getRecipe } from "../db";
+import { formatDate } from "@/constants";
+import { getRecipe } from "@/db";
 import {
 	embedResponse,
 	getOption,

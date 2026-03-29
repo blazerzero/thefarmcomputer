@@ -1,6 +1,6 @@
 import { parse } from "node-html-parser";
-import { SEASONS } from "../constants";
-import type { CropRow } from "../types";
+import { SEASONS } from "@/constants";
+import type { CropRow } from "@/types";
 import { fetchPage, WIKI_BASE } from "./wiki";
 
 function parseIntFrom(text: string): number | null {

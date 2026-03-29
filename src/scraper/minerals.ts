@@ -1,6 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
-import type { MineralRow } from "../types";
+import type { MineralRow } from "@/types";
 import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────

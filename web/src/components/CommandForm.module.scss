@@ -88,7 +88,7 @@
 }
 
 // Medium — Layout A: command on row 1, params + button on row 2
-@media (min-width: 568px) {
+@media (min-width: 35.5rem) {
 	.params {
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -107,7 +107,7 @@
 }
 
 // Large — Layout B: everything inline in one row
-@media (min-width: 1000px) {
+@media (min-width: 62.5rem) {
 	.form {
 		flex-direction: row;
 		align-items: flex-end;

@@ -1,4 +1,4 @@
-import type { Book, BookRow } from "../types";
+import type { Book, BookRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

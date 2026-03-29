@@ -1,5 +1,5 @@
-import { DEFAULT_COLOR, formatDate } from "../constants";
-import { getBook } from "../db";
+import { DEFAULT_COLOR, formatDate } from "@/constants";
+import { getBook } from "@/db";
 import {
 	embedResponse,
 	getOption,

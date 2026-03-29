@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { FaDiscord } from "react-icons/fa";
+import FarmComputerIcon from "@/assets/farm-computer.png";
 import styles from "./App.module.scss";
 import { CommandForm } from "./components/CommandForm";
 import { CommandHelp } from "./components/CommandHelp";
 import { EmbedCard } from "./components/EmbedCard";
+import { GitHubBadge } from "./components/GitHubBadge";
 import type { QueryResult } from "./types";
 
 /** Strip Discord markdown bold/italic markers for plain text display. */
@@ -15,13 +17,26 @@ function stripMarkdown(text: string): string {
 		.replace(/_/g, "");
 }
 
-const FULL_TITLE = "The Farm Computer 💾";
+const FULL_TITLE = "The Farm Computer";
+
+const GITHUB_REPO = "blazerzero/thefarmcomputer";
 
 export default function App() {
 	const [result, setResult] = useState<QueryResult | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [displayedTitle, setDisplayedTitle] = useState("");
 	const [typing, setTyping] = useState(true);
+	const [stars, setStars] = useState<number | null>(null);
+
+	useEffect(() => {
+		fetch(`https://api.github.com/repos/${GITHUB_REPO}`)
+			.then((r) => r.json())
+			.then((d: { stargazers_count?: number }) => {
+				if (typeof d.stargazers_count === "number")
+					setStars(d.stargazers_count);
+			})
+			.catch(console.error);
+	}, []);
 
 	useEffect(() => {
 		let i = 0;
@@ -56,7 +71,18 @@ export default function App() {
 
 	return (
 		<div className={styles.page}>
+			<GitHubBadge
+				repo={GITHUB_REPO}
+				stars={stars}
+				className={styles.githubBadgeCorner}
+			/>
+
 			<div className={styles.header}>
+				<img
+					src={FarmComputerIcon}
+					alt="Old computer"
+					className={styles.farmComputerIcon}
+				/>
 				<h1
 					className={`${styles.title}${typing ? ` ${styles.titleTyping}` : ""}`}
 				>
@@ -100,7 +126,16 @@ export default function App() {
 			<CommandHelp />
 
 			<footer className={styles.footer}>
-				© {new Date().getFullYear()} Omeed Habibelahian
+				<GitHubBadge repo={GITHUB_REPO} stars={stars} />
+				<div className={styles.attributions}>
+					<p>© {new Date().getFullYear()} Omeed Habibelahian</p>
+					<a
+						href="https://www.flaticon.com/free-icons/computer"
+						title="computer icons"
+					>
+						Computer icons created by Freepik - Flaticon
+					</a>
+				</div>
 			</footer>
 		</div>
 	);

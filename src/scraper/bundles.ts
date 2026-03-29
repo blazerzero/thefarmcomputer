@@ -1,5 +1,5 @@
 import { parse } from "node-html-parser";
-import type { BundleItem, BundleRow } from "../types";
+import type { BundleItem, BundleRow } from "@/types";
 import { fetchPage, WIKI_BASE } from "./wiki";
 
 function parseQuantity(text: string, itemName: string): number {

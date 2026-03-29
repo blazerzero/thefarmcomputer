@@ -1,112 +1,130 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { IoChevronDown } from "react-icons/io5";
+import { COMMAND_DESCRIPTIONS } from "@/api/constants";
+import { Command } from "@/api/types";
 import styles from "./CommandHelp.module.scss";
 
-const COMMANDS = [
+interface CommandItem {
+	command: Command;
+	syntax: string;
+	example: string;
+}
+
+const COMMANDS: CommandItem[] = [
 	{
+		command: Command.BOOK,
 		syntax: "book <name>",
 		example: "book price catalogue",
-		desc: "Description, subsequent reading effect, location",
 	},
 	{
+		command: Command.BUNDLE,
 		syntax: "bundle <name>",
 		example: "bundle spring",
-		desc: "Room, required items, reward",
 	},
+	{ command: Command.CRAFT, syntax: "craft <name>", example: "craft furnace" },
+	{ command: Command.CROP, syntax: "crop <name>", example: "crop parsnip" },
+	{ command: Command.FISH, syntax: "fish <name>", example: "fish tuna" },
 	{
-		syntax: "craft <name>",
-		example: "craft furnace",
-		desc: "Ingredients, duration, radius, energy, health, recipe source",
-	},
-	{
-		syntax: "crop <name>",
-		example: "crop parsnip",
-		desc: "Seasons, growth time, seed price, sell price",
-	},
-	{
-		syntax: "fish <name>",
-		example: "fish tuna",
-		desc: "Location, season, weather, difficulty, sell price",
-	},
-	{
+		command: Command.FOOTWEAR,
 		syntax: "footwear <name>",
 		example: "footwear sneakers",
-		desc: "Defense boost, immunity boost, source, sell price",
 	},
 	{
+		command: Command.FORAGE,
 		syntax: "forage <name>",
 		example: "forage daffodil",
-		desc: "Seasons, locations, energy, health, sell price",
 	},
 	{
+		command: Command.FRUIT_TREE,
 		syntax: "fruit-tree <name>",
 		example: "fruit-tree apple",
-		desc: "Season, growth time, sapling price, sell price",
 	},
 	{
+		command: Command.GIFT,
 		syntax: "gift <villager> [tier]",
 		example: "gift Emily loved",
-		desc: "Gift preferences & birthday. Tier: loved, liked, neutral, disliked, hated",
 	},
 	{
+		command: Command.INGREDIENT,
 		syntax: "ingredient <name>",
 		example: "ingredient wood",
-		desc: "All crafting recipes that use this item as an ingredient",
 	},
+	{ command: Command.INFO, syntax: "info", example: "info" },
 	{
-		syntax: "info",
-		example: "info",
-		desc: "Database record counts and last update time",
-	},
-	{
+		command: Command.MINERAL,
 		syntax: "mineral <name>",
 		example: "mineral quartz",
-		desc: "Category, sources, uses, sell price",
 	},
 	{
+		command: Command.MONSTER,
 		syntax: "monster <name>",
 		example: "monster shadow brute",
-		desc: "HP, damage, defense, speed, XP, location, drops",
 	},
 	{
+		command: Command.RECIPE,
 		syntax: "recipe <name>",
 		example: "recipe fried egg",
-		desc: "Ingredients, energy, health, buffs, buff duration, recipe source, sell price",
 	},
+	{ command: Command.RING, syntax: "ring <name>", example: "ring lucky ring" },
 	{
+		command: Command.SCHEDULE,
 		syntax: "schedule <villager> [day] [season]",
 		example: "schedule Harvey Rain",
-		desc: "Villager's schedule. Day filters by occasion (Rain, Monday, etc.). Season defaults to Default.",
 	},
 	{
-		syntax: "ring <name>",
-		example: "ring lucky ring",
-		desc: "Effects, sell price, where to find",
-	},
-	{
+		command: Command.SEASON,
 		syntax: "season <season>",
 		example: "season Summer",
-		desc: "All crops for Spring, Summer, Fall, or Winter",
 	},
 	{
+		command: Command.WEAPON,
 		syntax: "weapon <name>",
 		example: "weapon infinity blade",
-		desc: "Type, damage, speed, defense, crit stats, level",
 	},
 ];
 
 export function CommandHelp() {
+	const listRef = useRef<HTMLDivElement>(null);
+	const [showMore, setShowMore] = useState(false);
+
+	const checkScroll = useCallback(() => {
+		const el = listRef.current;
+		if (!el) return;
+		setShowMore(el.scrollHeight - el.scrollTop > el.clientHeight + 1);
+	}, []);
+
+	useEffect(() => {
+		const el = listRef.current;
+		if (!el) return;
+		checkScroll();
+		const observer = new ResizeObserver(checkScroll);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [checkScroll]);
+
 	return (
 		<div className={styles.container}>
 			<div className={styles.heading}>Available Commands</div>
-			<div className={styles.list}>
-				{COMMANDS.map((cmd) => (
-					<div key={cmd.syntax} className={styles.item}>
-						<div className={styles.itemHeader}>
-							<code className={styles.code}>{cmd.syntax}</code>
-							<span className={styles.example}>e.g. {cmd.example}</span>
+			<div className={styles.listWrapper}>
+				<div ref={listRef} className={styles.list} onScroll={checkScroll}>
+					{COMMANDS.map((cmd) => (
+						<div key={cmd.syntax} className={styles.item}>
+							<div className={styles.itemHeader}>
+								<code className={styles.code}>{cmd.syntax}</code>
+								<span className={styles.example}>e.g. {cmd.example}</span>
+							</div>
+							<div className={styles.desc}>
+								{COMMAND_DESCRIPTIONS[cmd.command]}
+							</div>
 						</div>
-						<div className={styles.desc}>{cmd.desc}</div>
+					))}
+				</div>
+				{showMore && (
+					<div className={styles.seeMore} aria-hidden="true">
+						See more
+						<IoChevronDown size="1rem" />
 					</div>
-				))}
+				)}
 			</div>
 		</div>
 	);

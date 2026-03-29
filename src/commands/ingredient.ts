@@ -1,6 +1,6 @@
 import pluralize from "pluralize";
-import { formatDate } from "../constants";
-import { getCraftedItemsByIngredient } from "../db";
+import { formatDate } from "@/constants";
+import { getCraftedItemsByIngredient } from "@/db";
 import {
 	embedResponse,
 	getOption,

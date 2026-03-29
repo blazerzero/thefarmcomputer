@@ -1,4 +1,4 @@
-import type { Crop, CropRow } from "../types";
+import type { Crop, CropRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

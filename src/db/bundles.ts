@@ -1,4 +1,4 @@
-import type { Bundle, BundleItem, BundleRow } from "../types";
+import type { Bundle, BundleItem, BundleRow } from "@/types";
 
 const now = () => new Date().toISOString();
 

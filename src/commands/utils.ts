@@ -1,5 +1,5 @@
-import { DEFAULT_COLOR, SEASON_COLORS } from "../constants";
-import { InteractionResponseType } from "../types";
+import { DEFAULT_COLOR, SEASON_COLORS } from "@/constants";
+import { InteractionResponseType } from "@/types";
 
 /** Extract a named option value from a Discord interaction's option list. */
 export function getOption(

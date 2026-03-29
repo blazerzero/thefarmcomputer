@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleSeason } from "../../commands/season";
+import { handleSeason } from "@/commands/season";
 import { type DiscordResponse, makeSql } from "../helpers";
 
 const springCropRows = [
