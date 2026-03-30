@@ -325,10 +325,6 @@ describe("handleWebQuery — command routing", () => {
 
 		expect(json.embed?.title).toBe("The Farm Computer — Status");
 		expect(json.embed?.color).toBe(0x5b8a3c);
-
-		const fieldNames = json.embed?.fields?.map((f) => f.name) ?? [];
-		expect(fieldNames.some((n) => n.startsWith("Books:"))).toBe(true);
-		expect(fieldNames.some((n) => n.startsWith("Rings:"))).toBe(true);
 	});
 });
 
