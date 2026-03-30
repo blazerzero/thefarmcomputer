@@ -177,6 +177,8 @@ export async function handleWebQuery(
 				s.weaponsLastUpdated ? new Date(s.weaponsLastUpdated).getTime() : 0,
 				s.recipesLastUpdated ? new Date(s.recipesLastUpdated).getTime() : 0,
 				s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
+				s.booksLastUpdated ? new Date(s.booksLastUpdated).getTime() : 0,
+				s.ringsLastUpdated ? new Date(s.ringsLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -210,6 +212,8 @@ export async function handleWebQuery(
 						{ name: `Recipes: ${s.recipeCount}`, value: "", inline: false },
 						{ name: `Weapons: ${s.weaponCount}`, value: "", inline: false },
 						{ name: `Footwear: ${s.footwearCount}`, value: "", inline: false },
+						{ name: `Books: ${s.bookCount}`, value: "", inline: false },
+						{ name: `Rings: ${s.ringCount}`, value: "", inline: false },
 					],
 					footer: {
 						text: `Last updated: ${lastUpdated}\nWiki data refreshes on the 1st of every month at 8 AM UTC`,
