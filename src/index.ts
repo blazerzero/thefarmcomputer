@@ -496,22 +496,7 @@ export class StardewDO implements DurableObject {
 								color: 0x5b8a3c,
 								fields: [
 									{
-										name: `Crops: ${s.cropCount}`,
-										value: "",
-										inline: false,
-									},
-									{
-										name: `Fruit Trees: ${s.fruitTreeCount}`,
-										value: "",
-										inline: false,
-									},
-									{
-										name: `Fish: ${s.fishCount}`,
-										value: "",
-										inline: false,
-									},
-									{
-										name: `Villagers: ${s.villagerCount}`,
+										name: `Books: ${s.bookCount}`,
 										value: "",
 										inline: false,
 									},
@@ -521,17 +506,37 @@ export class StardewDO implements DurableObject {
 										inline: false,
 									},
 									{
+										name: `Crafted Items: ${s.craftedItemCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Crops: ${s.cropCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Fish: ${s.fishCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Footwear: ${s.footwearCount}`,
+										value: "",
+										inline: false,
+									},
+									{
 										name: `Forageables: ${s.forageableCount}`,
 										value: "",
 										inline: false,
 									},
 									{
-										name: `Minerals: ${s.mineralCount}`,
+										name: `Fruit Trees: ${s.fruitTreeCount}`,
 										value: "",
 										inline: false,
 									},
 									{
-										name: `Crafted Items: ${s.craftedItemCount}`,
+										name: `Minerals: ${s.mineralCount}`,
 										value: "",
 										inline: false,
 									},
@@ -546,22 +551,17 @@ export class StardewDO implements DurableObject {
 										inline: false,
 									},
 									{
-										name: `Weapons: ${s.weaponCount}`,
-										value: "",
-										inline: false,
-									},
-									{
-										name: `Footwear: ${s.footwearCount}`,
-										value: "",
-										inline: false,
-									},
-									{
-										name: `Books: ${s.bookCount}`,
-										value: "",
-										inline: false,
-									},
-									{
 										name: `Rings: ${s.ringCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Villagers: ${s.villagerCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Weapons: ${s.weaponCount}`,
 										value: "",
 										inline: false,
 									},
