@@ -51,6 +51,8 @@ The `README.md` Commands table must stay in sync with the actual set of slash co
 
 The `/info` command must display a count for **every data type (table) in the database**. The current tables are: crops, fruit_trees, fish, bundles, forageables, minerals, crafted_items, villagers, books, monsters, recipes, weapons, footwear, rings.
 
+The embed fields must be listed in alphabetical order by display name.
+
 When a new table is added (or an existing one is removed), update all of the following to keep them in sync:
 
 1. `src/db/status.ts` — add a `COUNT(*)` query for the new table and include the count and `last_updated` in the return type and return value.
