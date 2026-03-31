@@ -17,6 +17,7 @@ worker-configuration.d.ts
 
 # other
 CLAUDE.local.md
+.claude/settings.local.json
 dist/
 node_modules/
 .superpowers/
