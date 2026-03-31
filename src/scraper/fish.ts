@@ -45,13 +45,13 @@ function parseSeasons(cell: HTMLElement): string[] {
 }
 
 function parseWeather(cell: HTMLElement): string {
-	const imgs = cell.querySelectorAll("img") as unknown as HTMLElement[];
-	const alts = imgs
-		.map((img) => img.getAttribute("alt")?.trim() ?? "")
-		.filter((alt) => alt.length > 0);
+	const anchors = cell.querySelectorAll("a") as unknown as HTMLElement[];
+	const weathers = anchors
+		.map((a) => a.text.trim())
+		.filter((t) => t.length > 0);
 
-	if (alts.length > 0) {
-		return [...new Set(alts)].join(", ");
+	if (weathers.length > 0) {
+		return [...new Set(weathers)].join(", ");
 	}
 
 	const text = cell.text.trim();
