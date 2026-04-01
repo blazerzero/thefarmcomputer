@@ -169,6 +169,25 @@ const fakeRingRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeArtisanGoodRow = {
+	name: "Wine",
+	machine: "Keg",
+	description: null,
+	ingredients: null,
+	sell_price: 400,
+	sell_price_silver: 500,
+	sell_price_gold: 600,
+	sell_price_iridium: 800,
+	energy: null,
+	health: null,
+	cask_days_to_silver: 14,
+	cask_days_to_gold: 28,
+	cask_days_to_iridium: 56,
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Wine",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
@@ -183,6 +202,20 @@ const springCropRow = {
 // ── Command routing tests ─────────────────────────────────────────────────────
 
 describe("handleWebQuery — command routing", () => {
+	it("routes 'artisan' and returns an embed with Machine field", async () => {
+		const res = await handleWebQuery(
+			"artisan wine",
+			makeSql([fakeArtisanGoodRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Wine");
+		expect(json.embed?.fields).toContainEqual(
+			expect.objectContaining({ name: "Machine" }),
+		);
+	});
+
 	it("routes 'crop' and returns an embed with the crop title", async () => {
 		const res = await handleWebQuery(
 			"crop parsnip",
@@ -325,6 +358,9 @@ describe("handleWebQuery — command routing", () => {
 
 		expect(json.embed?.title).toBe("The Farm Computer — Status");
 		expect(json.embed?.color).toBe(0x5b8a3c);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(
+			`Artisan Goods: 10`,
+		);
 	});
 });
 

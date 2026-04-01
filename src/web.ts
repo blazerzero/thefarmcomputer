@@ -1,3 +1,4 @@
+import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
@@ -49,6 +50,12 @@ export async function handleWebQuery(
 	let handlerResponse: Response;
 
 	switch (command) {
+		case Command.ARTISAN:
+			handlerResponse = handleArtisan(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case Command.BOOK:
 			handlerResponse = handleBook(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
@@ -159,6 +166,9 @@ export async function handleWebQuery(
 		case Command.INFO: {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
+				s.artisanGoodsLastUpdated
+					? new Date(s.artisanGoodsLastUpdated).getTime()
+					: 0,
 				s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
 				s.craftedItemsLastUpdated
 					? new Date(s.craftedItemsLastUpdated).getTime()
@@ -188,6 +198,11 @@ export async function handleWebQuery(
 					title: "The Farm Computer — Status",
 					color: 0x5b8a3c,
 					fields: [
+						{
+							name: `Artisan Goods: ${s.artisanGoodCount}`,
+							value: "",
+							inline: false,
+						},
 						{ name: `Books: ${s.bookCount}`, value: "", inline: false },
 						{ name: `Bundles: ${s.bundleCount}`, value: "", inline: false },
 						{
@@ -223,7 +238,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: book, crop, fish, footwear, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: artisan, book, crop, fish, footwear, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, weapon, schedule, season, info`,
 			});
 	}
 

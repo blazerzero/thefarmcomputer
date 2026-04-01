@@ -1,3 +1,8 @@
+export {
+	countArtisanGoods,
+	getArtisanGood,
+	upsertArtisanGood,
+} from "./artisanGoods";
 export { countBooks, getBook, upsertBook } from "./books";
 export { countBundles, getBundle, upsertBundle } from "./bundles";
 export {

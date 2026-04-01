@@ -335,8 +335,33 @@ export interface Ring extends Omit<RingRow, "where_to_find"> {
 	where_to_find: string[];
 }
 
+/** An artisan good row as stored in SQLite. */
+export interface ArtisanGoodRow {
+	id?: number;
+	name: string;
+	machine: string | null;
+	description: string | null;
+	ingredients: string | null; // plain text, not JSON
+	sell_price: number | null;
+	sell_price_silver: number | null;
+	sell_price_gold: number | null;
+	sell_price_iridium: number | null;
+	energy: number | null;
+	health: number | null;
+	cask_days_to_silver: number | null;
+	cask_days_to_gold: number | null;
+	cask_days_to_iridium: number | null;
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** An artisan good row (no JSON fields to decode). */
+export interface ArtisanGood extends ArtisanGoodRow {}
+
 /** Discord slash command names. */
 export enum Command {
+	ARTISAN = "artisan",
 	BOOK = "book",
 	BUNDLE = "bundle",
 	CRAFT = "craft",

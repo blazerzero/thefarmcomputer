@@ -32,6 +32,18 @@ const SEASON_OPTIONS = [
 
 const COMMAND_DEFS: CommandDef[] = [
 	{
+		name: "artisan",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Wine",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "book",
 		fields: [
 			{
