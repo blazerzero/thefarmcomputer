@@ -73,9 +73,9 @@ export function upsertArtisanGood(
 export function countArtisanGoods(sql: SqlStorage): number {
 	return (
 		(
-			sql
-				.exec("SELECT COUNT(*) AS n FROM artisan_goods")
-				.one() as { n: number } | null
+			sql.exec("SELECT COUNT(*) AS n FROM artisan_goods").one() as {
+				n: number;
+			} | null
 		)?.n ?? 0
 	);
 }

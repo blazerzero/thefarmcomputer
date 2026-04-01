@@ -32,8 +32,7 @@ const commands = [
 			{
 				type: OptionType.STRING,
 				name: "name",
-				description:
-					"Artisan good name (e.g. Wine, Pickles, Truffle Oil)",
+				description: "Artisan good name (e.g. Wine, Pickles, Truffle Oil)",
 				required: true,
 			},
 		],

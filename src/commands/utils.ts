@@ -54,7 +54,8 @@ export function formatPriceTiers(
 		)
 			.filter(([, price]) => price != null)
 			.map(
-				([label, price]) => `${label}: ${(price as number).toLocaleString()}g`,
+				([label, price], _, { length }) =>
+					`${length > 1 ? `${label}: ` : ""}${(price as number).toLocaleString()}g`,
 			)
 			.join("\n") || "—"
 	);

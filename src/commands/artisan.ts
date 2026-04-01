@@ -44,7 +44,7 @@ export function handleArtisan(
 				: item.energy != null
 					? `${item.energy} energy`
 					: `${item.health} health`;
-		fields.push({ name: "Energy / Health", value: val, inline: true });
+		fields.push({ name: "Base Energy / Health", value: val, inline: true });
 	}
 
 	if (item.ingredients) {
@@ -56,7 +56,11 @@ export function handleArtisan(
 	}
 
 	if (item.description) {
-		fields.push({ name: "Description", value: item.description, inline: false });
+		fields.push({
+			name: "Description",
+			value: item.description,
+			inline: false,
+		});
 	}
 
 	const caskLines = [

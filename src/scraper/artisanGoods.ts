@@ -26,10 +26,22 @@ function parseSinglePrice(cell: HTMLElement): number | null {
 }
 
 function parseEnergyHealth(cell: HTMLElement): [number | null, number | null] {
-	const matches = [...cell.text.matchAll(/-?\d+/g)].map((m) =>
-		parseInt(m[0]!, 10),
-	);
-	return [matches[0] ?? null, matches[1] ?? null];
+	let energy: string = "";
+	let health: string = "";
+	if (cell.firstChild?.rawTagName === "table") {
+		const firstRowCells = (cell.firstChild as HTMLElement)
+			.querySelectorAll(":scope > tbody > tr:first-child > td")
+			.filter((e) => Boolean(e.text.trim()));
+		energy = firstRowCells[0]?.text.trim() || "";
+		health = firstRowCells[1]?.text.trim() || "";
+	} else {
+		energy = cell.querySelector(".energytemplate")?.text.trim() || "";
+		health = cell.querySelector(".healthtemplate")?.text.trim() || "";
+	}
+	return [
+		energy ? parseInt(energy.replace(/−/g, "-"), 10) : null,
+		health ? parseInt(health.replace(/−/g, "-"), 10) : null,
+	];
 }
 
 function parseDays(cell: HTMLElement): number | null {
@@ -122,7 +134,10 @@ export async function scrapeArtisanGoods(): Promise<
 	const content = root.querySelector("#mw-content-text") ?? root;
 
 	// Collect items in a map keyed by name so the Cask section can merge into existing entries
-	const itemMap = new Map<string, Omit<ArtisanGoodRow, "id" | "last_updated">>();
+	const itemMap = new Map<
+		string,
+		Omit<ArtisanGoodRow, "id" | "last_updated">
+	>();
 
 	const elements = content.querySelectorAll(
 		"h2, h3, table.wikitable",
@@ -226,7 +241,8 @@ export async function scrapeArtisanGoods(): Promise<
 
 				const sellCell = getCol(colIdx, cells, "sell");
 				if (sellCell) {
-					[sellPrice, sellSilver, sellGold, sellIridium] = parsePrices(sellCell);
+					[sellPrice, sellSilver, sellGold, sellIridium] =
+						parsePrices(sellCell);
 				}
 
 				const existing = itemMap.get(itemName);
