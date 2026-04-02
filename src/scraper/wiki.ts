@@ -26,7 +26,7 @@ export function getCol(
 	const idx = colIdx[key];
 	const cell = idx !== undefined ? (cells[idx] ?? null) : null;
 	cell
-		?.querySelectorAll('[style*="display: none"]')
+		?.querySelectorAll('[style*="display: none"], style')
 		.forEach((el) => el.remove());
 	return cell;
 }
@@ -75,6 +75,13 @@ export function parseListCell(cell: HTMLElement): string[] {
 		if (item.rawTagName && item.rawTagName !== "a") {
 			goToNewline = true;
 			if (item.rawTagName === "br") return;
+		}
+		if (
+			!item.rawTagName &&
+			index < items.length - 1 &&
+			items[index + 1]?.rawTagName === "ul"
+		) {
+			goToNewline = true;
 		}
 		const itemText = item.text.replace(/\s+/g, " ");
 		text += itemText;

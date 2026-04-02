@@ -1,33 +1,28 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { ArtisanGoodRow } from "@/types";
-import { fetchPage, getCol, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
-function parsePrices(
+function parsePrices(cell: HTMLElement | null): string | null {
+	if (!cell) return null;
+	if (cell.firstChild?.rawTagName === "table") {
+		const firstRow = (cell.firstChild as HTMLElement).querySelector(
+			":scope > tbody > tr:first-child",
+		);
+		return firstRow?.text.trim() || null;
+	} else {
+		return cell.text.trim() || null;
+	}
+}
+
+function parseEnergyHealthBuffs(
 	cell: HTMLElement,
-): [number | null, number | null, number | null, number | null] {
-	const text = cell.text;
-	const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/gi)].map((m) =>
-		parseInt(m[1]!.replace(/,/g, ""), 10),
-	);
-	return [
-		matches[0] ?? null,
-		matches[1] ?? null,
-		matches[2] ?? null,
-		matches[3] ?? null,
-	];
-}
-
-function parseSinglePrice(cell: HTMLElement): number | null {
-	const m = cell.text.match(/(\d[\d,]*)\s*g(?![\d/])/i);
-	return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
-}
-
-function parseEnergyHealth(cell: HTMLElement): [number | null, number | null] {
+): [string | null, string | null, string | null] {
 	let energy: string = "";
 	let health: string = "";
+	const buffs: string[] = [];
 	if (cell.firstChild?.rawTagName === "table") {
 		const firstRowCells = (cell.firstChild as HTMLElement)
 			.querySelectorAll(":scope > tbody > tr:first-child > td")
@@ -37,18 +32,23 @@ function parseEnergyHealth(cell: HTMLElement): [number | null, number | null] {
 	} else {
 		energy = cell.querySelector(".energytemplate")?.text.trim() || "";
 		health = cell.querySelector(".healthtemplate")?.text.trim() || "";
+		buffs.push(
+			...cell.querySelectorAll(".nametemplate").map((e) => e.text.trim()),
+		);
 	}
 	return [
-		energy ? parseInt(energy.replace(/−/g, "-"), 10) : null,
-		health ? parseInt(health.replace(/−/g, "-"), 10) : null,
+		energy?.replace(/−/g, "-") || null,
+		health?.replace(/−/g, "-") || null,
+		buffs.length > 0 ? JSON.stringify(buffs) : null,
 	];
 }
 
-function parseDays(cell: HTMLElement): number | null {
-	// Replace Unicode minus U+2212 with ASCII hyphen
-	const text = cell.text.trim().replace(/\u2212/g, "-");
-	if (!text || text === "—" || text === "-" || /n\/a/i.test(text)) return null;
-	const m = text.match(/(\d+)/);
+function parseDaysForAging(cell: HTMLElement): number | null {
+	const el = [...cell.querySelectorAll("p > i:first-child")].find((p) =>
+		/^Aged:\s+\d+\s+Days?$/i.test(p.textContent.trim()),
+	);
+	if (!el) return null;
+	const m = el.text.trim().match(/^Aged:\s+(\d+)\s+Days?$/i);
 	return m ? parseInt(m[1]!, 10) : null;
 }
 
@@ -86,32 +86,23 @@ function buildColIdx(
 			text.includes("source item")
 		) {
 			colIdx.ingredients = colI;
+		} else if (text.includes("processing")) {
+			colIdx.processing_time = colI;
 		} else if (text.includes("energy")) {
 			colIdx.energy = colI;
-		} else if (
-			text === "silver" ||
-			text === "silver quality" ||
-			text.includes("to silver")
-		) {
+		} else if (text.includes("silver")) {
 			// In Cask tables these are day counts; elsewhere they are prices
 			colIdx[isCask ? "daysSilver" : "silver"] = colI;
-		} else if (
-			text === "gold" ||
-			text === "gold quality" ||
-			text.includes("to gold")
-		) {
+		} else if (text.includes("gold")) {
 			colIdx[isCask ? "daysGold" : "gold"] = colI;
-		} else if (
-			text === "iridium" ||
-			text === "iridium quality" ||
-			text.includes("to iridium")
-		) {
+		} else if (text.includes("iridium")) {
 			colIdx[isCask ? "daysIridium" : "iridium"] = colI;
 		} else if (
 			text === "normal" ||
 			text === "base" ||
 			text === "normal quality" ||
 			text === "sell price" ||
+			text === "base sell price" ||
 			text === "price" ||
 			text === "selling price"
 		) {
@@ -222,28 +213,21 @@ export async function scrapeArtisanGoods(): Promise<
 
 				const caskDaysSilver = (() => {
 					const c = getCol(colIdx, cells, "daysSilver");
-					return c ? parseDays(c) : null;
+					return c ? parseDaysForAging(c) : null;
 				})();
-				const caskDaysGold = (() => {
+				let caskDaysGold = (() => {
 					const c = getCol(colIdx, cells, "daysGold");
-					return c ? parseDays(c) : null;
+					return c ? parseDaysForAging(c) : null;
 				})();
-				const caskDaysIridium = (() => {
+				let caskDaysIridium = (() => {
 					const c = getCol(colIdx, cells, "daysIridium");
-					return c ? parseDays(c) : null;
+					return c ? parseDaysForAging(c) : null;
 				})();
-
-				// Sell prices from Cask table (may be in a "sell"/"normal" column)
-				let sellPrice: number | null = null;
-				let sellSilver: number | null = null;
-				let sellGold: number | null = null;
-				let sellIridium: number | null = null;
+				if (caskDaysSilver && caskDaysGold) caskDaysGold += caskDaysSilver;
+				if (caskDaysGold && caskDaysIridium) caskDaysIridium += caskDaysGold;
 
 				const sellCell = getCol(colIdx, cells, "sell");
-				if (sellCell) {
-					[sellPrice, sellSilver, sellGold, sellIridium] =
-						parsePrices(sellCell);
-				}
+				const sellPrice = parsePrices(sellCell);
 
 				const existing = itemMap.get(itemName);
 				if (existing) {
@@ -253,25 +237,18 @@ export async function scrapeArtisanGoods(): Promise<
 					// Only fill in prices if not already set by the producing machine
 					if (existing.sell_price == null && sellPrice != null)
 						existing.sell_price = sellPrice;
-					if (existing.sell_price_silver == null && sellSilver != null)
-						existing.sell_price_silver = sellSilver;
-					if (existing.sell_price_gold == null && sellGold != null)
-						existing.sell_price_gold = sellGold;
-					if (existing.sell_price_iridium == null && sellIridium != null)
-						existing.sell_price_iridium = sellIridium;
 					if (!existing.image_url && imageUrl) existing.image_url = imageUrl;
 				} else {
 					itemMap.set(itemName, {
 						name: itemName,
-						machine: "Cask",
+						machine: null,
 						description: null,
 						ingredients: null,
+						processing_time: null,
 						sell_price: sellPrice,
-						sell_price_silver: sellSilver,
-						sell_price_gold: sellGold,
-						sell_price_iridium: sellIridium,
 						energy: null,
 						health: null,
+						buffs: null,
 						cask_days_to_silver: caskDaysSilver,
 						cask_days_to_gold: caskDaysGold,
 						cask_days_to_iridium: caskDaysIridium,
@@ -287,14 +264,15 @@ export async function scrapeArtisanGoods(): Promise<
 
 				const ingredientsCell = getCol(colIdx, cells, "ingredients");
 				const ingredients = ingredientsCell
-					? ingredientsCell.text.replace(/\s+/g, " ").trim() || null
+					? parseListCell(ingredientsCell)
 					: null;
 
-				// Sell prices — separate quality columns take priority over single-cell
-				let sellPrice: number | null = null;
-				let sellSilver: number | null = null;
-				let sellGold: number | null = null;
-				let sellIridium: number | null = null;
+				const processingTimeCell = getCol(colIdx, cells, "processing_time");
+				const processing_time = processingTimeCell
+					? processingTimeCell.text.trim() || null
+					: null;
+
+				let sellPrice: string | null = null;
 
 				const hasSeparateQualityCols =
 					colIdx.silver !== undefined &&
@@ -303,43 +281,52 @@ export async function scrapeArtisanGoods(): Promise<
 
 				if (hasSeparateQualityCols) {
 					const normalCell = getCol(colIdx, cells, "sell");
-					const silverCell = getCol(colIdx, cells, "silver");
-					const goldCell = getCol(colIdx, cells, "gold");
-					const iridiumCell = getCol(colIdx, cells, "iridium");
-					if (normalCell) sellPrice = parseSinglePrice(normalCell);
-					if (silverCell) sellSilver = parseSinglePrice(silverCell);
-					if (goldCell) sellGold = parseSinglePrice(goldCell);
-					if (iridiumCell) sellIridium = parseSinglePrice(iridiumCell);
+					if (normalCell) sellPrice = normalCell.text.trim();
 				} else {
 					const priceCell = getCol(colIdx, cells, "sell");
-					if (priceCell)
-						[sellPrice, sellSilver, sellGold, sellIridium] =
-							parsePrices(priceCell);
+					sellPrice = parsePrices(priceCell);
 				}
 
 				// Energy / Health — base tier only
-				let energy: number | null = null;
-				let health: number | null = null;
+				let energy: string | null = null;
+				let health: string | null = null;
+				let buffs: string | null = null;
 				const energyCell = getCol(colIdx, cells, "energy");
-				if (energyCell) [energy, health] = parseEnergyHealth(energyCell);
+				if (energyCell)
+					[energy, health, buffs] = parseEnergyHealthBuffs(energyCell);
 
-				itemMap.set(itemName, {
-					name: itemName,
-					machine: currentMachine,
-					description,
-					ingredients,
-					sell_price: sellPrice,
-					sell_price_silver: sellSilver,
-					sell_price_gold: sellGold,
-					sell_price_iridium: sellIridium,
-					energy,
-					health,
-					cask_days_to_silver: null,
-					cask_days_to_gold: null,
-					cask_days_to_iridium: null,
-					image_url: imageUrl,
-					wiki_url: wikiUrl,
-				});
+				const existing = itemMap.get(itemName);
+				if (existing) {
+					itemMap.set(itemName, {
+						...existing,
+						machine: currentMachine,
+						description,
+						ingredients: JSON.stringify(ingredients),
+						processing_time,
+						sell_price: existing.sell_price || sellPrice,
+						energy,
+						health,
+						buffs,
+						image_url: existing.image_url || imageUrl,
+					});
+				} else {
+					itemMap.set(itemName, {
+						name: itemName,
+						machine: currentMachine,
+						description,
+						ingredients: JSON.stringify(ingredients),
+						processing_time,
+						sell_price: sellPrice,
+						energy,
+						health,
+						buffs,
+						cask_days_to_silver: null,
+						cask_days_to_gold: null,
+						cask_days_to_iridium: null,
+						image_url: imageUrl,
+						wiki_url: wikiUrl,
+					});
+				}
 			}
 		}
 	}

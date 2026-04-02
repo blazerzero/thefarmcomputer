@@ -342,12 +342,11 @@ export interface ArtisanGoodRow {
 	machine: string | null;
 	description: string | null;
 	ingredients: string | null; // plain text, not JSON
-	sell_price: number | null;
-	sell_price_silver: number | null;
-	sell_price_gold: number | null;
-	sell_price_iridium: number | null;
-	energy: number | null;
-	health: number | null;
+	processing_time: string | null;
+	sell_price: string | null;
+	energy: string | null;
+	health: string | null;
+	buffs: string | null;
 	cask_days_to_silver: number | null;
 	cask_days_to_gold: number | null;
 	cask_days_to_iridium: number | null;
@@ -357,7 +356,11 @@ export interface ArtisanGoodRow {
 }
 
 /** An artisan good row (no JSON fields to decode). */
-export interface ArtisanGood extends ArtisanGoodRow {}
+export interface ArtisanGood
+	extends Omit<ArtisanGoodRow, "ingredients" | "buffs"> {
+	ingredients: string[];
+	buffs: string[];
+}
 
 /** Discord slash command names. */
 export enum Command {

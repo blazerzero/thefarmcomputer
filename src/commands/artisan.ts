@@ -5,6 +5,7 @@ import {
 	formatPriceTiers,
 	getOption,
 	notFoundResponse,
+	renderDotList,
 } from "./utils";
 
 export function handleArtisan(
@@ -26,65 +27,84 @@ export function handleArtisan(
 		fields.push({ name: "Machine", value: item.machine, inline: true });
 	}
 
-	fields.push({
-		name: "Sells For",
-		value: formatPriceTiers(
-			item.sell_price,
-			item.sell_price_silver,
-			item.sell_price_gold,
-			item.sell_price_iridium,
-		),
-		inline: true,
-	});
-
-	if (item.energy != null || item.health != null) {
-		const val =
-			item.energy != null && item.health != null
-				? `${item.energy} energy / ${item.health} health`
-				: item.energy != null
-					? `${item.energy} energy`
-					: `${item.health} health`;
-		fields.push({ name: "Base Energy / Health", value: val, inline: true });
+	if (item.ingredients) {
+		const ingredients: string[] = JSON.parse(item.ingredients) || [];
+		if (ingredients.length > 0) {
+			fields.push({
+				name: "Ingredients",
+				value: renderDotList(ingredients),
+				inline: true,
+			});
+		}
 	}
 
-	if (item.ingredients) {
+	if (item.processing_time) {
 		fields.push({
-			name: "Ingredients",
-			value: item.ingredients,
-			inline: false,
+			name: "Processing Time",
+			value: item.processing_time,
+			inline: true,
 		});
 	}
 
-	if (item.description) {
+	fields.push({
+		name: "Base Sell Value",
+		value: item.sell_price || "N/A",
+		inline: true,
+	});
+
+	if (item.energy) {
 		fields.push({
-			name: "Description",
-			value: item.description,
-			inline: false,
+			name: "Base Energy",
+			value: item.energy,
+			inline: true,
+		});
+	}
+
+	if (item.health) {
+		fields.push({
+			name: "Base Health",
+			value: item.health,
+			inline: true,
+		});
+	}
+
+	if (item.buffs) {
+		let buffs: string[];
+		try {
+			buffs = JSON.parse(item.buffs);
+		} catch {
+			buffs = [item.buffs];
+		}
+		fields.push({
+			name: "Buffs",
+			value: renderDotList(buffs),
+			inline: true,
 		});
 	}
 
 	const caskLines = [
 		item.cask_days_to_silver != null
-			? `Silver: ${item.cask_days_to_silver} days`
+			? `Silver: ${item.cask_days_to_silver} days (1.25x value)`
 			: null,
 		item.cask_days_to_gold != null
-			? `Gold: ${item.cask_days_to_gold} days`
+			? `Gold: ${item.cask_days_to_gold} days (1.5x value)`
 			: null,
 		item.cask_days_to_iridium != null
-			? `Iridium: ${item.cask_days_to_iridium} days`
+			? `Iridium: ${item.cask_days_to_iridium} days (2x value)`
 			: null,
 	].filter((l): l is string => l !== null);
 
 	if (caskLines.length > 0) {
 		fields.push({
 			name: "Cask Aging",
-			value: caskLines.join("\n"),
+			value: renderDotList(caskLines),
 			inline: true,
 		});
 	}
 
 	return embedResponse({
 		title: item.name,
+		description: item.description,
 		url: item.wiki_url,
 		color: DEFAULT_COLOR,
 		thumbnail: item.image_url ? { url: item.image_url } : undefined,

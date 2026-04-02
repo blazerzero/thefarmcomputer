@@ -29,22 +29,20 @@ export function upsertArtisanGood(
 ): void {
 	sql.exec(
 		`INSERT INTO artisan_goods
-       (name, machine, description, ingredients,
-        sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
-        energy, health,
+       (name, machine, description, ingredients, processing_time,
+        sell_price, energy, health, buffs,
         cask_days_to_silver, cask_days_to_gold, cask_days_to_iridium,
         image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        machine              = excluded.machine,
        description          = excluded.description,
        ingredients          = excluded.ingredients,
+	   processing_time	  	= excluded.processing_time,
        sell_price           = excluded.sell_price,
-       sell_price_silver    = excluded.sell_price_silver,
-       sell_price_gold      = excluded.sell_price_gold,
-       sell_price_iridium   = excluded.sell_price_iridium,
        energy               = excluded.energy,
        health               = excluded.health,
+	   buffs                = excluded.buffs,
        cask_days_to_silver  = excluded.cask_days_to_silver,
        cask_days_to_gold    = excluded.cask_days_to_gold,
        cask_days_to_iridium = excluded.cask_days_to_iridium,
@@ -55,12 +53,11 @@ export function upsertArtisanGood(
 		data.machine,
 		data.description,
 		data.ingredients,
+		data.processing_time,
 		data.sell_price,
-		data.sell_price_silver,
-		data.sell_price_gold,
-		data.sell_price_iridium,
 		data.energy,
 		data.health,
+		data.buffs,
 		data.cask_days_to_silver,
 		data.cask_days_to_gold,
 		data.cask_days_to_iridium,

@@ -288,6 +288,7 @@ export function initDb(sql: SqlStorage): void {
     )
   `);
 
+	sql.exec("DROP TABLE artisan_goods");
 	sql.exec(`
     CREATE TABLE IF NOT EXISTS artisan_goods (
       id                   INTEGER PRIMARY KEY,
@@ -295,12 +296,11 @@ export function initDb(sql: SqlStorage): void {
       machine              TEXT,
       description          TEXT,
       ingredients          TEXT,
-      sell_price           INTEGER,
-      sell_price_silver    INTEGER,
-      sell_price_gold      INTEGER,
-      sell_price_iridium   INTEGER,
-      energy               INTEGER,
-      health               INTEGER,
+      processing_time      TEXT,
+      sell_price           TEXT,
+      energy               TEXT,
+      health               TEXT,
+      buffs                TEXT,
       cask_days_to_silver  INTEGER,
       cask_days_to_gold    INTEGER,
       cask_days_to_iridium INTEGER,
