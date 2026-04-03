@@ -54,7 +54,8 @@ export function formatPriceTiers(
 		)
 			.filter(([, price]) => price != null)
 			.map(
-				([label, price]) => `${label}: ${(price as number).toLocaleString()}g`,
+				([label, price], _, { length }) =>
+					`${length > 1 ? `${label}: ` : ""}${(price as number).toLocaleString()}g`,
 			)
 			.join("\n") || "—"
 	);
@@ -69,15 +70,24 @@ export const renderDotList = (items: string[]): string => {
 	const n = items.length;
 	let afterHeader = false;
 	return items
-		.map((s) => {
+		.reduce((acc, s) => {
+			if (s.trim() === "or") {
+				acc[acc.length - 1] += ",  *or*";
+				return acc;
+			}
 			const isHeader = s.trimEnd().endsWith(":");
 			if (isHeader) {
 				afterHeader = true;
-				return `${renderDotForListContent(n)}${s}`;
+				acc.push(`${renderDotForListContent(n)}${s}`);
+				return acc;
 			}
-			if (afterHeader) return `  - ${s}`;
-			return `${renderDotForListContent(n)}${s}`;
-		})
+			if (afterHeader) {
+				acc.push(`  - ${s}`);
+				return acc;
+			}
+			acc.push(`${renderDotForListContent(n)}${s}`);
+			return acc;
+		}, [] as string[])
 		.join("\n")
 		.slice(0, 1024);
 };

@@ -12,6 +12,11 @@ interface CommandItem {
 
 const COMMANDS: CommandItem[] = [
 	{
+		command: Command.ARTISAN,
+		syntax: "artisan <name>",
+		example: "artisan wine",
+	},
+	{
 		command: Command.BOOK,
 		syntax: "book <name>",
 		example: "book price catalogue",

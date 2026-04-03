@@ -1,3 +1,4 @@
+import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
@@ -17,6 +18,7 @@ import { handleSeason } from "@/commands/season";
 import { handleWeapon } from "@/commands/weapon";
 import { formatDate } from "@/constants";
 import {
+	countArtisanGoods,
 	countBooks,
 	countBundles,
 	countCraftedItems,
@@ -33,6 +35,7 @@ import {
 	countWeapons,
 	getStatus,
 	initDb,
+	upsertArtisanGood,
 	upsertBook,
 	upsertBundle,
 	upsertCraftedItem,
@@ -50,6 +53,7 @@ import {
 	villagersNeedScheduleRefresh,
 } from "@/db";
 import type { Env } from "@/env";
+import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
@@ -69,6 +73,12 @@ import { verifyDiscordRequest } from "@/verify";
 import { handleWebQuery } from "@/web";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function refreshArtisanGoods(sql: SqlStorage): Promise<number> {
+	const items = await scrapeArtisanGoods();
+	for (const item of items) upsertArtisanGood(sql, item);
+	return items.length;
+}
 
 async function refreshBooks(sql: SqlStorage): Promise<number> {
 	const books = await scrapeBooks();
@@ -240,6 +250,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	} catch (err) {
 		console.error("Ring scrape failed:", err);
 	}
+	try {
+		const n = await refreshArtisanGoods(sql);
+		console.log(`Updated ${n} artisan goods`);
+	} catch (err) {
+		console.error("Artisan goods scrape failed:", err);
+	}
 	console.log("Wiki refresh complete");
 }
 
@@ -247,6 +263,9 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 
 async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 	switch (command) {
+		case Command.ARTISAN:
+			if (countArtisanGoods(sql) === 0) await refreshArtisanGoods(sql);
+			break;
 		case Command.BOOK:
 			if (countBooks(sql) === 0) await refreshBooks(sql);
 			break;
@@ -348,6 +367,9 @@ export class StardewDO implements DurableObject {
 			} else if (countRings(this.sql) === 0) {
 				// Rings table was added in a later deploy — populate without full refresh
 				await refreshRings(this.sql);
+			} else if (countArtisanGoods(this.sql) === 0) {
+				// Artisan goods table was added in a later deploy — populate without full refresh
+				await refreshArtisanGoods(this.sql);
 			} else if (villagersNeedScheduleRefresh(this.sql)) {
 				// schedule column was added in a later deploy — re-scrape villagers to populate it
 				const villagers = await scrapeVillagers();
@@ -385,6 +407,11 @@ export class StardewDO implements DurableObject {
 			const commandName = (interaction.data as Record<string, unknown>)
 				?.name as string;
 
+			if (commandName === Command.ARTISAN) {
+				if (countArtisanGoods(this.sql) === 0)
+					await refreshArtisanGoods(this.sql);
+				return handleArtisan(interaction, this.sql);
+			}
 			if (commandName === Command.BOOK) {
 				if (countBooks(this.sql) === 0) await refreshBooks(this.sql);
 				return handleBook(interaction, this.sql);
@@ -461,6 +488,9 @@ export class StardewDO implements DurableObject {
 				const s = getStatus(this.sql);
 				// const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
 				const lastUpdatedMs = Math.max(
+					s.artisanGoodsLastUpdated
+						? new Date(s.artisanGoodsLastUpdated).getTime()
+						: 0,
 					s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
 					s.craftedItemsLastUpdated
 						? new Date(s.craftedItemsLastUpdated).getTime()
@@ -495,6 +525,11 @@ export class StardewDO implements DurableObject {
 								title: "The Farm Computer — Status",
 								color: 0x5b8a3c,
 								fields: [
+									{
+										name: `Artisan Goods: ${s.artisanGoodCount}`,
+										value: "",
+										inline: false,
+									},
 									{
 										name: `Books: ${s.bookCount}`,
 										value: "",

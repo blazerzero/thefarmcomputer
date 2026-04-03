@@ -287,4 +287,26 @@ export function initDb(sql: SqlStorage): void {
       last_updated  TEXT
     )
   `);
+
+	sql.exec("DROP TABLE artisan_goods");
+	sql.exec(`
+    CREATE TABLE IF NOT EXISTS artisan_goods (
+      id                   INTEGER PRIMARY KEY,
+      name                 TEXT UNIQUE NOT NULL,
+      machine              TEXT,
+      description          TEXT,
+      ingredients          TEXT,
+      processing_time      TEXT,
+      sell_price           TEXT,
+      energy               TEXT,
+      health               TEXT,
+      buffs                TEXT,
+      cask_days_to_silver  INTEGER,
+      cask_days_to_gold    INTEGER,
+      cask_days_to_iridium INTEGER,
+      image_url            TEXT,
+      wiki_url             TEXT,
+      last_updated         TEXT
+    )
+  `);
 }
