@@ -288,7 +288,6 @@ export function initDb(sql: SqlStorage): void {
     )
   `);
 
-	sql.exec("DROP TABLE artisan_goods");
 	sql.exec(`
     CREATE TABLE IF NOT EXISTS artisan_goods (
       id                   INTEGER PRIMARY KEY,
