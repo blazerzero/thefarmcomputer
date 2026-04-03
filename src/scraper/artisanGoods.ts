@@ -1,7 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { ArtisanGoodRow } from "@/types";
-import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
+import { fetchPage, parseListCell, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
@@ -52,6 +52,54 @@ function parseDaysForAging(cell: HTMLElement): number | null {
 	return m ? parseInt(m[1]!, 10) : null;
 }
 
+// ── Rowspan resolution ────────────────────────────────────────────────────────
+
+/**
+ * Expand a list of HTML table rows into a 2-D grid, filling in cells that
+ * span multiple rows (rowspan) so every logical row has a cell at every
+ * column index.  The same HTMLElement reference is reused for carried cells,
+ * which lets callers detect them via identity comparison (===).
+ */
+function resolveRowspans(rows: HTMLElement[]): Array<(HTMLElement | null)[]> {
+	const carries = new Map<number, { cell: HTMLElement; remaining: number }>();
+	const grid: Array<(HTMLElement | null)[]> = [];
+
+	for (const row of rows) {
+		const rawCells = row.querySelectorAll(
+			":scope > td",
+		) as unknown as HTMLElement[];
+		const resolved: (HTMLElement | null)[] = [];
+		let rawIdx = 0;
+		let col = 0;
+
+		while (true) {
+			const carry = carries.get(col);
+			if (carry && carry.remaining > 0) {
+				resolved[col] = carry.cell;
+				carry.remaining--;
+				col++;
+			} else if (rawIdx < rawCells.length) {
+				const cell = rawCells[rawIdx++]!;
+				const rowspan = parseInt(cell.getAttribute("rowspan") ?? "1", 10);
+				const colspan = parseInt(cell.getAttribute("colspan") ?? "1", 10);
+				for (let c = col; c < col + colspan; c++) {
+					resolved[c] = cell;
+					if (rowspan > 1) {
+						carries.set(c, { cell, remaining: rowspan - 1 });
+					}
+				}
+				col += colspan;
+			} else {
+				break;
+			}
+		}
+
+		grid.push(resolved);
+	}
+
+	return grid;
+}
+
 // ── Column index builder ──────────────────────────────────────────────────────
 
 /**
@@ -59,6 +107,11 @@ function parseDaysForAging(cell: HTMLElement): number | null {
  *
  * isCask: when true, the Silver/Gold/Iridium columns represent days-to-age
  *         rather than sell prices; they are mapped to "daysSilver" etc.
+ *
+ * When the sell-price header spans multiple columns (e.g. Bee House's
+ * "Base Sell Price" with colspan=2), `sell` points to the rightmost column
+ * (the actual price) and `sellLabel` points to the leftmost (the type label,
+ * e.g. "Wild" / "Tulip").
  */
 function buildColIdx(
 	headerRow: HTMLElement,
@@ -106,13 +159,38 @@ function buildColIdx(
 			text === "price" ||
 			text === "selling price"
 		) {
-			colIdx.sell = colI;
+			// The price is always the rightmost column of the sell section.
+			// For colspan=1 this is the same as colI; for colspan=2 (e.g. Bee
+			// House) the first column is a label (flower type) and the second
+			// is the price.
+			colIdx.sell = colI + colspan - 1;
+			if (colspan > 1) colIdx.sellLabel = colI;
 		}
 
 		colI += colspan;
 	}
 
 	return colIdx;
+}
+
+// ── Grid helpers ──────────────────────────────────────────────────────────────
+
+function stripHidden(cell: HTMLElement): void {
+	cell
+		.querySelectorAll('[style*="display: none"], style')
+		.forEach((el) => el.remove());
+}
+
+function getGridCell(
+	gridRow: (HTMLElement | null)[],
+	colIdx: Record<string, number>,
+	key: string,
+): HTMLElement | null {
+	const idx = colIdx[key];
+	if (idx === undefined) return null;
+	const cell = gridRow[idx] ?? null;
+	if (cell) stripHidden(cell);
+	return cell;
 }
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
@@ -129,6 +207,13 @@ export async function scrapeArtisanGoods(): Promise<
 		string,
 		Omit<ArtisanGoodRow, "id" | "last_updated">
 	>();
+
+	// Variant data for multi-row items (e.g. Oil with three possible inputs,
+	// Honey with flower-specific sell prices).
+	type IngredientVariant = { ingredient: string; time: string };
+	type SellVariant = { label: string; price: string };
+	const ingredientVariantMap = new Map<string, IngredientVariant[]>();
+	const sellVariantMap = new Map<string, SellVariant[]>();
 
 	const elements = content.querySelectorAll(
 		"h2, h3, table.wikitable",
@@ -175,23 +260,22 @@ export async function scrapeArtisanGoods(): Promise<
 
 		if (colIdx.name === undefined) continue;
 
-		const seenNameCells = new Set<HTMLElement>();
+		// Resolve rowspans so every grid row has every cell at its logical index.
+		// Cells shared across rows via rowspan are the same HTMLElement reference,
+		// which lets us detect sub-rows by identity comparison below.
+		const grid = resolveRowspans(allRows.slice(1));
 
-		for (let i = 1; i < allRows.length; i++) {
-			const row = allRows[i]!;
-			const cells = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
-			if (cells.length === 0) continue;
+		// Track the first (main) grid row seen for each item name, per table.
+		const mainGridRowByName = new Map<string, (HTMLElement | null)[]>();
 
-			const nameCell = getCol(colIdx, cells, "name");
+		for (let i = 0; i < grid.length; i++) {
+			const gridRow = grid[i]!;
+
+			const nameCell = getGridCell(gridRow, colIdx, "name");
 			if (!nameCell) continue;
 
 			const nameLink = nameCell.querySelector("a");
 			if (!nameLink) continue;
-
-			if (seenNameCells.has(nameCell)) continue;
-			seenNameCells.add(nameCell);
 
 			const itemName = nameLink.text.trim();
 			if (!itemName || itemName.toLowerCase() === "name") continue;
@@ -199,8 +283,8 @@ export async function scrapeArtisanGoods(): Promise<
 			const href = nameLink.getAttribute("href") ?? "";
 			const wikiUrl = href.startsWith("http") ? href : WIKI_BASE + href;
 
-			// Image
-			const imageCell = getCol(colIdx, cells, "image");
+			// Image (shared across sub-rows via rowspan, so only the first hit matters)
+			const imageCell = getGridCell(gridRow, colIdx, "image");
 			let imageUrl: string | null = null;
 			if (imageCell) {
 				const img = imageCell.querySelector("img");
@@ -208,25 +292,78 @@ export async function scrapeArtisanGoods(): Promise<
 				if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
 			}
 
+			const isSubRow = mainGridRowByName.has(itemName);
+
+			if (isSubRow) {
+				// ── Sub-row: collect variant data ─────────────────────────────────
+				const mainRow = mainGridRowByName.get(itemName)!;
+
+				// Ingredient variant (e.g. Oil: Corn / Sunflower Seeds / Sunflower)
+				if (colIdx.ingredients !== undefined) {
+					const ingCell = gridRow[colIdx.ingredients];
+					if (ingCell && ingCell !== mainRow[colIdx.ingredients]) {
+						stripHidden(ingCell);
+						const timeIdx = colIdx.processing_time;
+						const timeCell =
+							timeIdx !== undefined ? (gridRow[timeIdx] ?? null) : null;
+						if (timeCell) stripHidden(timeCell);
+
+						const ingText = parseListCell(ingCell).join(", ");
+						const time = timeCell?.text.trim() ?? "";
+
+						const variants = ingredientVariantMap.get(itemName) ?? [];
+						variants.push({ ingredient: ingText, time });
+						ingredientVariantMap.set(itemName, variants);
+					}
+				}
+
+				// Sell-price variant (e.g. Honey: 100g Wild / 160g Tulip / …)
+				if (colIdx.sell !== undefined) {
+					const priceCell = gridRow[colIdx.sell];
+					if (priceCell && priceCell !== mainRow[colIdx.sell]) {
+						stripHidden(priceCell);
+						const labelIdx = colIdx.sellLabel;
+						const labelCell =
+							labelIdx !== undefined ? (gridRow[labelIdx] ?? null) : null;
+						if (labelCell) stripHidden(labelCell);
+
+						const price = parsePrices(priceCell) ?? "";
+						const label =
+							labelCell?.querySelector(".nametemplate a")?.text.trim() ??
+							labelCell?.text.trim() ??
+							"";
+
+						const variants = sellVariantMap.get(itemName) ?? [];
+						variants.push({ label, price });
+						sellVariantMap.set(itemName, variants);
+					}
+				}
+
+				continue;
+			}
+
+			// ── Main row ──────────────────────────────────────────────────────────
+			mainGridRowByName.set(itemName, gridRow);
+
 			if (isCaskSection) {
 				// ── Cask section: merge aging days into existing entries ───────────
 
 				const caskDaysSilver = (() => {
-					const c = getCol(colIdx, cells, "daysSilver");
+					const c = getGridCell(gridRow, colIdx, "daysSilver");
 					return c ? parseDaysForAging(c) : null;
 				})();
 				let caskDaysGold = (() => {
-					const c = getCol(colIdx, cells, "daysGold");
+					const c = getGridCell(gridRow, colIdx, "daysGold");
 					return c ? parseDaysForAging(c) : null;
 				})();
 				let caskDaysIridium = (() => {
-					const c = getCol(colIdx, cells, "daysIridium");
+					const c = getGridCell(gridRow, colIdx, "daysIridium");
 					return c ? parseDaysForAging(c) : null;
 				})();
 				if (caskDaysSilver && caskDaysGold) caskDaysGold += caskDaysSilver;
 				if (caskDaysGold && caskDaysIridium) caskDaysIridium += caskDaysGold;
 
-				const sellCell = getCol(colIdx, cells, "sell");
+				const sellCell = getGridCell(gridRow, colIdx, "sell");
 				const sellPrice = parsePrices(sellCell);
 
 				const existing = itemMap.get(itemName);
@@ -260,14 +397,18 @@ export async function scrapeArtisanGoods(): Promise<
 				// ── Normal artisan goods section ──────────────────────────────────
 
 				const description =
-					getCol(colIdx, cells, "description")?.text.trim() || null;
+					getGridCell(gridRow, colIdx, "description")?.text.trim() || null;
 
-				const ingredientsCell = getCol(colIdx, cells, "ingredients");
+				const ingredientsCell = getGridCell(gridRow, colIdx, "ingredients");
 				const ingredients = ingredientsCell
 					? parseListCell(ingredientsCell)
 					: null;
 
-				const processingTimeCell = getCol(colIdx, cells, "processing_time");
+				const processingTimeCell = getGridCell(
+					gridRow,
+					colIdx,
+					"processing_time",
+				);
 				const processing_time = processingTimeCell
 					? processingTimeCell.text.trim() || null
 					: null;
@@ -280,10 +421,10 @@ export async function scrapeArtisanGoods(): Promise<
 					colIdx.iridium !== undefined;
 
 				if (hasSeparateQualityCols) {
-					const normalCell = getCol(colIdx, cells, "sell");
+					const normalCell = getGridCell(gridRow, colIdx, "sell");
 					if (normalCell) sellPrice = normalCell.text.trim();
 				} else {
-					const priceCell = getCol(colIdx, cells, "sell");
+					const priceCell = getGridCell(gridRow, colIdx, "sell");
 					sellPrice = parsePrices(priceCell);
 				}
 
@@ -291,9 +432,30 @@ export async function scrapeArtisanGoods(): Promise<
 				let energy: string | null = null;
 				let health: string | null = null;
 				let buffs: string | null = null;
-				const energyCell = getCol(colIdx, cells, "energy");
+				const energyCell = getGridCell(gridRow, colIdx, "energy");
 				if (energyCell)
 					[energy, health, buffs] = parseEnergyHealthBuffs(energyCell);
+
+				// Initialise ingredient variants for items that may have sub-rows
+				// where the ingredient (and therefore processing time) differs per row.
+				if (ingredients && ingredients.length > 0 && processing_time) {
+					ingredientVariantMap.set(itemName, [
+						{ ingredient: ingredients[0]!, time: processing_time },
+					]);
+				}
+
+				// Initialise sell-price variants for tables with a multi-column sell
+				// header (e.g. Bee House: label column + price column).
+				if (colIdx.sellLabel !== undefined && sellPrice) {
+					const labelIdx = colIdx.sellLabel;
+					const labelCell = gridRow[labelIdx] ?? null;
+					if (labelCell) stripHidden(labelCell);
+					const label =
+						labelCell?.querySelector(".nametemplate a")?.text.trim() ??
+						labelCell?.text.trim() ??
+						"";
+					sellVariantMap.set(itemName, [{ label, price: sellPrice }]);
+				}
 
 				const existing = itemMap.get(itemName);
 				if (existing) {
@@ -329,6 +491,49 @@ export async function scrapeArtisanGoods(): Promise<
 				}
 			}
 		}
+	}
+
+	// ── Post-process multi-variant items ──────────────────────────────────────
+
+	const stripQty = (s: string) => s.replace(/\s*\(\d+\)\s*$/, "").trim();
+
+	// Items like Oil where the ingredient (and processing time) varies per input.
+	// Rebuild ingredients as an array of all options and format processing_time
+	// as one "Ingredient: Time" line per variant.
+	for (const [itemName, variants] of ingredientVariantMap) {
+		if (variants.length <= 1) continue;
+		const item = itemMap.get(itemName);
+		if (!item) continue;
+
+		item.ingredients = JSON.stringify(
+			variants.flatMap((v, i) =>
+				i === 0 ? [v.ingredient] : ["or", v.ingredient],
+			),
+		);
+		item.processing_time = variants
+			.map((v) => `${stripQty(v.ingredient)}: ${v.time}`)
+			.join("\n");
+	}
+
+	// Items like Honey where the sell price varies by input (nearby flower).
+	// Collapse duplicates (same flower grows in multiple seasons) and format as
+	// one "price (label)" line per unique variant.
+	for (const [itemName, variants] of sellVariantMap) {
+		if (variants.length <= 1) continue;
+		const item = itemMap.get(itemName);
+		if (!item) continue;
+
+		const seen = new Set<string>();
+		const unique = variants.filter((v) => {
+			const key = `${v.label}:${v.price}`;
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+
+		item.sell_price = unique
+			.map((v) => (v.label ? `${v.label}: ${v.price}` : v.price))
+			.join("\n");
 	}
 
 	const results = Array.from(itemMap.values());

@@ -41,14 +41,14 @@ export function handleArtisan(
 	if (item.processing_time) {
 		fields.push({
 			name: "Processing Time",
-			value: item.processing_time,
+			value: renderDotList(item.processing_time.split("\n")),
 			inline: true,
 		});
 	}
 
 	fields.push({
 		name: "Base Sell Value",
-		value: item.sell_price || "N/A",
+		value: item.sell_price ? renderDotList(item.sell_price.split("\n")) : "N/A",
 		inline: true,
 	});
 
