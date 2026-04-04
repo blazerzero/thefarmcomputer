@@ -1,5 +1,6 @@
 import { formatDate } from "@/constants";
 import { getCrop } from "@/db";
+import { Crop } from "@/types";
 import {
 	embedResponse,
 	formatPriceTiers,
@@ -8,6 +9,23 @@ import {
 	renderDotList,
 	seasonColor,
 } from "./utils";
+
+const getEnergyHealthValue = (crop: Crop) => {
+	if (crop.energy === null && crop.health === null) return "Inedible";
+	const tiers = [
+		["Normal", crop.energy, crop.health],
+		["Silver", crop.energy_silver, crop.health_silver],
+		["Gold", crop.energy_gold, crop.health_gold],
+		["Iridium", crop.energy_iridium, crop.health_iridium],
+	] as [string, number | null, number | null][];
+	const lines = tiers
+		.filter(([, e, h]) => e !== null || h !== null)
+		.map(([label, e, h], _, { length }) => {
+			const val = `${e ?? "-"} / ${h ?? "—"}`;
+			return length > 1 ? `${label}: ${val}` : val;
+		});
+	return lines.join("\n") || "—";
+};
 
 export function handleCrop(
 	interaction: Record<string, unknown>,
@@ -21,23 +39,6 @@ export function handleCrop(
 			`No crop named **${name}** found. Check the spelling (e.g. \`Parsnip\`, \`Blueberry\`).`,
 		);
 	}
-
-	const energyHealthValue = (() => {
-		if (crop.energy === null && crop.health === null) return "Inedible";
-		const tiers = [
-			["Normal", crop.energy, crop.health],
-			["Silver", crop.energy_silver, crop.health_silver],
-			["Gold", crop.energy_gold, crop.health_gold],
-			["Iridium", crop.energy_iridium, crop.health_iridium],
-		] as [string, number | null, number | null][];
-		const lines = tiers
-			.filter(([, e, h]) => e !== null || h !== null)
-			.map(([label, e, h], _, { length }) => {
-				const val = `${e ?? "-"} / ${h ?? "—"}`;
-				return length > 1 ? `${label}: ${val}` : val;
-			});
-		return lines.join("\n") || "—";
-	})();
 
 	return embedResponse({
 		title: crop.name,
@@ -87,7 +88,7 @@ export function handleCrop(
 			},
 			{
 				name: "Energy / Health",
-				value: energyHealthValue,
+				value: getEnergyHealthValue(crop),
 				inline: true,
 			},
 			...(crop.used_in.length > 0
