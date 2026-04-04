@@ -121,10 +121,10 @@ describe("handleCrop", () => {
 
 		const ehField = fields.find((f) => f.name === "Energy / Health");
 		expect(ehField).toBeDefined();
-		expect(ehField?.value).toContain("Normal: +32 / +14");
-		expect(ehField?.value).toContain("Silver: +45 / +20");
-		expect(ehField?.value).toContain("Gold: +58 / +26");
-		expect(ehField?.value).toContain("Iridium: +90 / +40");
+		expect(ehField?.value).toContain("Normal: 32 / 14");
+		expect(ehField?.value).toContain("Silver: 45 / 20");
+		expect(ehField?.value).toContain("Gold: 58 / 26");
+		expect(ehField?.value).toContain("Iridium: 90 / 40");
 	});
 
 	it("shows Inedible when energy/health are all null", async () => {
