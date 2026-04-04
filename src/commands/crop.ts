@@ -7,7 +7,6 @@ import {
 	notFoundResponse,
 	renderDotList,
 	seasonColor,
-	sign,
 } from "./utils";
 
 export function handleCrop(
