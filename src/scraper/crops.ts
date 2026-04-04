@@ -1,6 +1,6 @@
 import { HTMLElement, parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
-import type { CropRow } from "@/types";
+import type { Crop, CropRow } from "@/types";
 import { fetchPage, WIKI_BASE } from "./wiki";
 
 function parseIntFrom(text: string): number | null {
@@ -43,7 +43,17 @@ function parseQualityStats(cell: HTMLElement | null): {
 	health_gold: number | null;
 	health_iridium: number | null;
 } {
-	const empty = {
+	const empty: Pick<
+		Crop,
+		| "energy"
+		| "energy_silver"
+		| "energy_gold"
+		| "energy_iridium"
+		| "health"
+		| "health_silver"
+		| "health_gold"
+		| "health_iridium"
+	> = {
 		energy: null,
 		energy_silver: null,
 		energy_gold: null,
@@ -72,13 +82,13 @@ function parseQualityStats(cell: HTMLElement | null): {
 
 		// The value is in the second <td> of the row (first td holds the quality icon)
 		const tds = row.querySelectorAll(":scope > td");
-		const valueTd = tds[1] ?? null;
-		if (!valueTd) continue;
+		const energyTd = tds[1] ?? null;
+		const healthTd = tds[3] ?? null;
+		if (!energyTd && !healthTd) continue;
 
-		const nums = [...valueTd.text.matchAll(/-?\d+/g)].map((m) =>
-			parseInt(m[0]!, 10),
+		const nums = [energyTd, healthTd].map((td) =>
+			td ? parseIntFrom(td.text) : null,
 		);
-		if (nums.length === 0) continue;
 
 		const energy = nums[0] ?? null;
 		const health = nums[1] ?? null;

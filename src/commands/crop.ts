@@ -32,9 +32,9 @@ export function handleCrop(
 			["Iridium", crop.energy_iridium, crop.health_iridium],
 		] as [string, number | null, number | null][];
 		const lines = tiers
-			.filter(([, e]) => e !== null)
+			.filter(([, e, h]) => e !== null || h !== null)
 			.map(([label, e, h], _, { length }) => {
-				const val = `${sign(e!)} / ${h !== null ? sign(h) : "—"}`;
+				const val = `${e ?? "-"} / ${h ?? "—"}`;
 				return length > 1 ? `${label}: ${val}` : val;
 			});
 		return lines.join("\n") || "—";
@@ -96,7 +96,7 @@ export function handleCrop(
 						{
 							name: "Used In",
 							value: renderDotList(crop.used_in),
-							inline: false,
+							inline: true,
 						},
 					]
 				: []),
