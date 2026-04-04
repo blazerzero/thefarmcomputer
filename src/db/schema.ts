@@ -13,6 +13,15 @@ export function initDb(sql: SqlStorage): void {
       sell_price_iridium INTEGER,
       buy_price          INTEGER,
       is_trellis    INTEGER,
+      energy         INTEGER,
+      energy_silver  INTEGER,
+      energy_gold    INTEGER,
+      energy_iridium INTEGER,
+      health         INTEGER,
+      health_silver  INTEGER,
+      health_gold    INTEGER,
+      health_iridium INTEGER,
+      used_in       TEXT,
       image_url     TEXT,
       wiki_url      TEXT,
       last_updated  TEXT
@@ -38,6 +47,23 @@ export function initDb(sql: SqlStorage): void {
 		sql.exec("ALTER TABLE crops ADD COLUMN description TEXT");
 	} catch {
 		/* already exists */
+	}
+	for (const [col, type] of [
+		["energy", "INTEGER"],
+		["energy_silver", "INTEGER"],
+		["energy_gold", "INTEGER"],
+		["energy_iridium", "INTEGER"],
+		["health", "INTEGER"],
+		["health_silver", "INTEGER"],
+		["health_gold", "INTEGER"],
+		["health_iridium", "INTEGER"],
+		["used_in", "TEXT"],
+	] as [string, string][]) {
+		try {
+			sql.exec(`ALTER TABLE crops ADD COLUMN ${col} ${type}`);
+		} catch {
+			/* already exists */
+		}
 	}
 
 	sql.exec(`

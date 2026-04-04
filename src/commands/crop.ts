@@ -5,7 +5,9 @@ import {
 	formatPriceTiers,
 	getOption,
 	notFoundResponse,
+	renderDotList,
 	seasonColor,
+	sign,
 } from "./utils";
 
 export function handleCrop(
@@ -20,6 +22,23 @@ export function handleCrop(
 			`No crop named **${name}** found. Check the spelling (e.g. \`Parsnip\`, \`Blueberry\`).`,
 		);
 	}
+
+	const energyHealthValue = (() => {
+		if (crop.energy === null && crop.health === null) return "Inedible";
+		const tiers = [
+			["Normal", crop.energy, crop.health],
+			["Silver", crop.energy_silver, crop.health_silver],
+			["Gold", crop.energy_gold, crop.health_gold],
+			["Iridium", crop.energy_iridium, crop.health_iridium],
+		] as [string, number | null, number | null][];
+		const lines = tiers
+			.filter(([, e]) => e !== null)
+			.map(([label, e, h], _, { length }) => {
+				const val = `${sign(e!)} / ${h !== null ? sign(h) : "—"}`;
+				return length > 1 ? `${label}: ${val}` : val;
+			});
+		return lines.join("\n") || "—";
+	})();
 
 	return embedResponse({
 		title: crop.name,
@@ -67,6 +86,20 @@ export function handleCrop(
 				value: crop.is_trellis ? "Yes" : "No",
 				inline: true,
 			},
+			{
+				name: "Energy / Health",
+				value: energyHealthValue,
+				inline: true,
+			},
+			...(crop.used_in.length > 0
+				? [
+						{
+							name: "Used In",
+							value: renderDotList(crop.used_in),
+							inline: false,
+						},
+					]
+				: []),
 		],
 		footer: crop.last_updated
 			? {

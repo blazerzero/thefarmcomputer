@@ -13,6 +13,7 @@ export function getCropsBySeason(sql: SqlStorage, season: string): Crop[] {
 		return rows.map((row) => ({
 			...row,
 			seasons: JSON.parse(row.seasons || "[]") as string[],
+			used_in: JSON.parse(row.used_in || "[]") as string[],
 		}));
 	} catch (err) {
 		console.error("DB error in getCropsBySeason:", err);
@@ -32,7 +33,11 @@ export function getCrop(sql: SqlStorage, name: string): Crop | null {
 			)
 			.one() as unknown as CropRow | null;
 		if (!row) return null;
-		return { ...row, seasons: JSON.parse(row.seasons || "[]") as string[] };
+		return {
+			...row,
+			seasons: JSON.parse(row.seasons || "[]") as string[],
+			used_in: JSON.parse(row.used_in || "[]") as string[],
+		};
 	} catch (err) {
 		console.error("DB error in getCrop:", err);
 		return null;
@@ -47,8 +52,11 @@ export function upsertCrop(
 		`INSERT INTO crops
        (name, description, seasons, growth_days, regrowth_days,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
-        buy_price, is_trellis, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        buy_price, is_trellis,
+        energy, energy_silver, energy_gold, energy_iridium,
+        health, health_silver, health_gold, health_iridium,
+        used_in, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        description        = excluded.description,
        seasons            = excluded.seasons,
@@ -60,6 +68,15 @@ export function upsertCrop(
        sell_price_iridium = excluded.sell_price_iridium,
        buy_price          = excluded.buy_price,
        is_trellis         = excluded.is_trellis,
+       energy             = excluded.energy,
+       energy_silver      = excluded.energy_silver,
+       energy_gold        = excluded.energy_gold,
+       energy_iridium     = excluded.energy_iridium,
+       health             = excluded.health,
+       health_silver      = excluded.health_silver,
+       health_gold        = excluded.health_gold,
+       health_iridium     = excluded.health_iridium,
+       used_in            = excluded.used_in,
        image_url          = excluded.image_url,
        wiki_url           = excluded.wiki_url,
        last_updated       = excluded.last_updated`,
@@ -74,6 +91,15 @@ export function upsertCrop(
 		data.sell_price_iridium,
 		data.buy_price,
 		data.is_trellis,
+		data.energy,
+		data.energy_silver,
+		data.energy_gold,
+		data.energy_iridium,
+		data.health,
+		data.health_silver,
+		data.health_gold,
+		data.health_iridium,
+		data.used_in,
 		data.image_url,
 		data.wiki_url,
 		now(),
