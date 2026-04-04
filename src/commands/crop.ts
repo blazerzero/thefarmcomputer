@@ -82,13 +82,13 @@ export function handleCrop(
 				inline: true,
 			},
 			{
-				name: "Trellis",
-				value: crop.is_trellis ? "Yes" : "No",
+				name: "Energy / Health",
+				value: getEnergyHealthValue(crop),
 				inline: true,
 			},
 			{
-				name: "Energy / Health",
-				value: getEnergyHealthValue(crop),
+				name: "Trellis",
+				value: crop.is_trellis ? "Yes" : "No",
 				inline: true,
 			},
 			...(crop.used_in.length > 0
