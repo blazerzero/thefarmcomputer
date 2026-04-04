@@ -2,6 +2,7 @@ export function getStatus(sql: SqlStorage): {
 	artisanGoodCount: number;
 	cropCount: number;
 	villagerCount: number;
+	fruitCount: number;
 	fruitTreeCount: number;
 	fishCount: number;
 	bundleCount: number;
@@ -17,6 +18,7 @@ export function getStatus(sql: SqlStorage): {
 	artisanGoodsLastUpdated: string | null;
 	cropsLastUpdated: string | null;
 	villagersLastUpdated: string | null;
+	fruitsLastUpdated: string | null;
 	fruitTreesLastUpdated: string | null;
 	fishLastUpdated: string | null;
 	bundlesLastUpdated: string | null;
@@ -41,6 +43,11 @@ export function getStatus(sql: SqlStorage): {
 	const villagerRow = sql
 		.exec(
 			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM villagers",
+		)
+		.one() as { n: number; last_updated: string | null } | null;
+	const fruitRow = sql
+		.exec(
+			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fruits",
 		)
 		.one() as { n: number; last_updated: string | null } | null;
 	const fruitTreeRow = sql
@@ -101,6 +108,7 @@ export function getStatus(sql: SqlStorage): {
 		artisanGoodCount: artisanGoodRow?.n ?? 0,
 		cropCount: cropRow?.n ?? 0,
 		villagerCount: villagerRow?.n ?? 0,
+		fruitCount: fruitRow?.n ?? 0,
 		fruitTreeCount: fruitTreeRow?.n ?? 0,
 		fishCount: fishRow?.n ?? 0,
 		bundleCount: bundleRow?.n ?? 0,
@@ -116,6 +124,7 @@ export function getStatus(sql: SqlStorage): {
 		artisanGoodsLastUpdated: artisanGoodRow?.last_updated ?? null,
 		cropsLastUpdated: cropRow?.last_updated ?? null,
 		villagersLastUpdated: villagerRow?.last_updated ?? null,
+		fruitsLastUpdated: fruitRow?.last_updated ?? null,
 		fruitTreesLastUpdated: fruitTreeRow?.last_updated ?? null,
 		fishLastUpdated: fishRow?.last_updated ?? null,
 		bundlesLastUpdated: bundleRow?.last_updated ?? null,

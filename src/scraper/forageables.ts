@@ -6,7 +6,7 @@ import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
 import { SEASONS } from "@/constants";
 import type { ForageableRow } from "@/types";
-import { fetchPage, WIKI_BASE } from "./wiki";
+import { fetchPage, parseQualityStats, WIKI_BASE } from "./wiki";
 
 function parseUsedInCell(cell: HTMLElement): string[] {
 	const items = cell.querySelectorAll(":scope > span, :scope > p");
@@ -31,12 +31,6 @@ function parsePrices(
 		matches[2] ?? null,
 		matches[3] ?? null,
 	];
-}
-
-function parseEnergyHealth(text: string): [number | null, number | null] {
-	// Match signed integers in the cell (covers negative values like -50)
-	const matches = [...text.matchAll(/-?\d+/g)].map((m) => parseInt(m[0]!, 10));
-	return [matches[0] ?? null, matches[1] ?? null];
 }
 
 function parseLocations(text: string): string[] {
@@ -186,9 +180,12 @@ export async function scrapeForageables(): Promise<
 				cellText(idxSell),
 			);
 
-			// Energy / Health
-			const [energy, health] =
-				idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
+			// Energy / Health — all quality tiers from nested table
+			const qualityStats = parseQualityStats(
+				idxEnergy >= 0 && idxEnergy < cells.length
+					? (cells[idxEnergy] ?? null)
+					: null,
+			);
 
 			// Used In — split on real line boundaries (<li> or <br>) so that
 			// comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" remain
@@ -233,8 +230,7 @@ export async function scrapeForageables(): Promise<
 				sell_price_silver: sellSilver,
 				sell_price_gold: sellGold,
 				sell_price_iridium: sellIridium,
-				energy,
-				health,
+				...qualityStats,
 				used_in: JSON.stringify(usedIn),
 				image_url: imageUrl,
 				wiki_url: wikiUrl,

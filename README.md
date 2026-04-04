@@ -13,7 +13,8 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 | `/crop <name>` | Look up a crop — seasons, growth time, seed price, and sell prices by quality |
 | `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
 | `/footwear <name>` | Look up a piece of footwear — stats, source, purchase price, and sell price |
-| `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health, and sell prices by quality |
+| `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health by quality, and sell prices by quality |
+| `/fruit <name>` | Look up a fruit item — source, seasons, energy/health by quality, and sell prices by quality |
 | `/fruit-tree <name>` | Look up a fruit tree — harvest season, growth time, sapling price, and sell prices by quality |
 | `/gift <villager> [tier]` | Look up a villager's gift preferences (loved, liked, neutral, disliked, hated) and birthday |
 | `/ingredient <name>` | Find all crafting recipes that use the given item as an ingredient |

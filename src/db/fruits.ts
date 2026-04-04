@@ -1,49 +1,45 @@
-import type { Forageable, ForageableRow } from "@/types";
+import type { Fruit, FruitRow } from "@/types";
 
 const now = () => new Date().toISOString();
 
-export function getForageable(
-	sql: SqlStorage,
-	name: string,
-): Forageable | null {
+export function getFruit(sql: SqlStorage, name: string): Fruit | null {
 	try {
 		const row = sql
 			.exec(
-				`SELECT * FROM forageables WHERE name LIKE ?
+				`SELECT * FROM fruits WHERE name LIKE ?
          ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
          LIMIT 1`,
 				`%${name}%`,
 				name,
 			)
-			.one() as unknown as ForageableRow | null;
+			.one() as unknown as FruitRow | null;
 		if (!row) return null;
 		return {
 			...row,
 			seasons: JSON.parse(row.seasons || "[]") as string[],
-			locations: JSON.parse(row.locations || "[]") as string[],
 			used_in: JSON.parse(row.used_in || "[]") as string[],
 		};
 	} catch (err) {
-		console.error("DB error in getForageable:", err);
+		console.error("DB error in getFruit:", err);
 		return null;
 	}
 }
 
-export function upsertForageable(
+export function upsertFruit(
 	sql: SqlStorage,
-	data: Omit<ForageableRow, "id" | "last_updated">,
+	data: Omit<FruitRow, "id" | "last_updated">,
 ): void {
 	sql.exec(
-		`INSERT INTO forageables
-       (name, seasons, locations,
+		`INSERT INTO fruits
+       (name, source, seasons,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
         energy, energy_silver, energy_gold, energy_iridium,
         health, health_silver, health_gold, health_iridium,
         used_in, image_url, wiki_url, last_updated)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
+       source             = excluded.source,
        seasons            = excluded.seasons,
-       locations          = excluded.locations,
        sell_price         = excluded.sell_price,
        sell_price_silver  = excluded.sell_price_silver,
        sell_price_gold    = excluded.sell_price_gold,
@@ -61,8 +57,8 @@ export function upsertForageable(
        wiki_url           = excluded.wiki_url,
        last_updated       = excluded.last_updated`,
 		data.name,
+		data.source,
 		data.seasons,
-		data.locations,
 		data.sell_price,
 		data.sell_price_silver,
 		data.sell_price_gold,
@@ -82,10 +78,10 @@ export function upsertForageable(
 	);
 }
 
-export function countForageables(sql: SqlStorage): number {
+export function countFruits(sql: SqlStorage): number {
 	return (
 		(
-			sql.exec("SELECT COUNT(*) AS n FROM forageables").one() as {
+			sql.exec("SELECT COUNT(*) AS n FROM fruits").one() as {
 				n: number;
 			} | null
 		)?.n ?? 0

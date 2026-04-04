@@ -19,6 +19,7 @@ export {
 	getForageable,
 	upsertForageable,
 } from "./forageables";
+export { countFruits, getFruit, upsertFruit } from "./fruits";
 export { countFruitTrees, getFruitTree, upsertFruitTree } from "./fruitTrees";
 export { countMinerals, getMineral, upsertMineral } from "./minerals";
 export { countMonsters, getMonster, upsertMonster } from "./monsters";

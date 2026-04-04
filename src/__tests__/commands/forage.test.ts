@@ -11,7 +11,13 @@ const fakeForageRow = {
 	sell_price_gold: 45,
 	sell_price_iridium: 60,
 	energy: 22,
+	energy_silver: null,
+	energy_gold: null,
+	energy_iridium: null,
 	health: 9,
+	health_silver: null,
+	health_gold: null,
+	health_iridium: null,
 	used_in: '["Dye Pots"]',
 	image_url: "https://example.com/daffodil.png",
 	wiki_url: "https://stardewvalleywiki.com/Daffodil",
@@ -57,13 +63,14 @@ describe("handleForage", () => {
 		expect(fields).toContainEqual(
 			expect.objectContaining({
 				name: "Energy / Health",
-				value: "22 energy / 9 health",
+				value: "22 / 9",
 			}),
 		);
 
 		const foundField = fields.find((f) => f.name === "Found");
 		expect(foundField?.value).toContain("Pelican Town");
 		expect(foundField?.value).toContain("Forest");
+		expect(foundField?.inline).toBe(false);
 
 		const sellField = fields.find((f) => f.name === "Sells For");
 		expect(sellField?.value).toContain("Normal: 30g");

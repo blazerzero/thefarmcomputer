@@ -9,6 +9,7 @@ export const COMMAND_DESCRIPTIONS: Record<Command, string> = {
 	[Command.FISH]: "Look up info about a fish.",
 	[Command.FOOTWEAR]: "Look up info about a piece of footwear.",
 	[Command.FORAGE]: "Look up info about a forageable item.",
+	[Command.FRUIT]: "Look up info about a fruit item.",
 	[Command.FRUIT_TREE]: "Look up info about a fruit tree.",
 	[Command.GIFT]: "Look up a villager's gift preferences.",
 	[Command.INFO]: "Show the bot's data freshness and record counts.",

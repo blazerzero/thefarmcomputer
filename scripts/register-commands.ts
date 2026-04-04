@@ -155,6 +155,20 @@ const commands = [
 		],
 	},
 	{
+		name: Command.FRUIT,
+		description: COMMAND_DESCRIPTIONS[Command.FRUIT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Fruit name (e.g. Apple, Blueberry, Cranberry)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.BUNDLE,
 		description: COMMAND_DESCRIPTIONS[Command.BUNDLE],
 		integration_types: COMMAND_INTEGRATION_TYPES,

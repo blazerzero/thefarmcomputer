@@ -6,6 +6,7 @@ import { handleCrop } from "@/commands/crop";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
 import { handleForage } from "@/commands/forage";
+import { handleFruit } from "@/commands/fruit";
 import { handleFruitTree } from "@/commands/fruitTree";
 import { handleGift } from "@/commands/gift";
 import { handleIngredient } from "@/commands/ingredient";
@@ -76,6 +77,12 @@ export async function handleWebQuery(
 			break;
 		case Command.FOOTWEAR:
 			handlerResponse = handleFootwear(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
+		case Command.FRUIT:
+			handlerResponse = handleFruit(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
@@ -178,6 +185,7 @@ export async function handleWebQuery(
 				s.forageablesLastUpdated
 					? new Date(s.forageablesLastUpdated).getTime()
 					: 0,
+				s.fruitsLastUpdated ? new Date(s.fruitsLastUpdated).getTime() : 0,
 				s.fruitTreesLastUpdated
 					? new Date(s.fruitTreesLastUpdated).getTime()
 					: 0,
@@ -223,6 +231,11 @@ export async function handleWebQuery(
 							value: "",
 							inline: false,
 						},
+						{
+							name: `Fruits: ${s.fruitCount}`,
+							value: "",
+							inline: false,
+						},
 						{ name: `Minerals: ${s.mineralCount}`, value: "", inline: false },
 						{ name: `Monsters: ${s.monsterCount}`, value: "", inline: false },
 						{ name: `Recipes: ${s.recipeCount}`, value: "", inline: false },
@@ -238,7 +251,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artisan, book, crop, fish, footwear, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: artisan, book, crop, fish, footwear, fruit, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, weapon, schedule, season, info`,
 			});
 	}
 

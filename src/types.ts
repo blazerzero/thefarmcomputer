@@ -156,7 +156,13 @@ export interface ForageableRow {
 	sell_price_gold: number | null;
 	sell_price_iridium: number | null;
 	energy: number | null; // can be negative (e.g. Red Mushroom = -50)
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
 	health: number | null; // can be negative
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
 	used_in: string; // JSON array of item/recipe names
 	image_url: string | null;
 	wiki_url: string;
@@ -168,6 +174,36 @@ export interface Forageable
 	extends Omit<ForageableRow, "seasons" | "locations" | "used_in"> {
 	seasons: string[];
 	locations: string[];
+	used_in: string[];
+}
+
+/** A fruit item row as stored in D1. */
+export interface FruitRow {
+	id?: number;
+	name: string;
+	source: string | null; // e.g. "Farming", "Foraging", "Fruit Tree"
+	seasons: string; // JSON array
+	sell_price: number | null;
+	sell_price_silver: number | null;
+	sell_price_gold: number | null;
+	sell_price_iridium: number | null;
+	energy: number | null; // null for Farming/Foraging sources (tracked elsewhere)
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+	used_in: string; // JSON array of item/recipe names
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A fruit item row with seasons and used_in already decoded. */
+export interface Fruit extends Omit<FruitRow, "seasons" | "used_in"> {
+	seasons: string[];
 	used_in: string[];
 }
 
@@ -383,6 +419,7 @@ export enum Command {
 	FISH = "fish",
 	FOOTWEAR = "footwear",
 	FORAGE = "forage",
+	FRUIT = "fruit",
 	FRUIT_TREE = "fruit-tree",
 	GIFT = "gift",
 	INFO = "info",

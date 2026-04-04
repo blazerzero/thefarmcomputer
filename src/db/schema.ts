@@ -85,6 +85,31 @@ export function initDb(sql: SqlStorage): void {
   `);
 
 	sql.exec(`
+    CREATE TABLE IF NOT EXISTS fruits (
+      id                 INTEGER PRIMARY KEY,
+      name               TEXT UNIQUE NOT NULL,
+      source             TEXT,
+      seasons            TEXT,
+      sell_price         INTEGER,
+      sell_price_silver  INTEGER,
+      sell_price_gold    INTEGER,
+      sell_price_iridium INTEGER,
+      energy             INTEGER,
+      energy_silver      INTEGER,
+      energy_gold        INTEGER,
+      energy_iridium     INTEGER,
+      health             INTEGER,
+      health_silver      INTEGER,
+      health_gold        INTEGER,
+      health_iridium     INTEGER,
+      used_in            TEXT,
+      image_url          TEXT,
+      wiki_url           TEXT,
+      last_updated       TEXT
+    )
+  `);
+
+	sql.exec(`
     CREATE TABLE IF NOT EXISTS fish (
       id                 INTEGER PRIMARY KEY,
       name               TEXT UNIQUE NOT NULL,
@@ -141,6 +166,22 @@ export function initDb(sql: SqlStorage): void {
       last_updated       TEXT
     )
   `);
+
+	// Add quality-tier energy/health columns to existing forageable instances.
+	for (const col of [
+		"energy_silver",
+		"energy_gold",
+		"energy_iridium",
+		"health_silver",
+		"health_gold",
+		"health_iridium",
+	]) {
+		try {
+			sql.exec(`ALTER TABLE forageables ADD COLUMN ${col} INTEGER`);
+		} catch {
+			/* already exists */
+		}
+	}
 
 	sql.exec(`
     CREATE TABLE IF NOT EXISTS minerals (

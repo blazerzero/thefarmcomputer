@@ -1,7 +1,7 @@
 import { HTMLElement, parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
-import type { Crop, CropRow } from "@/types";
-import { fetchPage, WIKI_BASE } from "./wiki";
+import type { CropRow } from "@/types";
+import { fetchPage, parseQualityStats, WIKI_BASE } from "./wiki";
 
 function parseIntFrom(text: string): number | null {
 	const m = text.replace(/,/g, "").match(/\d+/);
@@ -25,90 +25,6 @@ function parseSeasons(text: string): string[] {
 			textToRead.toLowerCase().includes(`and ${s.toLowerCase()}`) ||
 			textToRead.toLowerCase().includes(`or ${s.toLowerCase()}`),
 	);
-}
-
-/**
- * Parse per-quality energy and health values from the Energy/Health cell.
- * Each quality tier is represented as a row in a nested table; the quality is
- * identified by the img alt text in the .foreimage div (empty = base quality).
- * Returns all-null if the cell says "Inedible" or is absent.
- */
-function parseQualityStats(cell: HTMLElement | null): {
-	energy: number | null;
-	energy_silver: number | null;
-	energy_gold: number | null;
-	energy_iridium: number | null;
-	health: number | null;
-	health_silver: number | null;
-	health_gold: number | null;
-	health_iridium: number | null;
-} {
-	const empty: Pick<
-		Crop,
-		| "energy"
-		| "energy_silver"
-		| "energy_gold"
-		| "energy_iridium"
-		| "health"
-		| "health_silver"
-		| "health_gold"
-		| "health_iridium"
-	> = {
-		energy: null,
-		energy_silver: null,
-		energy_gold: null,
-		energy_iridium: null,
-		health: null,
-		health_silver: null,
-		health_gold: null,
-		health_iridium: null,
-	};
-	if (!cell) return empty;
-	if (cell.text.toLowerCase().includes("inedible")) return empty;
-
-	const result = { ...empty };
-
-	for (const row of cell.querySelectorAll("tr")) {
-		const img = row.querySelector(".foreimage img");
-		const alt = (img?.getAttribute("alt") ?? "").toLowerCase();
-
-		const tier = alt.includes("silver")
-			? "silver"
-			: alt.includes("gold")
-				? "gold"
-				: alt.includes("iridium")
-					? "iridium"
-					: "base";
-
-		// The value is in the second <td> of the row (first td holds the quality icon)
-		const tds = row.querySelectorAll(":scope > td");
-		const energyTd = tds[1] ?? null;
-		const healthTd = tds[3] ?? null;
-		if (!energyTd && !healthTd) continue;
-
-		const nums = [energyTd, healthTd].map((td) =>
-			td ? parseIntFrom(td.text) : null,
-		);
-
-		const energy = nums[0] ?? null;
-		const health = nums[1] ?? null;
-
-		if (tier === "base") {
-			result.energy = energy;
-			result.health = health;
-		} else if (tier === "silver") {
-			result.energy_silver = energy;
-			result.health_silver = health;
-		} else if (tier === "gold") {
-			result.energy_gold = energy;
-			result.health_gold = health;
-		} else {
-			result.energy_iridium = energy;
-			result.health_iridium = health;
-		}
-	}
-
-	return result;
 }
 
 /**

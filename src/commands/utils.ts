@@ -92,6 +92,33 @@ export const renderDotList = (items: string[]): string => {
 		.slice(0, 1024);
 };
 
+/** Format quality-tiered energy/health values into a display string. */
+export function getEnergyHealthValue(item: {
+	energy: number | null;
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+}): string {
+	if (item.energy === null && item.health === null) return "Inedible";
+	const tiers = [
+		["Normal", item.energy, item.health],
+		["Silver", item.energy_silver, item.health_silver],
+		["Gold", item.energy_gold, item.health_gold],
+		["Iridium", item.energy_iridium, item.health_iridium],
+	] as [string, number | null, number | null][];
+	const lines = tiers
+		.filter(([, e, h]) => e !== null || h !== null)
+		.map(([label, e, h], _, { length }) => {
+			const val = `${e ?? "-"} / ${h ?? "—"}`;
+			return length > 1 ? `${label}: ${val}` : val;
+		});
+	return lines.join("\n") || "—";
+}
+
 /** Format a number with an explicit sign: +3, -2, +0. */
 export const sign = (n: number): string => (n >= 0 ? `+${n}` : String(n));
 

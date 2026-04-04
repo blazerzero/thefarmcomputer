@@ -6,6 +6,7 @@ import { handleCrop } from "@/commands/crop";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
 import { handleForage } from "@/commands/forage";
+import { handleFruit } from "@/commands/fruit";
 import { handleFruitTree } from "@/commands/fruitTree";
 import { handleGift } from "@/commands/gift";
 import { handleIngredient } from "@/commands/ingredient";
@@ -26,6 +27,7 @@ import {
 	countFish,
 	countFootwear,
 	countForageables,
+	countFruits,
 	countFruitTrees,
 	countMinerals,
 	countMonsters,
@@ -43,6 +45,7 @@ import {
 	upsertFish,
 	upsertFootwear,
 	upsertForageable,
+	upsertFruit,
 	upsertFruitTree,
 	upsertMineral,
 	upsertMonster,
@@ -61,6 +64,7 @@ import { scrapeCrops } from "@/scraper/crops";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
 import { scrapeForageables } from "@/scraper/forageables";
+import { scrapeFruits } from "@/scraper/fruits";
 import { scrapeFruitTrees } from "@/scraper/fruitTrees";
 import { scrapeMinerals } from "@/scraper/minerals";
 import { scrapeMonsters } from "@/scraper/monsters";
@@ -114,6 +118,12 @@ async function refreshForageables(sql: SqlStorage): Promise<number> {
 	const items = await scrapeForageables();
 	for (const item of items) upsertForageable(sql, item);
 	return items.length;
+}
+
+async function refreshFruits(sql: SqlStorage): Promise<number> {
+	const fruits = await scrapeFruits();
+	for (const fruit of fruits) upsertFruit(sql, fruit);
+	return fruits.length;
 }
 
 async function refreshMinerals(sql: SqlStorage): Promise<number> {
@@ -203,6 +213,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Forageables scrape failed:", err);
 	}
 	try {
+		const n = await refreshFruits(sql);
+		console.log(`Updated ${n} fruits`);
+	} catch (err) {
+		console.error("Fruits scrape failed:", err);
+	}
+	try {
 		const n = await refreshMinerals(sql);
 		console.log(`Updated ${n} minerals`);
 	} catch (err) {
@@ -289,6 +305,9 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 		case Command.FORAGE:
 			if (countForageables(sql) === 0) await refreshForageables(sql);
 			break;
+		case Command.FRUIT:
+			if (countFruits(sql) === 0) await refreshFruits(sql);
+			break;
 		case Command.FRUIT_TREE:
 			if (countFruitTrees(sql) === 0) await refreshFruitTrees(sql);
 			break;
@@ -370,6 +389,9 @@ export class StardewDO implements DurableObject {
 			} else if (countArtisanGoods(this.sql) === 0) {
 				// Artisan goods table was added in a later deploy — populate without full refresh
 				await refreshArtisanGoods(this.sql);
+			} else if (countFruits(this.sql) === 0) {
+				// Fruits table was added in a later deploy — populate without full refresh
+				await refreshFruits(this.sql);
 			} else if (villagersNeedScheduleRefresh(this.sql)) {
 				// schedule column was added in a later deploy — re-scrape villagers to populate it
 				const villagers = await scrapeVillagers();
@@ -438,6 +460,10 @@ export class StardewDO implements DurableObject {
 					await refreshForageables(this.sql);
 				return handleForage(interaction, this.sql);
 			}
+			if (commandName === Command.FRUIT) {
+				if (countFruits(this.sql) === 0) await refreshFruits(this.sql);
+				return handleFruit(interaction, this.sql);
+			}
 			if (commandName === Command.FRUIT_TREE) {
 				if (countFruitTrees(this.sql) === 0) await refreshFruitTrees(this.sql);
 				return handleFruitTree(interaction, this.sql);
@@ -500,6 +526,7 @@ export class StardewDO implements DurableObject {
 					s.forageablesLastUpdated
 						? new Date(s.forageablesLastUpdated).getTime()
 						: 0,
+					s.fruitsLastUpdated ? new Date(s.fruitsLastUpdated).getTime() : 0,
 					s.fruitTreesLastUpdated
 						? new Date(s.fruitTreesLastUpdated).getTime()
 						: 0,
@@ -567,6 +594,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Fruit Trees: ${s.fruitTreeCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Fruits: ${s.fruitCount}`,
 										value: "",
 										inline: false,
 									},
