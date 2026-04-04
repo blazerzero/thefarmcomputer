@@ -4,6 +4,7 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeCropRow = {
 	name: "Parsnip",
+	description: "A basic root vegetable that is prized for its speedy growth.",
 	seasons: '["Spring"]',
 	growth_days: 4,
 	regrowth_days: null,
@@ -13,6 +14,15 @@ const fakeCropRow = {
 	sell_price_iridium: 70,
 	buy_price: 20,
 	is_trellis: 0,
+	energy: 32,
+	energy_silver: 45,
+	energy_gold: 58,
+	energy_iridium: 90,
+	health: 14,
+	health_silver: 20,
+	health_gold: 26,
+	health_iridium: 40,
+	used_in: '["Parsnip Soup","Vegetable Medley"]',
 	image_url: "https://example.com/parsnip.png",
 	wiki_url: "https://stardewvalleywiki.com/Parsnip",
 	last_updated: "2024-03-01T00:00:00.000Z",
@@ -24,6 +34,15 @@ const fakeTrellisRow = {
 	seasons: '["Spring"]',
 	is_trellis: 1,
 	regrowth_days: 3,
+	energy: null,
+	energy_silver: null,
+	energy_gold: null,
+	energy_iridium: null,
+	health: null,
+	health_silver: null,
+	health_gold: null,
+	health_iridium: null,
+	used_in: "[]",
 };
 
 function makeInteraction(name: string) {
@@ -74,6 +93,73 @@ describe("handleCrop", () => {
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Regrowth", value: "3 days" }),
 		);
+	});
+
+	it("includes the description in the embed when present", async () => {
+		const res = handleCrop(makeInteraction("parsnip"), makeSql([fakeCropRow]));
+		const json = (await res.json()) as DiscordResponse;
+
+		expect(json.data.embeds?.[0]?.description).toBe(
+			"A basic root vegetable that is prized for its speedy growth.",
+		);
+	});
+
+	it("omits description from the embed when null", async () => {
+		const res = handleCrop(
+			makeInteraction("green bean"),
+			makeSql([{ ...fakeTrellisRow, description: null }]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+
+		expect(json.data.embeds?.[0]?.description).toBeUndefined();
+	});
+
+	it("shows per-quality energy/health tiers", async () => {
+		const res = handleCrop(makeInteraction("parsnip"), makeSql([fakeCropRow]));
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		const ehField = fields.find((f) => f.name === "Energy / Health");
+		expect(ehField).toBeDefined();
+		expect(ehField?.value).toContain("Normal: 32 / 14");
+		expect(ehField?.value).toContain("Silver: 45 / 20");
+		expect(ehField?.value).toContain("Gold: 58 / 26");
+		expect(ehField?.value).toContain("Iridium: 90 / 40");
+	});
+
+	it("shows Inedible when energy/health are all null", async () => {
+		const res = handleCrop(
+			makeInteraction("green bean"),
+			makeSql([fakeTrellisRow]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		expect(fields).toContainEqual(
+			expect.objectContaining({ name: "Energy / Health", value: "Inedible" }),
+		);
+	});
+
+	it("shows used_in list when non-empty", async () => {
+		const res = handleCrop(makeInteraction("parsnip"), makeSql([fakeCropRow]));
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		const usedInField = fields.find((f) => f.name === "Used In");
+		expect(usedInField).toBeDefined();
+		expect(usedInField?.value).toContain("Parsnip Soup");
+		expect(usedInField?.value).toContain("Vegetable Medley");
+	});
+
+	it("omits used_in field when empty", async () => {
+		const res = handleCrop(
+			makeInteraction("green bean"),
+			makeSql([fakeTrellisRow]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		expect(fields.find((f) => f.name === "Used In")).toBeUndefined();
 	});
 
 	it("returns an ephemeral error for an unknown crop", async () => {

@@ -1,6 +1,6 @@
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
-import type { CropRow } from "@/types";
+import type { Crop, CropRow } from "@/types";
 import { fetchPage, WIKI_BASE } from "./wiki";
 
 function parseIntFrom(text: string): number | null {
@@ -27,6 +27,104 @@ function parseSeasons(text: string): string[] {
 	);
 }
 
+/**
+ * Parse per-quality energy and health values from the Energy/Health cell.
+ * Each quality tier is represented as a row in a nested table; the quality is
+ * identified by the img alt text in the .foreimage div (empty = base quality).
+ * Returns all-null if the cell says "Inedible" or is absent.
+ */
+function parseQualityStats(cell: HTMLElement | null): {
+	energy: number | null;
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+} {
+	const empty: Pick<
+		Crop,
+		| "energy"
+		| "energy_silver"
+		| "energy_gold"
+		| "energy_iridium"
+		| "health"
+		| "health_silver"
+		| "health_gold"
+		| "health_iridium"
+	> = {
+		energy: null,
+		energy_silver: null,
+		energy_gold: null,
+		energy_iridium: null,
+		health: null,
+		health_silver: null,
+		health_gold: null,
+		health_iridium: null,
+	};
+	if (!cell) return empty;
+	if (cell.text.toLowerCase().includes("inedible")) return empty;
+
+	const result = { ...empty };
+
+	for (const row of cell.querySelectorAll("tr")) {
+		const img = row.querySelector(".foreimage img");
+		const alt = (img?.getAttribute("alt") ?? "").toLowerCase();
+
+		const tier = alt.includes("silver")
+			? "silver"
+			: alt.includes("gold")
+				? "gold"
+				: alt.includes("iridium")
+					? "iridium"
+					: "base";
+
+		// The value is in the second <td> of the row (first td holds the quality icon)
+		const tds = row.querySelectorAll(":scope > td");
+		const energyTd = tds[1] ?? null;
+		const healthTd = tds[3] ?? null;
+		if (!energyTd && !healthTd) continue;
+
+		const nums = [energyTd, healthTd].map((td) =>
+			td ? parseIntFrom(td.text) : null,
+		);
+
+		const energy = nums[0] ?? null;
+		const health = nums[1] ?? null;
+
+		if (tier === "base") {
+			result.energy = energy;
+			result.health = health;
+		} else if (tier === "silver") {
+			result.energy_silver = energy;
+			result.health_silver = health;
+		} else if (tier === "gold") {
+			result.energy_gold = energy;
+			result.health_gold = health;
+		} else {
+			result.energy_iridium = energy;
+			result.health_iridium = health;
+		}
+	}
+
+	return result;
+}
+
+/**
+ * Parse the Used In cell, which contains a mix of <span> and <p> children
+ * each representing one item/recipe/NPC entry.
+ */
+function parseUsedInCell(cell: HTMLElement): string[] {
+	const items = cell.querySelectorAll(":scope > span, :scope > p");
+	if (items.length > 0) {
+		return items
+			.map((item) => item.text.replace(/\s+/g, " ").trim())
+			.filter((t) => t.length > 0);
+	}
+	return [];
+}
+
 export async function scrapeCrops(): Promise<
 	Omit<CropRow, "id" | "last_updated">[]
 > {
@@ -42,6 +140,7 @@ export async function scrapeCrops(): Promise<
 	let currentWikiUrl = "";
 	let currentImageUrl: string | null = null;
 	let currentIsTrellis = 0;
+	let currentDescription: string | null = null;
 	// Overrides currentSeasons for a specific crop when a "Can be grown in…" paragraph
 	// appears between its H3 heading and its data table.
 	let currentCropSeasonOverride: string[] | null = null;
@@ -82,16 +181,23 @@ export async function scrapeCrops(): Promise<
 			const imgSrc = headline.querySelector("img")?.getAttribute("src") ?? null;
 			currentImageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
 			currentIsTrellis = 0;
+			currentDescription = null;
 			currentCropSeasonOverride = null;
 			continue;
 		}
 
 		// ── Prose between H3 and table ──────────────────────────────────────────
 		if (tag === "P") {
-			if (el.text.toLowerCase().includes("trellis")) currentIsTrellis = 1;
+			const pText = el.text.replace(/\s+/g, " ").trim();
+			if (currentCropName && pText) {
+				currentDescription = currentDescription
+					? `${currentDescription} ${pText}`
+					: pText;
+			}
+			if (pText.toLowerCase().includes("trellis")) currentIsTrellis = 1;
 			// "Can be grown in Spring and Summer" — captures all seasons mentioned
 			if (currentCropName) {
-				const mentioned = parseSeasons(el.text);
+				const mentioned = parseSeasons(pText);
 				if (mentioned.length > 0) currentCropSeasonOverride = mentioned;
 			}
 			continue;
@@ -103,7 +209,7 @@ export async function scrapeCrops(): Promise<
 		const rows = el.querySelectorAll(":scope > tbody > tr");
 		if (rows.length < 2) continue;
 
-		// Header row: Seeds | Stage 1 | … | Harvest | Sells For | …
+		// Header row: Seeds | Stage 1 | … | Harvest | Sells For | Energy/Health | Used In
 		const headerCells = rows[0]!.querySelectorAll(":scope > th");
 		if (headerCells.length === 0) continue;
 		const headers = headerCells.map((th) =>
@@ -114,12 +220,19 @@ export async function scrapeCrops(): Promise<
 		const idxHarvest = headers.findIndex((h) => h.includes("harvest"));
 		const harvestCell = headerCells[idxHarvest] ?? null;
 		let idxSell = headers.findIndex((h) => h.includes("sell"));
+		let idxEnergy = headers.findIndex((h) => h.includes("energy"));
+		let idxUsedIn = headers.findIndex((h) => h.includes("used"));
+
 		if (
 			harvestCell?.attributes.colspan &&
 			parseInt(harvestCell.attributes.colspan) >= 2
 		) {
-			// If the crop regrows, the Harvest header has both growth and regrowth info, pushing the Sell info one column to the right
-			idxSell += parseInt(harvestCell.attributes.colspan) - 1;
+			// If the crop regrows, the Harvest header has both growth and regrowth info,
+			// pushing subsequent columns one position to the right in the data row.
+			const adj = parseInt(harvestCell.attributes.colspan) - 1;
+			idxSell += adj;
+			if (idxEnergy !== -1) idxEnergy += adj;
+			if (idxUsedIn !== -1) idxUsedIn += adj;
 		}
 
 		// Skip tables that don't match the crop data shape
@@ -161,8 +274,23 @@ export async function scrapeCrops(): Promise<
 			(m) => parseIntFrom(m[1]!),
 		);
 
+		// Energy / health — per quality tier from nested table, or all-null if Inedible
+		const energyCell =
+			idxEnergy >= 0 && idxEnergy < dataCells.length
+				? (dataCells[idxEnergy] ?? null)
+				: null;
+		const qualityStats = parseQualityStats(energyCell);
+
+		// Used In — list of items/recipes/NPCs from the cell's span/p children
+		const usedInCell =
+			idxUsedIn >= 0 && idxUsedIn < dataCells.length
+				? (dataCells[idxUsedIn] ?? null)
+				: null;
+		const usedIn = usedInCell ? parseUsedInCell(usedInCell) : [];
+
 		crops.push({
 			name: currentCropName,
+			description: currentDescription,
 			seasons: JSON.stringify(currentCropSeasonOverride ?? currentSeasons),
 			growth_days: growthDays,
 			regrowth_days: regrowthDays,
@@ -172,6 +300,8 @@ export async function scrapeCrops(): Promise<
 			sell_price_iridium: sellPrices[3] ?? null,
 			buy_price: buyPrice,
 			is_trellis: currentIsTrellis,
+			...qualityStats,
+			used_in: JSON.stringify(usedIn),
 			image_url: currentImageUrl,
 			wiki_url: currentWikiUrl,
 		});
@@ -181,6 +311,7 @@ export async function scrapeCrops(): Promise<
 		currentWikiUrl = "";
 		currentImageUrl = null;
 		currentIsTrellis = 0;
+		currentDescription = null;
 		currentCropSeasonOverride = null;
 	}
 

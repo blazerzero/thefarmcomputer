@@ -3,6 +3,7 @@ export function initDb(sql: SqlStorage): void {
     CREATE TABLE IF NOT EXISTS crops (
       id            INTEGER PRIMARY KEY,
       name          TEXT UNIQUE NOT NULL,
+      description   TEXT,
       seasons       TEXT,
       growth_days   INTEGER,
       regrowth_days INTEGER,
@@ -12,6 +13,15 @@ export function initDb(sql: SqlStorage): void {
       sell_price_iridium INTEGER,
       buy_price          INTEGER,
       is_trellis    INTEGER,
+      energy         INTEGER,
+      energy_silver  INTEGER,
+      energy_gold    INTEGER,
+      energy_iridium INTEGER,
+      health         INTEGER,
+      health_silver  INTEGER,
+      health_gold    INTEGER,
+      health_iridium INTEGER,
+      used_in       TEXT,
       image_url     TEXT,
       wiki_url      TEXT,
       last_updated  TEXT
@@ -29,6 +39,28 @@ export function initDb(sql: SqlStorage): void {
 			sql.exec(
 				`ALTER TABLE crops ADD COLUMN ${col} ${col === "image_url" ? "TEXT" : "INTEGER"}`,
 			);
+		} catch {
+			/* already exists */
+		}
+	}
+	try {
+		sql.exec("ALTER TABLE crops ADD COLUMN description TEXT");
+	} catch {
+		/* already exists */
+	}
+	for (const [col, type] of [
+		["energy", "INTEGER"],
+		["energy_silver", "INTEGER"],
+		["energy_gold", "INTEGER"],
+		["energy_iridium", "INTEGER"],
+		["health", "INTEGER"],
+		["health_silver", "INTEGER"],
+		["health_gold", "INTEGER"],
+		["health_iridium", "INTEGER"],
+		["used_in", "TEXT"],
+	] as [string, string][]) {
+		try {
+			sql.exec(`ALTER TABLE crops ADD COLUMN ${col} ${type}`);
 		} catch {
 			/* already exists */
 		}

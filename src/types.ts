@@ -2,6 +2,7 @@
 export interface CropRow {
 	id?: number;
 	name: string;
+	description: string | null;
 	seasons: string; // JSON array string, e.g. '["Spring"]'
 	growth_days: number | null;
 	regrowth_days: number | null;
@@ -11,14 +12,24 @@ export interface CropRow {
 	sell_price_iridium: number | null;
 	buy_price: number | null;
 	is_trellis: number; // 0 or 1
+	energy: number | null;
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+	used_in: string; // JSON array of item/recipe names
 	image_url: string | null;
 	wiki_url: string;
 	last_updated: string;
 }
 
-/** A crop row with seasons already decoded. */
-export interface Crop extends Omit<CropRow, "seasons"> {
+/** A crop row with seasons and used_in already decoded. */
+export interface Crop extends Omit<CropRow, "seasons" | "used_in"> {
 	seasons: string[];
+	used_in: string[];
 }
 
 /** A single time+location entry in a villager's schedule. */

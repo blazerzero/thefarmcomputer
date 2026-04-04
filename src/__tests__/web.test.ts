@@ -10,6 +10,7 @@ const noopEnsure = async () => {
 
 const fakeCropRow = {
 	name: "Parsnip",
+	description: null,
 	seasons: '["Spring"]',
 	growth_days: 4,
 	regrowth_days: null,
@@ -19,6 +20,15 @@ const fakeCropRow = {
 	sell_price_iridium: 70,
 	buy_price: 20,
 	is_trellis: 0,
+	energy: null,
+	energy_silver: null,
+	energy_gold: null,
+	energy_iridium: null,
+	health: null,
+	health_silver: null,
+	health_gold: null,
+	health_iridium: null,
+	used_in: "[]",
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Parsnip",
 	last_updated: "2024-03-01T00:00:00.000Z",
@@ -191,10 +201,20 @@ const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
 	name: "Parsnip",
+	description: null,
 	seasons: '["Spring"]',
 	growth_days: 4,
 	regrowth_days: null,
 	sell_price: 35,
+	energy: null,
+	energy_silver: null,
+	energy_gold: null,
+	energy_iridium: null,
+	health: null,
+	health_silver: null,
+	health_gold: null,
+	health_iridium: null,
+	used_in: "[]",
 	wiki_url: "https://stardewvalleywiki.com/Parsnip",
 };
 
