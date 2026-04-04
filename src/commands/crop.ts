@@ -23,6 +23,7 @@ export function handleCrop(
 
 	return embedResponse({
 		title: crop.name,
+		description: crop.description ?? undefined,
 		url: crop.wiki_url,
 		color: seasonColor(crop.seasons),
 		thumbnail: crop.image_url ? { url: crop.image_url } : undefined,

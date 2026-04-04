@@ -10,6 +10,7 @@ const noopEnsure = async () => {
 
 const fakeCropRow = {
 	name: "Parsnip",
+	description: null,
 	seasons: '["Spring"]',
 	growth_days: 4,
 	regrowth_days: null,
@@ -191,6 +192,7 @@ const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
 	name: "Parsnip",
+	description: null,
 	seasons: '["Spring"]',
 	growth_days: 4,
 	regrowth_days: null,

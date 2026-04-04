@@ -3,6 +3,7 @@ export function initDb(sql: SqlStorage): void {
     CREATE TABLE IF NOT EXISTS crops (
       id            INTEGER PRIMARY KEY,
       name          TEXT UNIQUE NOT NULL,
+      description   TEXT,
       seasons       TEXT,
       growth_days   INTEGER,
       regrowth_days INTEGER,
@@ -32,6 +33,11 @@ export function initDb(sql: SqlStorage): void {
 		} catch {
 			/* already exists */
 		}
+	}
+	try {
+		sql.exec("ALTER TABLE crops ADD COLUMN description TEXT");
+	} catch {
+		/* already exists */
 	}
 
 	sql.exec(`

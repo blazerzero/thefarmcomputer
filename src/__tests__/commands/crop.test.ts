@@ -4,6 +4,7 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeCropRow = {
 	name: "Parsnip",
+	description: "A basic root vegetable that is prized for its speedy growth.",
 	seasons: '["Spring"]',
 	growth_days: 4,
 	regrowth_days: null,
@@ -74,6 +75,25 @@ describe("handleCrop", () => {
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Regrowth", value: "3 days" }),
 		);
+	});
+
+	it("includes the description in the embed when present", async () => {
+		const res = handleCrop(makeInteraction("parsnip"), makeSql([fakeCropRow]));
+		const json = (await res.json()) as DiscordResponse;
+
+		expect(json.data.embeds?.[0]?.description).toBe(
+			"A basic root vegetable that is prized for its speedy growth.",
+		);
+	});
+
+	it("omits description from the embed when null", async () => {
+		const res = handleCrop(
+			makeInteraction("green bean"),
+			makeSql([{ ...fakeTrellisRow, description: null }]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+
+		expect(json.data.embeds?.[0]?.description).toBeUndefined();
 	});
 
 	it("returns an ephemeral error for an unknown crop", async () => {

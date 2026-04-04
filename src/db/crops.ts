@@ -45,11 +45,12 @@ export function upsertCrop(
 ): void {
 	sql.exec(
 		`INSERT INTO crops
-       (name, seasons, growth_days, regrowth_days,
+       (name, description, seasons, growth_days, regrowth_days,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
         buy_price, is_trellis, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
+       description        = excluded.description,
        seasons            = excluded.seasons,
        growth_days        = excluded.growth_days,
        regrowth_days      = excluded.regrowth_days,
@@ -63,6 +64,7 @@ export function upsertCrop(
        wiki_url           = excluded.wiki_url,
        last_updated       = excluded.last_updated`,
 		data.name,
+		data.description,
 		data.seasons,
 		data.growth_days,
 		data.regrowth_days,

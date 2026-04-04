@@ -2,6 +2,7 @@
 export interface CropRow {
 	id?: number;
 	name: string;
+	description: string | null;
 	seasons: string; // JSON array string, e.g. '["Spring"]'
 	growth_days: number | null;
 	regrowth_days: number | null;

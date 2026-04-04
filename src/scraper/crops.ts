@@ -42,6 +42,7 @@ export async function scrapeCrops(): Promise<
 	let currentWikiUrl = "";
 	let currentImageUrl: string | null = null;
 	let currentIsTrellis = 0;
+	let currentDescription: string | null = null;
 	// Overrides currentSeasons for a specific crop when a "Can be grown in…" paragraph
 	// appears between its H3 heading and its data table.
 	let currentCropSeasonOverride: string[] | null = null;
@@ -82,16 +83,23 @@ export async function scrapeCrops(): Promise<
 			const imgSrc = headline.querySelector("img")?.getAttribute("src") ?? null;
 			currentImageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
 			currentIsTrellis = 0;
+			currentDescription = null;
 			currentCropSeasonOverride = null;
 			continue;
 		}
 
 		// ── Prose between H3 and table ──────────────────────────────────────────
 		if (tag === "P") {
-			if (el.text.toLowerCase().includes("trellis")) currentIsTrellis = 1;
+			const pText = el.text.replace(/\s+/g, " ").trim();
+			if (currentCropName && pText) {
+				currentDescription = currentDescription
+					? `${currentDescription} ${pText}`
+					: pText;
+			}
+			if (pText.toLowerCase().includes("trellis")) currentIsTrellis = 1;
 			// "Can be grown in Spring and Summer" — captures all seasons mentioned
 			if (currentCropName) {
-				const mentioned = parseSeasons(el.text);
+				const mentioned = parseSeasons(pText);
 				if (mentioned.length > 0) currentCropSeasonOverride = mentioned;
 			}
 			continue;
@@ -163,6 +171,7 @@ export async function scrapeCrops(): Promise<
 
 		crops.push({
 			name: currentCropName,
+			description: currentDescription,
 			seasons: JSON.stringify(currentCropSeasonOverride ?? currentSeasons),
 			growth_days: growthDays,
 			regrowth_days: regrowthDays,
@@ -181,6 +190,7 @@ export async function scrapeCrops(): Promise<
 		currentWikiUrl = "";
 		currentImageUrl = null;
 		currentIsTrellis = 0;
+		currentDescription = null;
 		currentCropSeasonOverride = null;
 	}
 
