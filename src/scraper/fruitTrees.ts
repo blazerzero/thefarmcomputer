@@ -1,12 +1,7 @@
 import { parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
 import type { FruitTreeRow } from "@/types";
-import { fetchPage, WIKI_BASE } from "./wiki";
-
-function parseIntFrom(text: string): number | null {
-	const m = text.replace(/,/g, "").match(/\d+/);
-	return m ? parseInt(m[0]!, 10) : null;
-}
+import { fetchPage, parseIntFrom, WIKI_BASE } from "./wiki";
 
 export async function scrapeFruitTrees(): Promise<
 	Omit<FruitTreeRow, "id" | "last_updated">[]

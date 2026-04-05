@@ -181,7 +181,7 @@ export interface Forageable
 export interface FruitRow {
 	id?: number;
 	name: string;
-	source: string | null; // e.g. "Farming", "Foraging", "Fruit Tree"
+	source: string; // JSON array, e.g. ["Farming"], ["Fruit Tree"]
 	seasons: string; // JSON array
 	sell_price: number | null;
 	sell_price_silver: number | null;
@@ -195,16 +195,29 @@ export interface FruitRow {
 	health_silver: number | null;
 	health_gold: number | null;
 	health_iridium: number | null;
-	used_in: string; // JSON array of item/recipe names
+	tiller_boost: number; // 1 if fruit benefits from Tiller profession
+	bears_knowledge_boost: number; // 1 if fruit benefits from Bear's Knowledge
+	artisan_prices: string; // JSON object: { "tier_type": price_in_gold }
 	image_url: string | null;
 	wiki_url: string;
 	last_updated: string;
 }
 
-/** A fruit item row with seasons and used_in already decoded. */
-export interface Fruit extends Omit<FruitRow, "seasons" | "used_in"> {
+/** A fruit item row with seasons, source, and used_in already decoded. */
+export interface Fruit
+	extends Omit<
+		FruitRow,
+		| "source"
+		| "seasons"
+		| "tiller_boost"
+		| "bears_knowledge_boost"
+		| "artisan_prices"
+	> {
+	source: string[];
 	seasons: string[];
-	used_in: string[];
+	tiller_boost: boolean;
+	bears_knowledge_boost: boolean;
+	artisan_prices: Record<string, number>;
 }
 
 /** A mineral row as stored in SQLite. */

@@ -102,10 +102,12 @@ export function initDb(sql: SqlStorage): void {
       health_silver      INTEGER,
       health_gold        INTEGER,
       health_iridium     INTEGER,
-      used_in            TEXT,
-      image_url          TEXT,
-      wiki_url           TEXT,
-      last_updated       TEXT
+      tiller_boost         INTEGER NOT NULL DEFAULT 0,
+      bears_knowledge_boost INTEGER NOT NULL DEFAULT 0,
+      artisan_prices       TEXT NOT NULL DEFAULT '{}',
+      image_url            TEXT,
+      wiki_url             TEXT,
+      last_updated         TEXT
     )
   `);
 

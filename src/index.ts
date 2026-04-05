@@ -121,7 +121,7 @@ async function refreshForageables(sql: SqlStorage): Promise<number> {
 }
 
 async function refreshFruits(sql: SqlStorage): Promise<number> {
-	const fruits = await scrapeFruits();
+	const fruits = await scrapeFruits(sql);
 	for (const fruit of fruits) upsertFruit(sql, fruit);
 	return fruits.length;
 }
@@ -183,6 +183,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Crop scrape failed:", err);
 	}
 	try {
+		const n = await refreshForageables(sql);
+		console.log(`Updated ${n} forageables`);
+	} catch (err) {
+		console.error("Forageables scrape failed:", err);
+	}
+	try {
 		const n = await refreshFruitTrees(sql);
 		console.log(`Updated ${n} fruit trees`);
 	} catch (err) {
@@ -205,12 +211,6 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.log(`Updated ${n} bundles`);
 	} catch (err) {
 		console.error("Bundle scrape failed:", err);
-	}
-	try {
-		const n = await refreshForageables(sql);
-		console.log(`Updated ${n} forageables`);
-	} catch (err) {
-		console.error("Forageables scrape failed:", err);
 	}
 	try {
 		const n = await refreshFruits(sql);
@@ -392,13 +392,6 @@ export class StardewDO implements DurableObject {
 			} else if (countFruits(this.sql) === 0) {
 				// Fruits table was added in a later deploy — populate without full refresh
 				await refreshFruits(this.sql);
-			} else if (villagersNeedScheduleRefresh(this.sql)) {
-				// schedule column was added in a later deploy — re-scrape villagers to populate it
-				const villagers = await scrapeVillagers();
-				for (const v of villagers) upsertVillager(this.sql, v);
-				console.log(
-					`Re-scraped ${villagers.length} villagers (schedule migration)`,
-				);
 			}
 		});
 	}

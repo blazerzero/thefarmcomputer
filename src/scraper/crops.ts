@@ -1,12 +1,12 @@
 import { HTMLElement, parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
 import type { CropRow } from "@/types";
-import { fetchPage, parseQualityStats, WIKI_BASE } from "./wiki";
-
-function parseIntFrom(text: string): number | null {
-	const m = text.replace(/,/g, "").match(/\d+/);
-	return m ? parseInt(m[0]!, 10) : null;
-}
+import {
+	fetchPage,
+	parseEnergyHealthStats,
+	parseIntFrom,
+	WIKI_BASE,
+} from "./wiki";
 
 function parseSeasons(text: string): string[] {
 	const sentences = text.split(".").map((s) => s.trim().toLowerCase());
@@ -195,7 +195,7 @@ export async function scrapeCrops(): Promise<
 			idxEnergy >= 0 && idxEnergy < dataCells.length
 				? (dataCells[idxEnergy] ?? null)
 				: null;
-		const qualityStats = parseQualityStats(energyCell);
+		const qualityStats = parseEnergyHealthStats(energyCell);
 
 		// Used In — list of items/recipes/NPCs from the cell's span/p children
 		const usedInCell =

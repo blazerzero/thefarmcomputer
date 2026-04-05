@@ -31,9 +31,28 @@ export function getCol(
 	return cell;
 }
 
-function parseIntFrom(text: string): number | null {
+export function parseIntFrom(text: string): number | null {
 	const m = text.replace(/,/g, "").match(/\d+/);
 	return m ? parseInt(m[0]!, 10) : null;
+}
+
+/**
+ * Extract up to four quality-tier sell prices from a cell's text.
+ * Matches "Xg" patterns while ignoring rate-style values like "7g/d".
+ * Returns [base, silver, gold, iridium], each null if not present.
+ */
+export function parsePriceTiers(
+	text: string,
+): [number | null, number | null, number | null, number | null] {
+	const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)].map((m) =>
+		parseInt(m[1]!.replace(/,/g, ""), 10),
+	);
+	return [
+		matches[0] ?? null,
+		matches[1] ?? null,
+		matches[2] ?? null,
+		matches[3] ?? null,
+	];
 }
 
 /**
@@ -42,7 +61,7 @@ function parseIntFrom(text: string): number | null {
  * identified by the img alt text in the .foreimage div (empty = base quality).
  * Returns all-null if the cell says "Inedible" or is absent.
  */
-export function parseQualityStats(cell: HTMLElement | null): {
+type EnergyHealthStats = {
 	energy: number | null;
 	energy_silver: number | null;
 	energy_gold: number | null;
@@ -51,8 +70,11 @@ export function parseQualityStats(cell: HTMLElement | null): {
 	health_silver: number | null;
 	health_gold: number | null;
 	health_iridium: number | null;
-} {
-	const empty = {
+};
+export function parseEnergyHealthStats(
+	cell: HTMLElement | null,
+): EnergyHealthStats {
+	const empty: EnergyHealthStats = {
 		energy: null,
 		energy_silver: null,
 		energy_gold: null,

@@ -2,27 +2,11 @@ import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
 import type { FishRow } from "@/types";
-import { fetchPage, getCol, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parsePriceTiers, WIKI_BASE } from "./wiki";
 
 const SEASON_NAMES = new Set(SEASONS);
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
-
-function parsePrices(
-	cell: HTMLElement,
-): [number | null, number | null, number | null, number | null] {
-	const text = cell.text;
-	// Match "1,500g" or "200g" but not "7g/d" style rates
-	const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/gi)].map((m) =>
-		parseInt(m[1]!.replace(/,/g, ""), 10),
-	);
-	return [
-		matches[0] ?? null,
-		matches[1] ?? null,
-		matches[2] ?? null,
-		matches[3] ?? null,
-	];
-}
 
 function parseSeasons(cell: HTMLElement): string[] {
 	const results: string[] = [];
@@ -199,7 +183,7 @@ export async function scrapeFish(): Promise<
 			// Prices
 			const priceCell = getCol(colIdx, cells, "price");
 			const [sellPrice, sellSilver, sellGold, sellIridium] = priceCell
-				? parsePrices(priceCell)
+				? parsePriceTiers(priceCell.text)
 				: [null, null, null, null];
 
 			// Location

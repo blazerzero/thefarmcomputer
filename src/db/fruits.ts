@@ -16,8 +16,14 @@ export function getFruit(sql: SqlStorage, name: string): Fruit | null {
 		if (!row) return null;
 		return {
 			...row,
+			source: JSON.parse(row.source || "[]") as string[],
 			seasons: JSON.parse(row.seasons || "[]") as string[],
-			used_in: JSON.parse(row.used_in || "[]") as string[],
+			tiller_boost: row.tiller_boost === 1,
+			bears_knowledge_boost: row.bears_knowledge_boost === 1,
+			artisan_prices: JSON.parse(row.artisan_prices || "{}") as Record<
+				string,
+				number
+			>,
 		};
 	} catch (err) {
 		console.error("DB error in getFruit:", err);
@@ -35,27 +41,29 @@ export function upsertFruit(
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
         energy, energy_silver, energy_gold, energy_iridium,
         health, health_silver, health_gold, health_iridium,
-        used_in, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        tiller_boost, bears_knowledge_boost, artisan_prices, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
-       source             = excluded.source,
-       seasons            = excluded.seasons,
-       sell_price         = excluded.sell_price,
-       sell_price_silver  = excluded.sell_price_silver,
-       sell_price_gold    = excluded.sell_price_gold,
-       sell_price_iridium = excluded.sell_price_iridium,
-       energy             = excluded.energy,
-       energy_silver      = excluded.energy_silver,
-       energy_gold        = excluded.energy_gold,
-       energy_iridium     = excluded.energy_iridium,
-       health             = excluded.health,
-       health_silver      = excluded.health_silver,
-       health_gold        = excluded.health_gold,
-       health_iridium     = excluded.health_iridium,
-       used_in            = excluded.used_in,
-       image_url          = excluded.image_url,
-       wiki_url           = excluded.wiki_url,
-       last_updated       = excluded.last_updated`,
+       source                = excluded.source,
+       seasons               = excluded.seasons,
+       sell_price            = excluded.sell_price,
+       sell_price_silver     = excluded.sell_price_silver,
+       sell_price_gold       = excluded.sell_price_gold,
+       sell_price_iridium    = excluded.sell_price_iridium,
+       energy                = excluded.energy,
+       energy_silver         = excluded.energy_silver,
+       energy_gold           = excluded.energy_gold,
+       energy_iridium        = excluded.energy_iridium,
+       health                = excluded.health,
+       health_silver         = excluded.health_silver,
+       health_gold           = excluded.health_gold,
+       health_iridium        = excluded.health_iridium,
+       tiller_boost          = excluded.tiller_boost,
+       bears_knowledge_boost = excluded.bears_knowledge_boost,
+       artisan_prices        = excluded.artisan_prices,
+       image_url             = excluded.image_url,
+       wiki_url              = excluded.wiki_url,
+       last_updated          = excluded.last_updated`,
 		data.name,
 		data.source,
 		data.seasons,
@@ -71,7 +79,9 @@ export function upsertFruit(
 		data.health_silver,
 		data.health_gold,
 		data.health_iridium,
-		data.used_in,
+		data.tiller_boost,
+		data.bears_knowledge_boost,
+		data.artisan_prices,
 		data.image_url,
 		data.wiki_url,
 		now(),

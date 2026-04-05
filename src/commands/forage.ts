@@ -47,7 +47,11 @@ export function handleForage(
 				),
 				inline: true,
 			},
-			{ name: "Energy / Health", value: getEnergyHealthValue(item), inline: true },
+			{
+				name: "Energy / Health",
+				value: getEnergyHealthValue(item),
+				inline: true,
+			},
 			...(item.used_in.length > 0
 				? [
 						{

@@ -95,7 +95,7 @@ const fakeForageRow = {
 
 const fakeFruitRow = {
 	name: "Apple",
-	source: "Fruit Tree",
+	source: '["Fruit Tree"]',
 	seasons: '["Fall"]',
 	sell_price: 100,
 	sell_price_silver: 125,
@@ -109,7 +109,9 @@ const fakeFruitRow = {
 	health_silver: null,
 	health_gold: null,
 	health_iridium: null,
-	used_in: "[]",
+	tiller_boost: 0,
+	bears_knowledge_boost: 0,
+	artisan_prices: "{}",
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Apple",
 	last_updated: "2024-03-01T00:00:00.000Z",

@@ -1,15 +1,13 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { MineralRow } from "@/types";
-import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
-
-// ── Cell parsers ──────────────────────────────────────────────────────────────
-
-function parseSellPrice(cell: HTMLElement): number | null {
-	const text = cell.text;
-	const m = text.match(/(\d[\d,]*)\s*g/i);
-	return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
-}
+import {
+	fetchPage,
+	getCol,
+	parseListCell,
+	parsePriceTiers,
+	WIKI_BASE,
+} from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 
@@ -133,11 +131,15 @@ export async function scrapeMinerals(): Promise<
 
 			// Sell price
 			const sellPriceCell = getCol(colIdx, cells, "sell_price");
-			const sellPrice = sellPriceCell ? parseSellPrice(sellPriceCell) : null;
+			const sellPrice = sellPriceCell
+				? (parsePriceTiers(sellPriceCell.text)[0] ?? null)
+				: null;
 
 			// Gemologist sell price (absent for Geodes)
 			const gemCell = getCol(colIdx, cells, "sell_price_gemologist");
-			const sellPriceGemologist = gemCell ? parseSellPrice(gemCell) : null;
+			const sellPriceGemologist = gemCell
+				? (parsePriceTiers(gemCell.text)[0] ?? null)
+				: null;
 
 			// Source
 			const sourceCell = getCol(colIdx, cells, "source");

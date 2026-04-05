@@ -6,7 +6,12 @@ import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
 import { SEASONS } from "@/constants";
 import type { ForageableRow } from "@/types";
-import { fetchPage, parseQualityStats, WIKI_BASE } from "./wiki";
+import {
+	fetchPage,
+	parseEnergyHealthStats,
+	parsePriceTiers,
+	WIKI_BASE,
+} from "./wiki";
 
 function parseUsedInCell(cell: HTMLElement): string[] {
 	const items = cell.querySelectorAll(":scope > span, :scope > p");
@@ -16,21 +21,6 @@ function parseUsedInCell(cell: HTMLElement): string[] {
 			.filter((t) => t.length > 0);
 	}
 	return [];
-}
-
-function parsePrices(
-	text: string,
-): [number | null, number | null, number | null, number | null] {
-	// Match all "Xg" values (exclude "g/" patterns like "7.2g/d")
-	const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)].map((m) =>
-		parseInt(m[1]!.replace(/,/g, ""), 10),
-	);
-	return [
-		matches[0] ?? null,
-		matches[1] ?? null,
-		matches[2] ?? null,
-		matches[3] ?? null,
-	];
 }
 
 function parseLocations(text: string): string[] {
@@ -176,12 +166,12 @@ export async function scrapeForageables(): Promise<
 			const imageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
 
 			// Sell prices
-			const [sellPrice, sellSilver, sellGold, sellIridium] = parsePrices(
+			const [sellPrice, sellSilver, sellGold, sellIridium] = parsePriceTiers(
 				cellText(idxSell),
 			);
 
 			// Energy / Health — all quality tiers from nested table
-			const qualityStats = parseQualityStats(
+			const qualityStats = parseEnergyHealthStats(
 				idxEnergy >= 0 && idxEnergy < cells.length
 					? (cells[idxEnergy] ?? null)
 					: null,

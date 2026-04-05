@@ -46,9 +46,7 @@ export function getStatus(sql: SqlStorage): {
 		)
 		.one() as { n: number; last_updated: string | null } | null;
 	const fruitRow = sql
-		.exec(
-			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fruits",
-		)
+		.exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM fruits")
 		.one() as { n: number; last_updated: string | null } | null;
 	const fruitTreeRow = sql
 		.exec(

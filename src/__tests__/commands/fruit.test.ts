@@ -4,7 +4,7 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeFruitRow = {
 	name: "Apple",
-	source: "Fruit Tree",
+	source: '["Fruit Tree"]',
 	seasons: '["Fall"]',
 	sell_price: 100,
 	sell_price_silver: 125,
@@ -18,7 +18,10 @@ const fakeFruitRow = {
 	health_silver: 22,
 	health_gold: 30,
 	health_iridium: 49,
-	used_in: '["Apple Juice"]',
+	tiller_boost: 0,
+	bears_knowledge_boost: 0,
+	artisan_prices:
+		'{"base_wine":400,"silver_wine":500,"gold_wine":600,"iridium_wine":800}',
 	image_url: "https://example.com/apple.png",
 	wiki_url: "https://stardewvalleywiki.com/Apple",
 	last_updated: "2024-03-01T00:00:00.000Z",
@@ -26,7 +29,7 @@ const fakeFruitRow = {
 
 const fakeFarmingFruitRow = {
 	name: "Blueberry",
-	source: "Farming",
+	source: '["Farming"]',
 	seasons: '["Summer"]',
 	sell_price: 50,
 	sell_price_silver: 62,
@@ -40,7 +43,9 @@ const fakeFarmingFruitRow = {
 	health_silver: null,
 	health_gold: null,
 	health_iridium: null,
-	used_in: "[]",
+	tiller_boost: 1,
+	bears_knowledge_boost: 0,
+	artisan_prices: "{}",
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Blueberry",
 	last_updated: "2024-03-01T00:00:00.000Z",
@@ -98,14 +103,49 @@ describe("handleFruit", () => {
 		expect(ehField?.value).toBe("Inedible");
 	});
 
-	it("includes Used In field when present", async () => {
+	it("shows Artisan Item Values field when artisan prices exist", async () => {
+		const res = handleFruit(makeInteraction("apple"), makeSql([fakeFruitRow]));
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+		const artisanField = fields.find((f) => f.name === "Artisan Item Values");
+
+		expect(artisanField?.value).toContain("Wine: 400g");
+		expect(artisanField?.value).toContain("Iridium-Tier Wine: 800g");
+	});
+
+	it("omits Artisan Sells For field when artisan prices are empty", async () => {
+		const res = handleFruit(
+			makeInteraction("blueberry"),
+			makeSql([fakeFarmingFruitRow]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+
+		expect(
+			fields.find((f) => f.name === "Artisan Item Values"),
+		).toBeUndefined();
+	});
+
+	it("appends boosts to Sells For field when boost flags are set", async () => {
+		const res = handleFruit(
+			makeInteraction("blueberry"),
+			makeSql([fakeFarmingFruitRow]),
+		);
+		const json = (await res.json()) as DiscordResponse;
+		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
+		const sellsForField = fields.find((f) => f.name === "Sells For");
+
+		expect(sellsForField?.value).toContain("Tiller Profession");
+		expect(sellsForField?.value).not.toContain("Bear's Knowledge");
+		expect(fields.find((f) => f.name === "Boosts")).toBeUndefined();
+	});
+
+	it("omits Boosts field when no boost flags are set", async () => {
 		const res = handleFruit(makeInteraction("apple"), makeSql([fakeFruitRow]));
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Used In" }),
-		);
+		expect(fields.find((f) => f.name === "Boosts")).toBeUndefined();
 	});
 
 	it("returns an ephemeral error for an unknown fruit", async () => {
