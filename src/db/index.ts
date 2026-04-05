@@ -27,10 +27,5 @@ export { countRecipes, getRecipe, upsertRecipe } from "./recipes";
 export { countRings, getRing, upsertRing } from "./rings";
 export { initDb } from "./schema";
 export { getStatus } from "./status";
-export {
-	countVillagers,
-	getVillager,
-	upsertVillager,
-	villagersNeedScheduleRefresh,
-} from "./villagers";
+export { countVillagers, getVillager, upsertVillager } from "./villagers";
 export { countWeapons, getWeapon, upsertWeapon } from "./weapons";

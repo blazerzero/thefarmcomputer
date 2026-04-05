@@ -1,4 +1,4 @@
-import { HTMLElement } from "node-html-parser";
+import type { HTMLElement } from "node-html-parser";
 import type { EnergyHealthStats } from "@/types";
 
 export const WIKI_BASE = "https://stardewvalleywiki.com";
