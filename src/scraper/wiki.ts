@@ -1,4 +1,5 @@
-import type { HTMLElement } from "node-html-parser";
+import { HTMLElement } from "node-html-parser";
+import type { EnergyHealthStats } from "@/types";
 
 export const WIKI_BASE = "https://stardewvalleywiki.com";
 const USER_AGENT =
@@ -29,6 +30,92 @@ export function getCol(
 		?.querySelectorAll('[style*="display: none"], style')
 		.forEach((el) => el.remove());
 	return cell;
+}
+
+export function parseIntFrom(text: string): number | null {
+	const m = text.replace(/,/g, "").match(/\d+/);
+	return m ? parseInt(m[0]!, 10) : null;
+}
+
+/**
+ * Extract up to four quality-tier sell prices from a cell's text.
+ * Matches "Xg" patterns while ignoring rate-style values like "7g/d".
+ * Returns [base, silver, gold, iridium], each null if not present.
+ */
+export function parsePriceTiers(
+	text: string,
+): [number | null, number | null, number | null, number | null] {
+	const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)].map((m) =>
+		parseInt(m[1]!.replace(/,/g, ""), 10),
+	);
+	return [
+		matches[0] ?? null,
+		matches[1] ?? null,
+		matches[2] ?? null,
+		matches[3] ?? null,
+	];
+}
+
+/**
+ * Parse per-quality energy and health values from an Energy/Health cell.
+ * Each quality tier is represented as a row in a nested table; the quality is
+ * identified by the img alt text in the .foreimage div (empty = base quality).
+ * Returns all-null if the cell says "Inedible" or is absent.
+ */
+export function parseEnergyHealthStats(
+	cell: HTMLElement | null,
+): EnergyHealthStats {
+	const empty: EnergyHealthStats = {
+		energy: null,
+		energy_silver: null,
+		energy_gold: null,
+		energy_iridium: null,
+		health: null,
+		health_silver: null,
+		health_gold: null,
+		health_iridium: null,
+	};
+	if (!cell) return empty;
+	if (cell.text.toLowerCase().includes("inedible")) return empty;
+
+	const result = { ...empty };
+
+	for (const row of cell.querySelectorAll("tr")) {
+		const img = row.querySelector(".foreimage img");
+		const alt = (img?.getAttribute("alt") ?? "").toLowerCase();
+
+		const tier = alt.includes("silver")
+			? "silver"
+			: alt.includes("gold")
+				? "gold"
+				: alt.includes("iridium")
+					? "iridium"
+					: "base";
+
+		const tds = row.querySelectorAll(":scope > td");
+		const energyTd = tds[1] ?? null;
+		const healthTd = tds[3] ?? null;
+		if (!energyTd && !healthTd) continue;
+
+		const energy = energyTd ? parseIntFrom(energyTd.text) : null;
+		const health = healthTd ? parseIntFrom(healthTd.text) : null;
+
+		if (tier === "base") {
+			result.energy = energy;
+			result.health = health;
+		} else if (tier === "silver") {
+			result.energy_silver = energy;
+			result.health_silver = health;
+		} else if (tier === "gold") {
+			result.energy_gold = energy;
+			result.health_gold = health;
+		} else {
+			result.energy_iridium = energy;
+			result.health_iridium = health;
+		}
+	}
+
+	return result;
 }
 
 export async function fetchPage(path: string): Promise<string> {

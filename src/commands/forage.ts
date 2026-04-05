@@ -3,6 +3,7 @@ import { getForageable } from "@/db";
 import {
 	embedResponse,
 	formatPriceTiers,
+	getEnergyHealthValues,
 	getOption,
 	notFoundResponse,
 	renderDotList,
@@ -28,13 +29,6 @@ export function handleForage(
 	const locationsValue =
 		item.locations.length === 0 ? "—" : renderDotList(item.locations);
 
-	const energyHealthValue =
-		item.energy != null && item.health != null
-			? `${item.energy} energy / ${item.health} health`
-			: item.energy != null
-				? `${item.energy} energy`
-				: "—";
-
 	return embedResponse({
 		title: item.name,
 		url: item.wiki_url,
@@ -42,7 +36,7 @@ export function handleForage(
 		thumbnail: item.image_url ? { url: item.image_url } : undefined,
 		fields: [
 			{ name: "Season", value: seasonsValue, inline: true },
-			{ name: "Found", value: locationsValue, inline: true },
+			{ name: "Found", value: locationsValue, inline: false },
 			{
 				name: "Sells For",
 				value: formatPriceTiers(
@@ -53,7 +47,11 @@ export function handleForage(
 				),
 				inline: true,
 			},
-			{ name: "Energy / Health", value: energyHealthValue, inline: true },
+			{
+				name: "Energy / Health",
+				value: getEnergyHealthValues(item),
+				inline: true,
+			},
 			...(item.used_in.length > 0
 				? [
 						{

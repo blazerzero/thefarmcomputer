@@ -80,10 +80,40 @@ const fakeForageRow = {
 	sell_price_gold: 45,
 	sell_price_iridium: 60,
 	energy: 22,
+	energy_silver: null,
+	energy_gold: null,
+	energy_iridium: null,
 	health: 9,
+	health_silver: null,
+	health_gold: null,
+	health_iridium: null,
 	used_in: "[]",
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Daffodil",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
+const fakeFruitRow = {
+	name: "Apple",
+	source: '["Fruit Tree"]',
+	seasons: '["Fall"]',
+	sell_price: 100,
+	sell_price_silver: 125,
+	sell_price_gold: 150,
+	sell_price_iridium: 200,
+	energy: 38,
+	energy_silver: null,
+	energy_gold: null,
+	energy_iridium: null,
+	health: 17,
+	health_silver: null,
+	health_gold: null,
+	health_iridium: null,
+	tiller_boost: 0,
+	bears_knowledge_boost: 0,
+	artisan_prices: "{}",
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Apple",
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
@@ -279,6 +309,17 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.title).toBe("Daffodil");
 	});
 
+	it("routes 'fruit' and returns an embed with the item title", async () => {
+		const res = await handleWebQuery(
+			"fruit apple",
+			makeSql([fakeFruitRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Apple");
+	});
+
 	it("routes 'bundle' and returns an embed with the bundle title", async () => {
 		const res = await handleWebQuery(
 			"bundle spring foraging",
@@ -380,6 +421,7 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(
 			`Artisan Goods: 10`,
 		);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Fruits: 10`);
 	});
 });
 

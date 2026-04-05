@@ -8,6 +8,7 @@ interface MarkdownProps {
 
 function preprocessBullets(text: string): string {
 	return text
+		.replace(/\n{2,}/g, (match) => "\n" + "\u00A0\n".repeat(match.length - 1))
 		.split("\n")
 		.map((line) => {
 			if (/^• /.test(line)) return line.replace(/^• /, "- ");

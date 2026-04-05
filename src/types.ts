@@ -156,7 +156,13 @@ export interface ForageableRow {
 	sell_price_gold: number | null;
 	sell_price_iridium: number | null;
 	energy: number | null; // can be negative (e.g. Red Mushroom = -50)
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
 	health: number | null; // can be negative
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
 	used_in: string; // JSON array of item/recipe names
 	image_url: string | null;
 	wiki_url: string;
@@ -169,6 +175,49 @@ export interface Forageable
 	seasons: string[];
 	locations: string[];
 	used_in: string[];
+}
+
+/** A fruit item row as stored in D1. */
+export interface FruitRow {
+	id?: number;
+	name: string;
+	source: string; // JSON array, e.g. ["Farming"], ["Fruit Tree"]
+	seasons: string; // JSON array
+	sell_price: number | null;
+	sell_price_silver: number | null;
+	sell_price_gold: number | null;
+	sell_price_iridium: number | null;
+	energy: number | null; // null for Farming/Foraging sources (tracked elsewhere)
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+	tiller_boost: number; // 1 if fruit benefits from Tiller profession
+	bears_knowledge_boost: number; // 1 if fruit benefits from Bear's Knowledge
+	artisan_prices: string; // JSON object: { "tier_type": price_in_gold }
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A fruit item row with seasons, source, and used_in already decoded. */
+export interface Fruit
+	extends Omit<
+		FruitRow,
+		| "source"
+		| "seasons"
+		| "tiller_boost"
+		| "bears_knowledge_boost"
+		| "artisan_prices"
+	> {
+	source: string[];
+	seasons: string[];
+	tiller_boost: boolean;
+	bears_knowledge_boost: boolean;
+	artisan_prices: Record<string, number>;
 }
 
 /** A mineral row as stored in SQLite. */
@@ -373,6 +422,18 @@ export interface ArtisanGood
 	buffs: string[];
 }
 
+/** Energy and health values for an item, including quality-tiered values if applicable. */
+export type EnergyHealthStats = {
+	energy: number | null;
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+};
+
 /** Discord slash command names. */
 export enum Command {
 	ARTISAN = "artisan",
@@ -383,6 +444,7 @@ export enum Command {
 	FISH = "fish",
 	FOOTWEAR = "footwear",
 	FORAGE = "forage",
+	FRUIT = "fruit",
 	FRUIT_TREE = "fruit-tree",
 	GIFT = "gift",
 	INFO = "info",

@@ -40,6 +40,11 @@ const COMMANDS: CommandItem[] = [
 		example: "forage daffodil",
 	},
 	{
+		command: Command.FRUIT,
+		syntax: "fruit <name>",
+		example: "fruit apple",
+	},
+	{
 		command: Command.FRUIT_TREE,
 		syntax: "fruit-tree <name>",
 		example: "fruit-tree apple",

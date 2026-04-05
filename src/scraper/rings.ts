@@ -1,16 +1,15 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { RingRow } from "@/types";
-import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
+import {
+	fetchPage,
+	getCol,
+	parseListCell,
+	parsePriceTiers,
+	WIKI_BASE,
+} from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
-
-function parseSellPrice(cell: HTMLElement): number | null {
-	const text = cell.text.trim();
-	if (!text || text.toLowerCase() === "n/a" || text === "—") return null;
-	const m = text.match(/(\d[\d,]*)\s*g/i);
-	return m ? parseInt(m[1]!.replace(/,/g, ""), 10) : null;
-}
 
 function parseEffects(cell: HTMLElement): string | null {
 	const text = cell.text.replace(/\s+/g, " ").trim();
@@ -136,7 +135,9 @@ export async function scrapeRings(): Promise<
 
 			// Sell price
 			const sellPriceCell = getCol(colIdx, cells, "sell_price");
-			const sellPrice = sellPriceCell ? parseSellPrice(sellPriceCell) : null;
+			const sellPrice = sellPriceCell
+				? (parsePriceTiers(sellPriceCell.text)[0] ?? null)
+				: null;
 
 			// Effects
 			const effectsCell = getCol(colIdx, cells, "effects");

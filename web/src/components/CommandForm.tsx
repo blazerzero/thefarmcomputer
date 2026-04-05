@@ -128,6 +128,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "fruit",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Apple",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "fruit-tree",
 		fields: [
 			{

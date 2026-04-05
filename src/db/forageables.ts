@@ -37,8 +37,10 @@ export function upsertForageable(
 		`INSERT INTO forageables
        (name, seasons, locations,
         sell_price, sell_price_silver, sell_price_gold, sell_price_iridium,
-        energy, health, used_in, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        energy, energy_silver, energy_gold, energy_iridium,
+        health, health_silver, health_gold, health_iridium,
+        used_in, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        seasons            = excluded.seasons,
        locations          = excluded.locations,
@@ -47,7 +49,13 @@ export function upsertForageable(
        sell_price_gold    = excluded.sell_price_gold,
        sell_price_iridium = excluded.sell_price_iridium,
        energy             = excluded.energy,
+       energy_silver      = excluded.energy_silver,
+       energy_gold        = excluded.energy_gold,
+       energy_iridium     = excluded.energy_iridium,
        health             = excluded.health,
+       health_silver      = excluded.health_silver,
+       health_gold        = excluded.health_gold,
+       health_iridium     = excluded.health_iridium,
        used_in            = excluded.used_in,
        image_url          = excluded.image_url,
        wiki_url           = excluded.wiki_url,
@@ -60,7 +68,13 @@ export function upsertForageable(
 		data.sell_price_gold,
 		data.sell_price_iridium,
 		data.energy,
+		data.energy_silver,
+		data.energy_gold,
+		data.energy_iridium,
 		data.health,
+		data.health_silver,
+		data.health_gold,
+		data.health_iridium,
 		data.used_in,
 		data.image_url,
 		data.wiki_url,

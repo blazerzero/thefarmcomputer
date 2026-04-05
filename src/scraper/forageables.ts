@@ -6,7 +6,12 @@ import remarkStringify from "remark-stringify";
 import strip from "strip-markdown";
 import { SEASONS } from "@/constants";
 import type { ForageableRow } from "@/types";
-import { fetchPage, WIKI_BASE } from "./wiki";
+import {
+	fetchPage,
+	parseEnergyHealthStats,
+	parsePriceTiers,
+	WIKI_BASE,
+} from "./wiki";
 
 function parseUsedInCell(cell: HTMLElement): string[] {
 	const items = cell.querySelectorAll(":scope > span, :scope > p");
@@ -16,27 +21,6 @@ function parseUsedInCell(cell: HTMLElement): string[] {
 			.filter((t) => t.length > 0);
 	}
 	return [];
-}
-
-function parsePrices(
-	text: string,
-): [number | null, number | null, number | null, number | null] {
-	// Match all "Xg" values (exclude "g/" patterns like "7.2g/d")
-	const matches = [...text.matchAll(/(\d[\d,]*)\s*g(?![\d/])/g)].map((m) =>
-		parseInt(m[1]!.replace(/,/g, ""), 10),
-	);
-	return [
-		matches[0] ?? null,
-		matches[1] ?? null,
-		matches[2] ?? null,
-		matches[3] ?? null,
-	];
-}
-
-function parseEnergyHealth(text: string): [number | null, number | null] {
-	// Match signed integers in the cell (covers negative values like -50)
-	const matches = [...text.matchAll(/-?\d+/g)].map((m) => parseInt(m[0]!, 10));
-	return [matches[0] ?? null, matches[1] ?? null];
 }
 
 function parseLocations(text: string): string[] {
@@ -182,13 +166,16 @@ export async function scrapeForageables(): Promise<
 			const imageUrl = imgSrc ? WIKI_BASE + imgSrc : null;
 
 			// Sell prices
-			const [sellPrice, sellSilver, sellGold, sellIridium] = parsePrices(
+			const [sellPrice, sellSilver, sellGold, sellIridium] = parsePriceTiers(
 				cellText(idxSell),
 			);
 
-			// Energy / Health
-			const [energy, health] =
-				idxEnergy >= 0 ? parseEnergyHealth(cellText(idxEnergy)) : [null, null];
+			// Energy / Health — all quality tiers from nested table
+			const qualityStats = parseEnergyHealthStats(
+				idxEnergy >= 0 && idxEnergy < cells.length
+					? (cells[idxEnergy] ?? null)
+					: null,
+			);
 
 			// Used In — split on real line boundaries (<li> or <br>) so that
 			// comma-separated names like "Clint, Dwarf, Emily (Loved Gift)" remain
@@ -233,8 +220,7 @@ export async function scrapeForageables(): Promise<
 				sell_price_silver: sellSilver,
 				sell_price_gold: sellGold,
 				sell_price_iridium: sellIridium,
-				energy,
-				health,
+				...qualityStats,
 				used_in: JSON.stringify(usedIn),
 				image_url: imageUrl,
 				wiki_url: wikiUrl,
