@@ -1,4 +1,4 @@
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 import { rehype } from "rehype";
 import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
@@ -103,7 +103,7 @@ function parseGifts(html: string): Record<GiftTier, string[]> {
 const SCHEDULE_GROUPS = [...SEASONS, "Marriage"];
 
 /** Extract time/location rows from a wikitable. */
-function parseTableEntries(table: ReturnType<typeof parse>): ScheduleEntry[] {
+function parseTableEntries(table: HTMLElement): ScheduleEntry[] {
 	const entries: ScheduleEntry[] = [];
 	for (const row of table.querySelectorAll("tr")) {
 		const cells = row.querySelectorAll("td");
@@ -120,16 +120,16 @@ function parseTableEntries(table: ReturnType<typeof parse>): ScheduleEntry[] {
  * and their associated wikitable entries.
  */
 function parseGroupContent(
-	container: ReturnType<typeof parse>,
+	container: HTMLElement,
 ): Record<string, ScheduleEntry[]> {
 	const groupData: Record<string, ScheduleEntry[]> = {};
 	let currentOccasion = "Regular Schedule";
 
 	for (const child of container.childNodes) {
-		const tag = (child as ReturnType<typeof parse>).tagName?.toUpperCase();
+		const tag = (child as HTMLElement).tagName?.toUpperCase();
 		if (!tag) continue; // skip text nodes
 
-		const el = child as ReturnType<typeof parse>;
+		const el = child as HTMLElement;
 
 		if (tag === "P" || tag === "DIV") {
 			const bold = el.querySelector("b");
@@ -247,17 +247,15 @@ function parseSchedule(
 		let parent = table.parentNode as typeof table | null;
 		let insideGroup = false;
 		while (parent) {
-			const ptag = (parent as ReturnType<typeof parse>).tagName?.toUpperCase();
+			const ptag = (parent as HTMLElement).tagName?.toUpperCase();
 			if (ptag === "TABLE") {
-				const pcl = (parent as ReturnType<typeof parse>).classList;
+				const pcl = (parent as HTMLElement).classList;
 				if (pcl?.contains("mw-collapsible") && !pcl?.contains("wikitable")) {
 					insideGroup = true;
 					break;
 				}
 			}
-			parent = (parent as ReturnType<typeof parse>).parentNode as
-				| typeof table
-				| null;
+			parent = (parent as HTMLElement).parentNode as typeof table | null;
 		}
 		if (insideGroup) continue;
 

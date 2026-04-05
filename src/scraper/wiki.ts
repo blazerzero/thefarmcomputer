@@ -1,4 +1,5 @@
 import { HTMLElement } from "node-html-parser";
+import type { EnergyHealthStats } from "@/types";
 
 export const WIKI_BASE = "https://stardewvalleywiki.com";
 const USER_AGENT =
@@ -61,16 +62,6 @@ export function parsePriceTiers(
  * identified by the img alt text in the .foreimage div (empty = base quality).
  * Returns all-null if the cell says "Inedible" or is absent.
  */
-type EnergyHealthStats = {
-	energy: number | null;
-	energy_silver: number | null;
-	energy_gold: number | null;
-	energy_iridium: number | null;
-	health: number | null;
-	health_silver: number | null;
-	health_gold: number | null;
-	health_iridium: number | null;
-};
 export function parseEnergyHealthStats(
 	cell: HTMLElement | null,
 ): EnergyHealthStats {

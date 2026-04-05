@@ -1,5 +1,5 @@
 import { DEFAULT_COLOR, SEASON_COLORS } from "@/constants";
-import { InteractionResponseType } from "@/types";
+import { EnergyHealthStats, InteractionResponseType } from "@/types";
 
 /** Extract a named option value from a Discord interaction's option list. */
 export function getOption(
@@ -93,16 +93,7 @@ export const renderDotList = (items: string[]): string => {
 };
 
 /** Format quality-tiered energy/health values into a display string. */
-export function getEnergyHealthValue(item: {
-	energy: number | null;
-	energy_silver: number | null;
-	energy_gold: number | null;
-	energy_iridium: number | null;
-	health: number | null;
-	health_silver: number | null;
-	health_gold: number | null;
-	health_iridium: number | null;
-}): string {
+export function getEnergyHealthValues(item: EnergyHealthStats): string {
 	if (item.energy === null && item.health === null) return "Inedible";
 	const tiers = [
 		["Normal", item.energy, item.health],

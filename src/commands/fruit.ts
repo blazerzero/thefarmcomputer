@@ -3,7 +3,7 @@ import { getFruit } from "@/db";
 import {
 	embedResponse,
 	formatPriceTiers,
-	getEnergyHealthValue,
+	getEnergyHealthValues,
 	getOption,
 	notFoundResponse,
 	renderDotList,
@@ -39,7 +39,7 @@ export function handleFruit(
 			{ name: "Seasons", value: renderDotList(seasons), inline: true },
 			{
 				name: "Energy / Health",
-				value: getEnergyHealthValue(item),
+				value: getEnergyHealthValues(item),
 				inline: true,
 			},
 			{

@@ -1,7 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import { getCrop, getForageable } from "@/db";
-import type { FruitRow } from "@/types";
+import type { EnergyHealthStats, FruitRow } from "@/types";
 import {
 	fetchPage,
 	getCol,
@@ -184,7 +184,7 @@ export async function scrapeFruits(
 			const isForageableFruit = source.some(
 				(s) => s.toLowerCase() === "foraging",
 			);
-			let qualityStats: ReturnType<typeof parseEnergyHealthStats>;
+			let qualityStats: EnergyHealthStats;
 			if (isFarmableFruit) {
 				const fruitAsCrop = getCrop(sql, name);
 				qualityStats = fruitAsCrop

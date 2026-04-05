@@ -3,7 +3,7 @@ import { getForageable } from "@/db";
 import {
 	embedResponse,
 	formatPriceTiers,
-	getEnergyHealthValue,
+	getEnergyHealthValues,
 	getOption,
 	notFoundResponse,
 	renderDotList,
@@ -49,7 +49,7 @@ export function handleForage(
 			},
 			{
 				name: "Energy / Health",
-				value: getEnergyHealthValue(item),
+				value: getEnergyHealthValues(item),
 				inline: true,
 			},
 			...(item.used_in.length > 0

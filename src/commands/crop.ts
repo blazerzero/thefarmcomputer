@@ -3,7 +3,7 @@ import { getCrop } from "@/db";
 import {
 	embedResponse,
 	formatPriceTiers,
-	getEnergyHealthValue,
+	getEnergyHealthValues,
 	getOption,
 	notFoundResponse,
 	renderDotList,
@@ -66,7 +66,7 @@ export function handleCrop(
 			},
 			{
 				name: "Energy / Health",
-				value: getEnergyHealthValue(crop),
+				value: getEnergyHealthValues(crop),
 				inline: true,
 			},
 			{

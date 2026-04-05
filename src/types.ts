@@ -422,6 +422,18 @@ export interface ArtisanGood
 	buffs: string[];
 }
 
+/** Energy and health values for an item, including quality-tiered values if applicable. */
+export type EnergyHealthStats = {
+	energy: number | null;
+	energy_silver: number | null;
+	energy_gold: number | null;
+	energy_iridium: number | null;
+	health: number | null;
+	health_silver: number | null;
+	health_gold: number | null;
+	health_iridium: number | null;
+};
+
 /** Discord slash command names. */
 export enum Command {
 	ARTISAN = "artisan",
