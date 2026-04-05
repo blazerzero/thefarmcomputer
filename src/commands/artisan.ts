@@ -2,7 +2,6 @@ import { DEFAULT_COLOR, formatDate } from "@/constants";
 import { getArtisanGood } from "@/db";
 import {
 	embedResponse,
-	formatPriceTiers,
 	getOption,
 	notFoundResponse,
 	renderDotList,

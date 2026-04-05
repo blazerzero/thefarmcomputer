@@ -1,4 +1,5 @@
-import { SubmitEvent, useState } from "react";
+import type { SubmitEvent } from "react";
+import { useState } from "react";
 import styles from "./CommandForm.module.scss";
 
 type FieldDef =

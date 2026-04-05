@@ -71,11 +71,3 @@ export function countVillagers(sql: SqlStorage): number {
 		)?.n ?? 0
 	);
 }
-
-/** Returns true when any villager row has a NULL schedule (indicates the column needs populating). */
-export function villagersNeedScheduleRefresh(sql: SqlStorage): boolean {
-	const row = sql
-		.exec("SELECT COUNT(*) AS n FROM villagers WHERE schedule IS NULL")
-		.one() as { n: number } | null;
-	return (row?.n ?? 0) > 0;
-}

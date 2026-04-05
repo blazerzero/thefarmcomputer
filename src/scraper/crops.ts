@@ -1,4 +1,5 @@
-import { HTMLElement, parse } from "node-html-parser";
+import type { HTMLElement } from "node-html-parser";
+import { parse } from "node-html-parser";
 import { SEASONS } from "@/constants";
 import type { CropRow } from "@/types";
 import {

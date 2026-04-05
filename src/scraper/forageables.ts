@@ -1,4 +1,5 @@
-import { HTMLElement, parse } from "node-html-parser";
+import type { HTMLElement } from "node-html-parser";
+import { parse } from "node-html-parser";
 import { rehype } from "rehype";
 import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";

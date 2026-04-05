@@ -53,7 +53,6 @@ import {
 	upsertRing,
 	upsertVillager,
 	upsertWeapon,
-	villagersNeedScheduleRefresh,
 } from "@/db";
 import type { Env } from "@/env";
 import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
