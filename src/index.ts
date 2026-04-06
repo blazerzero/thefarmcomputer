@@ -299,9 +299,9 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	}
 	try {
 		const n = await refreshDeconstructorItems(sql);
-		console.log(`Updated ${n} deconstruct items`);
+		console.log(`Updated ${n} deconstructor items`);
 	} catch (err) {
-		console.error("Deconstruct items scrape failed:", err);
+		console.error("Deconstructor items scrape failed:", err);
 	}
 	console.log("Wiki refresh complete");
 }
@@ -431,7 +431,7 @@ export class StardewDO implements DurableObject {
 				// Fruits table was added in a later deploy — populate without full refresh
 				await refreshFruits(this.sql);
 			} else if (countDeconstructorItems(this.sql) === 0) {
-				// Deconstruct items table was added in a later deploy — populate without full refresh
+				// Deconstructor items table was added in a later deploy — populate without full refresh
 				await refreshDeconstructorItems(this.sql);
 			} else if (countTools(this.sql) === 0) {
 				// Tools table was added in a later deploy — populate without full refresh

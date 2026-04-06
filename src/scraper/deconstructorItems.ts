@@ -1,12 +1,6 @@
 import { parse } from "node-html-parser";
 import type { DeconstructorItemRow } from "@/types";
-import {
-	fetchPage,
-	getCol,
-	parseListCell,
-	parsePriceTiers,
-	WIKI_BASE,
-} from "./wiki";
+import { fetchPage, getCol, parseMaterials, WIKI_BASE } from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 
@@ -39,11 +33,10 @@ export async function scrapeDeconstructorItems(): Promise<
 			else if (text === "name") colIdx.name = colI;
 			else if (text.includes("sell")) colIdx.sell_price = colI;
 			else if (
-				text.includes("deconstruct") ||
+				text.includes("received") ||
 				text.includes("output") ||
 				text.includes("yield") ||
-				text.includes("result") ||
-				text.includes("material")
+				text.includes("result")
 			)
 				colIdx.deconstructed_items = colI;
 			colI += colspan;
@@ -79,39 +72,14 @@ export async function scrapeDeconstructorItems(): Promise<
 			// Sell price
 			const sellPriceCell = getCol(colIdx, cells, "sell_price");
 			const sellPrice = sellPriceCell
-				? (parsePriceTiers(sellPriceCell.text)[0] ?? null)
+				? sellPriceCell.text.trim().replace(/\s+/g, " ") || null
 				: null;
 
 			// Deconstructed items
 			const deconstructCell = getCol(colIdx, cells, "deconstructed_items");
-			let deconstructedItems: Array<{ name: string; quantity: number }> = [];
-			if (deconstructCell) {
-				const lines = parseListCell(deconstructCell);
-				if (lines.length > 0) {
-					deconstructedItems = lines.flatMap((line) => {
-						const m = line.match(/^(\d+)\s+(.+)$/);
-						if (m) {
-							return [{ name: m[2]!.trim(), quantity: parseInt(m[1]!, 10) }];
-						}
-						// No leading quantity — treat as 1
-						const clean = line.replace(/^[•\-]\s*/, "").trim();
-						return clean ? [{ name: clean, quantity: 1 }] : [];
-					});
-				} else {
-					// Fall back to raw text parsing if parseListCell yields nothing
-					const raw = deconstructCell.text.replace(/\s+/g, " ").trim();
-					if (raw) {
-						const m = raw.match(/^(\d+)\s+(.+)$/);
-						if (m) {
-							deconstructedItems = [
-								{ name: m[2]!.trim(), quantity: parseInt(m[1]!, 10) },
-							];
-						} else {
-							deconstructedItems = [{ name: raw, quantity: 1 }];
-						}
-					}
-				}
-			}
+			const deconstructedItems = deconstructCell
+				? parseMaterials(deconstructCell)
+				: [];
 
 			items.push({
 				name,

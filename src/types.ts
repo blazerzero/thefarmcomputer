@@ -426,7 +426,7 @@ export interface ArtisanGood
 export interface DeconstructorItemRow {
 	id?: number;
 	name: string;
-	sell_price: number | null;
+	sell_price: string | null;
 	deconstructed_items: string | null; // JSON: [{name, quantity}]
 	image_url: string | null;
 	wiki_url: string;

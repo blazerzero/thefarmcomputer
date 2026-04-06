@@ -4,7 +4,7 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 
 const fakeItemRow = {
 	name: "Sprinkler",
-	sell_price: 100,
+	sell_price: "100g",
 	deconstructed_items: JSON.stringify([
 		{ name: "Iron Bar", quantity: 1 },
 		{ name: "Gold Bar", quantity: 1 },
@@ -38,7 +38,7 @@ describe("handleDeconstruct", () => {
 		expect(embed?.color).toBe(0x607d8b);
 	});
 
-	it("includes Sells For and Deconstructed Into fields", async () => {
+	it("includes Sells For and Deconstructs Into fields", async () => {
 		const res = handleDeconstruct(
 			makeInteraction("sprinkler"),
 			makeSql([fakeItemRow]),
@@ -47,9 +47,12 @@ describe("handleDeconstruct", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Sells For", value: "100g" }),
+			expect.objectContaining({
+				name: "Deconstructed Material Value",
+				value: "100g",
+			}),
 		);
-		const outputField = fields.find((f) => f.name === "Deconstructed Into");
+		const outputField = fields.find((f) => f.name === "Deconstructs Into");
 		expect(outputField?.value).toContain("Iron Bar");
 		expect(outputField?.value).toContain("Gold Bar");
 	});
@@ -63,7 +66,10 @@ describe("handleDeconstruct", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Sells For", value: "N/A" }),
+			expect.objectContaining({
+				name: "Deconstructed Material Value",
+				value: "N/A",
+			}),
 		);
 	});
 

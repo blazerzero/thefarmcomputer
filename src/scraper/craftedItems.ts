@@ -1,49 +1,13 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { CraftedItemRow, CraftIngredient } from "@/types";
-import { fetchPage, getCol, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parseMaterials, WIKI_BASE } from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
 function parseNumber(text: string): number | null {
 	const m = text.match(/-?\d+(\.\d+)?/);
 	return m ? parseFloat(m[0]!) : null;
-}
-
-/**
- * Parse an ingredients cell into a structured list.
- * The cell typically contains items like "50 Wood" separated by <br> tags or newlines,
- * sometimes with images before each item name.
- * Each entry starts with an optional quantity number followed by the ingredient name.
- */
-function parseIngredients(cell: HTMLElement): CraftIngredient[] {
-	const ingredients: CraftIngredient[] = [];
-
-	// Collect text segments by splitting on <br> boundaries
-	const segments: string[] = [];
-
-	const ingredientElements = cell.querySelectorAll(":scope > span");
-
-	for (const node of ingredientElements) {
-		const text = node.text.trim();
-		if (text) segments.push(text);
-	}
-
-	for (const seg of segments) {
-		const clean = seg.replace(/\s+/g, " ").trim();
-		if (!clean) continue;
-
-		// Match leading number (quantity) followed by the rest as name
-		// e.g. "50 Wood", "1 Iron Bar", "Battery Pack" (no quantity → 1)
-		const m = clean.match(/^(.+)\s+\((\d+)\)$/);
-		if (m) {
-			ingredients.push({ name: m[1]!.trim(), quantity: parseInt(m[2]!, 10) });
-		} else if (clean.length > 0) {
-			ingredients.push({ name: clean, quantity: 1 });
-		}
-	}
-
-	return ingredients;
 }
 
 /**
@@ -203,7 +167,7 @@ export async function scrapeCraftedItems(): Promise<
 			// Ingredients
 			const ingredientsCell = getCol(colIdx, cells, "ingredients");
 			const ingredients: CraftIngredient[] = ingredientsCell
-				? parseIngredients(ingredientsCell)
+				? parseMaterials(ingredientsCell)
 				: [];
 
 			// Energy

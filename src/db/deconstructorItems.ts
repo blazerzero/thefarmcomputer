@@ -19,9 +19,7 @@ export function getDeconstructorItem(
 		if (!row) return null;
 		return {
 			...row,
-			deconstructed_items: JSON.parse(
-				row.deconstructed_items || "[]",
-			) as Array<{ name: string; quantity: number }>,
+			deconstructed_items: JSON.parse(row.deconstructed_items || "[]"),
 		};
 	} catch (err) {
 		console.error("DB error in getDeconstructorItem:", err);

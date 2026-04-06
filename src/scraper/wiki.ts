@@ -1,5 +1,5 @@
 import type { HTMLElement } from "node-html-parser";
-import type { EnergyHealthStats } from "@/types";
+import type { CraftIngredient, EnergyHealthStats } from "@/types";
 
 export const WIKI_BASE = "https://stardewvalleywiki.com";
 const USER_AGENT =
@@ -30,6 +30,31 @@ export function getCol(
 		?.querySelectorAll('[style*="display: none"], style')
 		.forEach((el) => el.remove());
 	return cell;
+}
+
+/**
+ * Parse a materials cell into a structured list.
+ * Each material span contains text like "Iron Bar (1)" or "Wood (3)".
+ * Items without a quantity suffix default to quantity 1.
+ */
+export function parseMaterials(cell: HTMLElement): CraftIngredient[] {
+	const ingredients: CraftIngredient[] = [];
+	const spans = cell.querySelectorAll(
+		":scope > span",
+	) as unknown as HTMLElement[];
+
+	for (const span of spans) {
+		const text = span.text.trim().replace(/\s+/g, " ");
+		if (!text) continue;
+		const m = text.match(/^(.+)\s+\((\d+)\)$/);
+		if (m) {
+			ingredients.push({ name: m[1]!.trim(), quantity: parseInt(m[2]!, 10) });
+		} else {
+			ingredients.push({ name: text, quantity: 1 });
+		}
+	}
+
+	return ingredients;
 }
 
 export function parseIntFrom(text: string): number | null {

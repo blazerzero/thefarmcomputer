@@ -1,6 +1,11 @@
 import { formatDate } from "@/constants";
 import { getDeconstructorItem } from "@/db";
-import { embedResponse, getOption, notFoundResponse } from "./utils";
+import {
+	embedResponse,
+	getOption,
+	notFoundResponse,
+	renderDotList,
+} from "./utils";
 
 const DECONSTRUCT_COLOR = 0x607d8b;
 
@@ -20,19 +25,17 @@ export function handleDeconstruct(
 	const fields: Array<{ name: string; value: string; inline: boolean }> = [];
 
 	fields.push({
-		name: "Sells For",
-		value: item.sell_price != null ? `${item.sell_price}g` : "N/A",
+		name: "Deconstructs Into",
+		value: renderDotList(
+			item.deconstructed_items.map((i) => `${i.quantity}× ${i.name}`),
+		),
 		inline: true,
 	});
 
-	const outputLines =
-		item.deconstructed_items.length > 0
-			? item.deconstructed_items.map((d) => `• ${d.quantity}× ${d.name}`)
-			: ["N/A"];
 	fields.push({
-		name: "Deconstructed Into",
-		value: outputLines.join("\n"),
-		inline: false,
+		name: "Deconstructed Material Value",
+		value: item.sell_price ?? "N/A",
+		inline: true,
 	});
 
 	return embedResponse({

@@ -367,7 +367,7 @@ export function initDb(sql: SqlStorage): void {
     CREATE TABLE IF NOT EXISTS deconstructor_items (
       id                  INTEGER PRIMARY KEY,
       name                TEXT UNIQUE NOT NULL,
-      sell_price          INTEGER,
+      sell_price          TEXT,
       deconstructed_items TEXT,
       image_url           TEXT,
       wiki_url            TEXT,
