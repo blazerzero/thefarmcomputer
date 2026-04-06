@@ -2,6 +2,7 @@ import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
+import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleCrop } from "@/commands/crop";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
@@ -25,6 +26,7 @@ import {
 	countBundles,
 	countCraftedItems,
 	countCrops,
+	countDeconstructorItems,
 	countFish,
 	countFootwear,
 	countForageables,
@@ -44,6 +46,7 @@ import {
 	upsertBundle,
 	upsertCraftedItem,
 	upsertCrop,
+	upsertDeconstructorItem,
 	upsertFish,
 	upsertFootwear,
 	upsertForageable,
@@ -63,6 +66,7 @@ import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
 import { scrapeCrops } from "@/scraper/crops";
+import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
 import { scrapeForageables } from "@/scraper/forageables";
@@ -72,8 +76,8 @@ import { scrapeMinerals } from "@/scraper/minerals";
 import { scrapeMonsters } from "@/scraper/monsters";
 import { scrapeRecipes } from "@/scraper/recipes";
 import { scrapeRings } from "@/scraper/rings";
-import { scrapeVillagers } from "@/scraper/villagers";
 import { scrapeTools } from "@/scraper/tools";
+import { scrapeVillagers } from "@/scraper/villagers";
 import { scrapeWeapons } from "@/scraper/weapons";
 import { Command, InteractionResponseType, InteractionType } from "@/types";
 import { verifyDiscordRequest } from "@/verify";
@@ -91,6 +95,12 @@ async function refreshBooks(sql: SqlStorage): Promise<number> {
 	const books = await scrapeBooks();
 	for (const book of books) upsertBook(sql, book);
 	return books.length;
+}
+
+async function refreshDeconstructorItems(sql: SqlStorage): Promise<number> {
+	const items = await scrapeDeconstructorItems();
+	for (const item of items) upsertDeconstructorItem(sql, item);
+	return items.length;
 }
 
 async function refreshCrops(sql: SqlStorage): Promise<number> {
@@ -287,6 +297,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	} catch (err) {
 		console.error("Artisan goods scrape failed:", err);
 	}
+	try {
+		const n = await refreshDeconstructorItems(sql);
+		console.log(`Updated ${n} deconstructor items`);
+	} catch (err) {
+		console.error("Deconstructor items scrape failed:", err);
+	}
 	console.log("Wiki refresh complete");
 }
 
@@ -306,6 +322,10 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 		case Command.CRAFT:
 		case Command.INGREDIENT:
 			if (countCraftedItems(sql) === 0) await refreshCraftedItems(sql);
+			break;
+		case Command.DECONSTRUCT:
+			if (countDeconstructorItems(sql) === 0)
+				await refreshDeconstructorItems(sql);
 			break;
 		case Command.CROP:
 		case Command.SEASON:
@@ -410,6 +430,9 @@ export class StardewDO implements DurableObject {
 			} else if (countFruits(this.sql) === 0) {
 				// Fruits table was added in a later deploy — populate without full refresh
 				await refreshFruits(this.sql);
+			} else if (countDeconstructorItems(this.sql) === 0) {
+				// Deconstructor items table was added in a later deploy — populate without full refresh
+				await refreshDeconstructorItems(this.sql);
 			} else if (countTools(this.sql) === 0) {
 				// Tools table was added in a later deploy — populate without full refresh
 				await refreshTools(this.sql);
@@ -460,6 +483,11 @@ export class StardewDO implements DurableObject {
 				if (countCraftedItems(this.sql) === 0)
 					await refreshCraftedItems(this.sql);
 				return handleCraft(interaction, this.sql);
+			}
+			if (commandName === Command.DECONSTRUCT) {
+				if (countDeconstructorItems(this.sql) === 0)
+					await refreshDeconstructorItems(this.sql);
+				return handleDeconstruct(interaction, this.sql);
 			}
 			if (commandName === Command.CROP) {
 				if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
@@ -558,6 +586,9 @@ export class StardewDO implements DurableObject {
 					s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 					s.booksLastUpdated ? new Date(s.booksLastUpdated).getTime() : 0,
 					s.ringsLastUpdated ? new Date(s.ringsLastUpdated).getTime() : 0,
+					s.deconstructorItemsLastUpdated
+						? new Date(s.deconstructorItemsLastUpdated).getTime()
+						: 0,
 					s.toolsLastUpdated ? new Date(s.toolsLastUpdated).getTime() : 0,
 				);
 				const lastUpdated = lastUpdatedMs
@@ -593,6 +624,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Crops: ${s.cropCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Deconstructed Items: ${s.deconstructorItemCount}`,
 										value: "",
 										inline: false,
 									},

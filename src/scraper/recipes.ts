@@ -2,37 +2,19 @@ import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import { renderDotList } from "@/commands/utils";
 import type { CraftIngredient, RecipeRow } from "@/types";
-import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
+import {
+	fetchPage,
+	getCol,
+	parseListCell,
+	parseMaterials,
+	WIKI_BASE,
+} from "./wiki";
 
 // ── Cell parsers ──────────────────────────────────────────────────────────────
 
 function parseNumber(text: string): number | null {
 	const m = text.match(/-?\d+(\.\d+)?/);
 	return m ? parseFloat(m[0]!) : null;
-}
-
-/**
- * Parse an ingredients cell into a structured list.
- * Each ingredient span contains text like "Egg (1)" or "Oil (1)".
- */
-function parseIngredients(cell: HTMLElement): CraftIngredient[] {
-	const ingredients: CraftIngredient[] = [];
-	const spans = cell.querySelectorAll(
-		":scope > span",
-	) as unknown as HTMLElement[];
-
-	for (const span of spans) {
-		const text = span.text.trim().replace(/\s+/g, " ");
-		if (!text) continue;
-		const m = text.match(/^(.+)\s+\((\d+)\)$/);
-		if (m) {
-			ingredients.push({ name: m[1]!.trim(), quantity: parseInt(m[2]!, 10) });
-		} else {
-			ingredients.push({ name: text, quantity: 1 });
-		}
-	}
-
-	return ingredients;
 }
 
 /**
@@ -168,7 +150,7 @@ export async function scrapeRecipes(): Promise<
 		// Ingredients
 		const ingredientsCell = getCol(colIdx, cells, "ingredients");
 		const ingredients: CraftIngredient[] = ingredientsCell
-			? parseIngredients(ingredientsCell)
+			? parseMaterials(ingredientsCell)
 			: [];
 
 		// Restores (energy + health)

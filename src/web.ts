@@ -2,6 +2,7 @@ import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
+import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleCrop } from "@/commands/crop";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
@@ -124,6 +125,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case Command.DECONSTRUCT:
+			handlerResponse = handleDeconstruct(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case Command.INGREDIENT:
 			handlerResponse = handleIngredient(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
@@ -204,6 +211,9 @@ export async function handleWebQuery(
 				s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 				s.booksLastUpdated ? new Date(s.booksLastUpdated).getTime() : 0,
 				s.ringsLastUpdated ? new Date(s.ringsLastUpdated).getTime() : 0,
+				s.deconstructorItemsLastUpdated
+					? new Date(s.deconstructorItemsLastUpdated).getTime()
+					: 0,
 				s.toolsLastUpdated ? new Date(s.toolsLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
@@ -227,6 +237,11 @@ export async function handleWebQuery(
 							inline: false,
 						},
 						{ name: `Crops: ${s.cropCount}`, value: "", inline: false },
+						{
+							name: `Deconstructed Items: ${s.deconstructorItemCount}`,
+							value: "",
+							inline: false,
+						},
 						{ name: `Fish: ${s.fishCount}`, value: "", inline: false },
 						{ name: `Footwear: ${s.footwearCount}`, value: "", inline: false },
 						{
@@ -260,7 +275,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artisan, book, crop, fish, footwear, fruit, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, tool, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: artisan, book, bundle, craft, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
 			});
 	}
 

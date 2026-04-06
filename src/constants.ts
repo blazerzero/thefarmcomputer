@@ -5,6 +5,7 @@ export const COMMAND_DESCRIPTIONS: Record<Command, string> = {
 	[Command.BOOK]: "Look up a book.",
 	[Command.BUNDLE]: "Look up the items required for a Community Center bundle.",
 	[Command.CRAFT]: "Look up a crafted item.",
+	[Command.DECONSTRUCT]: "Look up what a Deconstructor yields from an item.",
 	[Command.CROP]: "Look up info about a crop.",
 	[Command.FISH]: "Look up info about a fish.",
 	[Command.FOOTWEAR]: "Look up info about a piece of footwear.",

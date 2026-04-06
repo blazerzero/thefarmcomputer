@@ -212,6 +212,20 @@ const commands = [
 		],
 	},
 	{
+		name: Command.DECONSTRUCT,
+		description: COMMAND_DESCRIPTIONS[Command.DECONSTRUCT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Item name (e.g. Sprinkler, Crab Pot, Staircase)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.INGREDIENT,
 		description: COMMAND_DESCRIPTIONS[Command.INGREDIENT],
 		integration_types: COMMAND_INTEGRATION_TYPES,
