@@ -24,6 +24,7 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 | `/ring <name>` | Look up a ring — effects, sell price, and where to find it |
 | `/schedule <villager> [season] [day]` | Look up a villager's daily schedule, optionally filtered by season and occasion |
 | `/season <season>` | List all crops harvestable in Spring, Summer, Fall, or Winter |
+| `/tool <name>` | Look up a tool — type, cost, ingredients, improvements, and location |
 | `/weapon <name>` | Look up a weapon — type, level, damage, stats, location, and price |
 | `/info` | Show the bot's data freshness and record counts |
 
