@@ -1,21 +1,21 @@
-import type { DeconstructItem, DeconstructItemRow } from "@/types";
+import type { DeconstructorItem, DeconstructorItemRow } from "@/types";
 
 const now = () => new Date().toISOString();
 
-export function getDeconstructItem(
+export function getDeconstructorItem(
 	sql: SqlStorage,
 	name: string,
-): DeconstructItem | null {
+): DeconstructorItem | null {
 	try {
 		const row = sql
 			.exec(
-				`SELECT * FROM deconstruct_items WHERE name LIKE ?
+				`SELECT * FROM deconstructor_items WHERE name LIKE ?
          ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
          LIMIT 1`,
 				`%${name}%`,
 				name,
 			)
-			.one() as unknown as DeconstructItemRow | null;
+			.one() as unknown as DeconstructorItemRow | null;
 		if (!row) return null;
 		return {
 			...row,
@@ -24,17 +24,17 @@ export function getDeconstructItem(
 			) as Array<{ name: string; quantity: number }>,
 		};
 	} catch (err) {
-		console.error("DB error in getDeconstructItem:", err);
+		console.error("DB error in getDeconstructorItem:", err);
 		return null;
 	}
 }
 
-export function upsertDeconstructItem(
+export function upsertDeconstructorItem(
 	sql: SqlStorage,
-	data: Omit<DeconstructItemRow, "id" | "last_updated">,
+	data: Omit<DeconstructorItemRow, "id" | "last_updated">,
 ): void {
 	sql.exec(
-		`INSERT INTO deconstruct_items
+		`INSERT INTO deconstructor_items
        (name, sell_price, deconstructed_items, image_url, wiki_url, last_updated)
      VALUES (?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
@@ -52,11 +52,11 @@ export function upsertDeconstructItem(
 	);
 }
 
-export function countDeconstructItems(sql: SqlStorage): number {
+export function countDeconstructorItems(sql: SqlStorage): number {
 	return (
 		(
 			sql
-				.exec("SELECT COUNT(*) AS n FROM deconstruct_items")
+				.exec("SELECT COUNT(*) AS n FROM deconstructor_items")
 				.one() as { n: number } | null
 		)?.n ?? 0
 	);

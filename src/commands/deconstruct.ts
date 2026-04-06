@@ -1,5 +1,5 @@
 import { formatDate } from "@/constants";
-import { getDeconstructItem } from "@/db";
+import { getDeconstructorItem } from "@/db";
 import { embedResponse, getOption, notFoundResponse } from "./utils";
 
 const DECONSTRUCT_COLOR = 0x607d8b;
@@ -9,7 +9,7 @@ export function handleDeconstruct(
 	sql: SqlStorage,
 ): Response {
 	const name = getOption(interaction, "name");
-	const item = getDeconstructItem(sql, name);
+	const item = getDeconstructorItem(sql, name);
 
 	if (!item) {
 		return notFoundResponse(

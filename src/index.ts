@@ -25,7 +25,7 @@ import {
 	countBundles,
 	countCraftedItems,
 	countCrops,
-	countDeconstructItems,
+	countDeconstructorItems,
 	countFish,
 	countFootwear,
 	countForageables,
@@ -44,7 +44,7 @@ import {
 	upsertBundle,
 	upsertCraftedItem,
 	upsertCrop,
-	upsertDeconstructItem,
+	upsertDeconstructorItem,
 	upsertFish,
 	upsertFootwear,
 	upsertForageable,
@@ -59,7 +59,7 @@ import {
 } from "@/db";
 import type { Env } from "@/env";
 import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
-import { scrapeDeconstructItems } from "@/scraper/deconstructItems";
+import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
@@ -93,9 +93,9 @@ async function refreshBooks(sql: SqlStorage): Promise<number> {
 	return books.length;
 }
 
-async function refreshDeconstructItems(sql: SqlStorage): Promise<number> {
-	const items = await scrapeDeconstructItems();
-	for (const item of items) upsertDeconstructItem(sql, item);
+async function refreshDeconstructorItems(sql: SqlStorage): Promise<number> {
+	const items = await scrapeDeconstructorItems();
+	for (const item of items) upsertDeconstructorItem(sql, item);
 	return items.length;
 }
 
@@ -282,7 +282,7 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Artisan goods scrape failed:", err);
 	}
 	try {
-		const n = await refreshDeconstructItems(sql);
+		const n = await refreshDeconstructorItems(sql);
 		console.log(`Updated ${n} deconstruct items`);
 	} catch (err) {
 		console.error("Deconstruct items scrape failed:", err);
@@ -308,7 +308,7 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 			if (countCraftedItems(sql) === 0) await refreshCraftedItems(sql);
 			break;
 		case Command.DECONSTRUCT:
-			if (countDeconstructItems(sql) === 0) await refreshDeconstructItems(sql);
+			if (countDeconstructorItems(sql) === 0) await refreshDeconstructorItems(sql);
 			break;
 		case Command.CROP:
 		case Command.SEASON:
@@ -410,9 +410,9 @@ export class StardewDO implements DurableObject {
 			} else if (countFruits(this.sql) === 0) {
 				// Fruits table was added in a later deploy — populate without full refresh
 				await refreshFruits(this.sql);
-			} else if (countDeconstructItems(this.sql) === 0) {
+			} else if (countDeconstructorItems(this.sql) === 0) {
 				// Deconstruct items table was added in a later deploy — populate without full refresh
-				await refreshDeconstructItems(this.sql);
+				await refreshDeconstructorItems(this.sql);
 			}
 		});
 	}
@@ -462,8 +462,8 @@ export class StardewDO implements DurableObject {
 				return handleCraft(interaction, this.sql);
 			}
 			if (commandName === Command.DECONSTRUCT) {
-				if (countDeconstructItems(this.sql) === 0)
-					await refreshDeconstructItems(this.sql);
+				if (countDeconstructorItems(this.sql) === 0)
+					await refreshDeconstructorItems(this.sql);
 				return handleDeconstruct(interaction, this.sql);
 			}
 			if (commandName === Command.CROP) {
@@ -559,8 +559,8 @@ export class StardewDO implements DurableObject {
 					s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 					s.booksLastUpdated ? new Date(s.booksLastUpdated).getTime() : 0,
 					s.ringsLastUpdated ? new Date(s.ringsLastUpdated).getTime() : 0,
-					s.deconstructItemsLastUpdated
-						? new Date(s.deconstructItemsLastUpdated).getTime()
+					s.deconstructorItemsLastUpdated
+						? new Date(s.deconstructorItemsLastUpdated).getTime()
 						: 0,
 				);
 				const lastUpdated = lastUpdatedMs
@@ -600,7 +600,7 @@ export class StardewDO implements DurableObject {
 										inline: false,
 									},
 									{
-										name: `Deconstructed Items: ${s.deconstructItemCount}`,
+										name: `Deconstructed Items: ${s.deconstructorItemCount}`,
 										value: "",
 										inline: false,
 									},

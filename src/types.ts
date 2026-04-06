@@ -422,8 +422,8 @@ export interface ArtisanGood
 	buffs: string[];
 }
 
-/** A deconstruct item row as stored in SQLite. */
-export interface DeconstructItemRow {
+/** A deconstructor item row as stored in SQLite. */
+export interface DeconstructorItemRow {
 	id?: number;
 	name: string;
 	sell_price: number | null;
@@ -433,9 +433,9 @@ export interface DeconstructItemRow {
 	last_updated: string;
 }
 
-/** A deconstruct item row with deconstructed_items decoded. */
-export interface DeconstructItem
-	extends Omit<DeconstructItemRow, "deconstructed_items"> {
+/** A deconstructor item row with deconstructed_items decoded. */
+export interface DeconstructorItem
+	extends Omit<DeconstructorItemRow, "deconstructed_items"> {
 	deconstructed_items: Array<{ name: string; quantity: number }>;
 }
 

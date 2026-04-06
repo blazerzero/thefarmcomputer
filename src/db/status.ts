@@ -1,7 +1,7 @@
 export function getStatus(sql: SqlStorage): {
 	artisanGoodCount: number;
 	cropCount: number;
-	deconstructItemCount: number;
+	deconstructorItemCount: number;
 	villagerCount: number;
 	fruitCount: number;
 	fruitTreeCount: number;
@@ -32,7 +32,7 @@ export function getStatus(sql: SqlStorage): {
 	footwearLastUpdated: string | null;
 	booksLastUpdated: string | null;
 	ringsLastUpdated: string | null;
-	deconstructItemsLastUpdated: string | null;
+	deconstructorItemsLastUpdated: string | null;
 } {
 	const artisanGoodRow = sql
 		.exec(
@@ -106,7 +106,7 @@ export function getStatus(sql: SqlStorage): {
 		.one() as { n: number; last_updated: string | null } | null;
 	const deconstructItemRow = sql
 		.exec(
-			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM deconstruct_items",
+			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM deconstructor_items",
 		)
 		.one() as { n: number; last_updated: string | null } | null;
 	return {
@@ -126,7 +126,7 @@ export function getStatus(sql: SqlStorage): {
 		footwearCount: footwearRow?.n ?? 0,
 		bookCount: bookRow?.n ?? 0,
 		ringCount: ringRow?.n ?? 0,
-		deconstructItemCount: deconstructItemRow?.n ?? 0,
+		deconstructorItemCount: deconstructItemRow?.n ?? 0,
 		artisanGoodsLastUpdated: artisanGoodRow?.last_updated ?? null,
 		cropsLastUpdated: cropRow?.last_updated ?? null,
 		villagersLastUpdated: villagerRow?.last_updated ?? null,
@@ -143,6 +143,6 @@ export function getStatus(sql: SqlStorage): {
 		footwearLastUpdated: footwearRow?.last_updated ?? null,
 		booksLastUpdated: bookRow?.last_updated ?? null,
 		ringsLastUpdated: ringRow?.last_updated ?? null,
-		deconstructItemsLastUpdated: deconstructItemRow?.last_updated ?? null,
+		deconstructorItemsLastUpdated: deconstructItemRow?.last_updated ?? null,
 	};
 }

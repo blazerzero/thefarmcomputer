@@ -1,17 +1,17 @@
 import { parse } from "node-html-parser";
-import type { DeconstructItemRow } from "@/types";
+import type { DeconstructorItemRow } from "@/types";
 import { fetchPage, getCol, parseListCell, parsePriceTiers, WIKI_BASE } from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 
-export async function scrapeDeconstructItems(): Promise<
-	Omit<DeconstructItemRow, "id" | "last_updated">[]
+export async function scrapeDeconstructorItems(): Promise<
+	Omit<DeconstructorItemRow, "id" | "last_updated">[]
 > {
 	const html = await fetchPage("/Deconstructor");
 	const root = parse(html);
 	const content = root.querySelector("#mw-content-text") ?? root;
 
-	const items: Omit<DeconstructItemRow, "id" | "last_updated">[] = [];
+	const items: Omit<DeconstructorItemRow, "id" | "last_updated">[] = [];
 
 	const tables = content.querySelectorAll("table.wikitable");
 
@@ -117,6 +117,6 @@ export async function scrapeDeconstructItems(): Promise<
 		}
 	}
 
-	console.log(`Scraped ${items.length} deconstruct items`);
+	console.log(`Scraped ${items.length} deconstructor items`);
 	return items;
 }

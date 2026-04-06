@@ -204,8 +204,8 @@ export async function handleWebQuery(
 				s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 				s.booksLastUpdated ? new Date(s.booksLastUpdated).getTime() : 0,
 				s.ringsLastUpdated ? new Date(s.ringsLastUpdated).getTime() : 0,
-				s.deconstructItemsLastUpdated
-					? new Date(s.deconstructItemsLastUpdated).getTime()
+				s.deconstructorItemsLastUpdated
+					? new Date(s.deconstructorItemsLastUpdated).getTime()
 					: 0,
 			);
 			const lastUpdated = lastUpdatedMs
@@ -230,7 +230,7 @@ export async function handleWebQuery(
 						},
 						{ name: `Crops: ${s.cropCount}`, value: "", inline: false },
 						{
-							name: `Deconstructed Items: ${s.deconstructItemCount}`,
+							name: `Deconstructed Items: ${s.deconstructorItemCount}`,
 							value: "",
 							inline: false,
 						},

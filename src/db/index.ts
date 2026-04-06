@@ -5,10 +5,10 @@ export {
 } from "./artisanGoods";
 export { countBooks, getBook, upsertBook } from "./books";
 export {
-	countDeconstructItems,
-	getDeconstructItem,
-	upsertDeconstructItem,
-} from "./deconstructItems";
+	countDeconstructorItems,
+	getDeconstructorItem,
+	upsertDeconstructorItem,
+} from "./deconstructorItems";
 export { countBundles, getBundle, upsertBundle } from "./bundles";
 export {
 	countCraftedItems,
