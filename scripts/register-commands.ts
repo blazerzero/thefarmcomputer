@@ -326,6 +326,21 @@ const commands = [
 		],
 	},
 	{
+		name: Command.TOOL,
+		description: COMMAND_DESCRIPTIONS[Command.TOOL],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description:
+					"Tool name (e.g. Copper Hoe, Iridium Pickaxe, Iridium Rod)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.WEAPON,
 		description: COMMAND_DESCRIPTIONS[Command.WEAPON],
 		integration_types: COMMAND_INTEGRATION_TYPES,

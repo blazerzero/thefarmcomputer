@@ -282,6 +282,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "tool",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Copper Hoe",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "weapon",
 		fields: [
 			{

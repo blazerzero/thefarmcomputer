@@ -209,6 +209,20 @@ const fakeRingRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeToolRow = {
+	name: "Copper Hoe",
+	category: "Hoe",
+	description: "A farming tool used to till the earth.",
+	cost: null,
+	ingredients: '["5 Copper Bar (2,000g)"]',
+	improvements: '["Tills 2 columns (3 tiles)"]',
+	location: null,
+	requirements: null,
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Copper_Hoe",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeArtisanGoodRow = {
 	name: "Wine",
 	machine: "Keg",
@@ -408,6 +422,17 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.title).toBe("Lucky Ring");
 	});
 
+	it("routes 'tool' and returns an embed with the tool title", async () => {
+		const res = await handleWebQuery(
+			"tool copper hoe",
+			makeSql([fakeToolRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Copper Hoe");
+	});
+
 	it("routes 'info' and returns an embed with the status title", async () => {
 		const res = await handleWebQuery(
 			"info",
@@ -422,6 +447,7 @@ describe("handleWebQuery — command routing", () => {
 			`Artisan Goods: 10`,
 		);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Fruits: 10`);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Tools: 10`);
 	});
 });
 

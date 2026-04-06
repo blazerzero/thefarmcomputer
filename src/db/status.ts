@@ -11,6 +11,7 @@ export function getStatus(sql: SqlStorage): {
 	craftedItemCount: number;
 	monsterCount: number;
 	recipeCount: number;
+	toolCount: number;
 	weaponCount: number;
 	footwearCount: number;
 	bookCount: number;
@@ -27,6 +28,7 @@ export function getStatus(sql: SqlStorage): {
 	craftedItemsLastUpdated: string | null;
 	monstersLastUpdated: string | null;
 	recipesLastUpdated: string | null;
+	toolsLastUpdated: string | null;
 	weaponsLastUpdated: string | null;
 	footwearLastUpdated: string | null;
 	booksLastUpdated: string | null;
@@ -102,6 +104,9 @@ export function getStatus(sql: SqlStorage): {
 	const ringRow = sql
 		.exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM rings")
 		.one() as { n: number; last_updated: string | null } | null;
+	const toolRow = sql
+		.exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM tools")
+		.one() as { n: number; last_updated: string | null } | null;
 	return {
 		artisanGoodCount: artisanGoodRow?.n ?? 0,
 		cropCount: cropRow?.n ?? 0,
@@ -115,6 +120,7 @@ export function getStatus(sql: SqlStorage): {
 		craftedItemCount: craftedItemRow?.n ?? 0,
 		monsterCount: monsterRow?.n ?? 0,
 		recipeCount: recipeRow?.n ?? 0,
+		toolCount: toolRow?.n ?? 0,
 		weaponCount: weaponRow?.n ?? 0,
 		footwearCount: footwearRow?.n ?? 0,
 		bookCount: bookRow?.n ?? 0,
@@ -131,6 +137,7 @@ export function getStatus(sql: SqlStorage): {
 		craftedItemsLastUpdated: craftedItemRow?.last_updated ?? null,
 		monstersLastUpdated: monsterRow?.last_updated ?? null,
 		recipesLastUpdated: recipeRow?.last_updated ?? null,
+		toolsLastUpdated: toolRow?.last_updated ?? null,
 		weaponsLastUpdated: weaponRow?.last_updated ?? null,
 		footwearLastUpdated: footwearRow?.last_updated ?? null,
 		booksLastUpdated: bookRow?.last_updated ?? null,

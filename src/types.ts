@@ -434,6 +434,34 @@ export type EnergyHealthStats = {
 	health_iridium: number | null;
 };
 
+/** A tool row as stored in SQLite. */
+export interface ToolRow {
+	id?: number;
+	name: string;
+	category: string | null; // "Hoe" | "Pickaxe" | "Watering Can" | "Axe" | "Fishing Rod" | "Pan" | "Scythe"
+	description: string | null;
+	cost: string | null; // plain text purchase/upgrade cost, e.g. "2,000g" or "5 Copper Bar (2,000g)"
+	ingredients: string | null; // plain text upgrade materials
+	improvements: string | null; // plain text: what this tier unlocks/improves
+	location: string | null; // where to obtain
+	requirements: string | null; // special requirements to obtain
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A tool row (no JSON fields to decode). */
+export interface Tool
+	extends Omit<
+		ToolRow,
+		"ingredients" | "improvements" | "location" | "requirements"
+	> {
+	ingredients: string[];
+	improvements: string[];
+	location: string[];
+	requirements: string[];
+}
+
 /** Discord slash command names. */
 export enum Command {
 	ARTISAN = "artisan",
@@ -455,6 +483,7 @@ export enum Command {
 	RING = "ring",
 	SCHEDULE = "schedule",
 	SEASON = "season",
+	TOOL = "tool",
 	WEAPON = "weapon",
 }
 
