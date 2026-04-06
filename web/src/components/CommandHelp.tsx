@@ -27,12 +27,12 @@ const COMMANDS: CommandItem[] = [
 		example: "bundle spring",
 	},
 	{ command: Command.CRAFT, syntax: "craft <name>", example: "craft furnace" },
+	{ command: Command.CROP, syntax: "crop <name>", example: "crop parsnip" },
 	{
 		command: Command.DECONSTRUCT,
 		syntax: "deconstruct <name>",
 		example: "deconstruct sprinkler",
 	},
-	{ command: Command.CROP, syntax: "crop <name>", example: "crop parsnip" },
 	{ command: Command.FISH, syntax: "fish <name>", example: "fish tuna" },
 	{
 		command: Command.FOOTWEAR,
