@@ -220,8 +220,7 @@ const commands = [
 			{
 				type: OptionType.STRING,
 				name: "name",
-				description:
-					"Item name (e.g. Sprinkler, Crab Pot, Staircase)",
+				description: "Item name (e.g. Sprinkler, Crab Pot, Staircase)",
 				required: true,
 			},
 		],
@@ -336,6 +335,21 @@ const commands = [
 				type: OptionType.STRING,
 				name: "name",
 				description: "Ring name (e.g. Lucky Ring, Iridium Band, Glow Ring)",
+				required: true,
+			},
+		],
+	},
+	{
+		name: Command.TOOL,
+		description: COMMAND_DESCRIPTIONS[Command.TOOL],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description:
+					"Tool name (e.g. Copper Hoe, Iridium Pickaxe, Iridium Rod)",
 				required: true,
 			},
 		],

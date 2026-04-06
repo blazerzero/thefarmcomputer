@@ -27,9 +27,7 @@ export function handleDeconstruct(
 
 	const outputLines =
 		item.deconstructed_items.length > 0
-			? item.deconstructed_items.map(
-					(d) => `• ${d.quantity}× ${d.name}`,
-				)
+			? item.deconstructed_items.map((d) => `• ${d.quantity}× ${d.name}`)
 			: ["N/A"];
 	fields.push({
 		name: "Deconstructed Into",

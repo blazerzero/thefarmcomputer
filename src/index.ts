@@ -17,6 +17,7 @@ import { handleRecipe } from "@/commands/recipe";
 import { handleRing } from "@/commands/ring";
 import { handleSchedule } from "@/commands/schedule";
 import { handleSeason } from "@/commands/season";
+import { handleTool } from "@/commands/tool";
 import { handleWeapon } from "@/commands/weapon";
 import { formatDate } from "@/constants";
 import {
@@ -35,6 +36,7 @@ import {
 	countMonsters,
 	countRecipes,
 	countRings,
+	countTools,
 	countVillagers,
 	countWeapons,
 	getStatus,
@@ -54,16 +56,17 @@ import {
 	upsertMonster,
 	upsertRecipe,
 	upsertRing,
+	upsertTool,
 	upsertVillager,
 	upsertWeapon,
 } from "@/db";
 import type { Env } from "@/env";
 import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
-import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
 import { scrapeCrops } from "@/scraper/crops";
+import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
 import { scrapeForageables } from "@/scraper/forageables";
@@ -73,6 +76,7 @@ import { scrapeMinerals } from "@/scraper/minerals";
 import { scrapeMonsters } from "@/scraper/monsters";
 import { scrapeRecipes } from "@/scraper/recipes";
 import { scrapeRings } from "@/scraper/rings";
+import { scrapeTools } from "@/scraper/tools";
 import { scrapeVillagers } from "@/scraper/villagers";
 import { scrapeWeapons } from "@/scraper/weapons";
 import { Command, InteractionResponseType, InteractionType } from "@/types";
@@ -157,6 +161,12 @@ async function refreshMonsters(sql: SqlStorage): Promise<number> {
 	const monsters = await scrapeMonsters();
 	for (const m of monsters) upsertMonster(sql, m);
 	return monsters.length;
+}
+
+async function refreshTools(sql: SqlStorage): Promise<number> {
+	const tools = await scrapeTools();
+	for (const t of tools) upsertTool(sql, t);
+	return tools.length;
 }
 
 async function refreshWeapons(sql: SqlStorage): Promise<number> {
@@ -276,6 +286,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Ring scrape failed:", err);
 	}
 	try {
+		const n = await refreshTools(sql);
+		console.log(`Updated ${n} tools`);
+	} catch (err) {
+		console.error("Tools scrape failed:", err);
+	}
+	try {
 		const n = await refreshArtisanGoods(sql);
 		console.log(`Updated ${n} artisan goods`);
 	} catch (err) {
@@ -308,7 +324,8 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 			if (countCraftedItems(sql) === 0) await refreshCraftedItems(sql);
 			break;
 		case Command.DECONSTRUCT:
-			if (countDeconstructorItems(sql) === 0) await refreshDeconstructorItems(sql);
+			if (countDeconstructorItems(sql) === 0)
+				await refreshDeconstructorItems(sql);
 			break;
 		case Command.CROP:
 		case Command.SEASON:
@@ -347,6 +364,9 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 			break;
 		case Command.RING:
 			if (countRings(sql) === 0) await refreshRings(sql);
+			break;
+		case Command.TOOL:
+			if (countTools(sql) === 0) await refreshTools(sql);
 			break;
 	}
 }
@@ -413,6 +433,9 @@ export class StardewDO implements DurableObject {
 			} else if (countDeconstructorItems(this.sql) === 0) {
 				// Deconstruct items table was added in a later deploy — populate without full refresh
 				await refreshDeconstructorItems(this.sql);
+			} else if (countTools(this.sql) === 0) {
+				// Tools table was added in a later deploy — populate without full refresh
+				await refreshTools(this.sql);
 			}
 		});
 	}
@@ -512,6 +535,10 @@ export class StardewDO implements DurableObject {
 				if (countFootwear(this.sql) === 0) await refreshFootwear(this.sql);
 				return handleFootwear(interaction, this.sql);
 			}
+			if (commandName === Command.TOOL) {
+				if (countTools(this.sql) === 0) await refreshTools(this.sql);
+				return handleTool(interaction, this.sql);
+			}
 			if (commandName === Command.WEAPON) {
 				if (countWeapons(this.sql) === 0) await refreshWeapons(this.sql);
 				return handleWeapon(interaction, this.sql);
@@ -562,6 +589,7 @@ export class StardewDO implements DurableObject {
 					s.deconstructorItemsLastUpdated
 						? new Date(s.deconstructorItemsLastUpdated).getTime()
 						: 0,
+					s.toolsLastUpdated ? new Date(s.toolsLastUpdated).getTime() : 0,
 				);
 				const lastUpdated = lastUpdatedMs
 					? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -646,6 +674,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Rings: ${s.ringCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Tools: ${s.toolCount}`,
 										value: "",
 										inline: false,
 									},

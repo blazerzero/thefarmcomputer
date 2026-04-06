@@ -1,6 +1,12 @@
 import { parse } from "node-html-parser";
 import type { DeconstructorItemRow } from "@/types";
-import { fetchPage, getCol, parseListCell, parsePriceTiers, WIKI_BASE } from "./wiki";
+import {
+	fetchPage,
+	getCol,
+	parseListCell,
+	parsePriceTiers,
+	WIKI_BASE,
+} from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 

@@ -55,9 +55,9 @@ export function upsertDeconstructorItem(
 export function countDeconstructorItems(sql: SqlStorage): number {
 	return (
 		(
-			sql
-				.exec("SELECT COUNT(*) AS n FROM deconstructor_items")
-				.one() as { n: number } | null
+			sql.exec("SELECT COUNT(*) AS n FROM deconstructor_items").one() as {
+				n: number;
+			} | null
 		)?.n ?? 0
 	);
 }

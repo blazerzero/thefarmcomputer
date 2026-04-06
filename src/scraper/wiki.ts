@@ -153,15 +153,41 @@ export function parseListCell(cell: HTMLElement): string[] {
 	const parsedItems: string[] = [];
 	let goToNewline = false;
 	let text = "";
+
+	const flush = () => {
+		if (text.trim()) parsedItems.push(text.trim());
+		text = "";
+	};
+
 	items.forEach((item, index) => {
 		if (item.rawTagName === "ul") {
 			parsedItems.push(...parseListCell(item as HTMLElement));
 			return;
 		}
+		// <p> blocks each become a separate group of items
+		if (item.rawTagName === "p") {
+			if (item.text.startsWith("(")) {
+				text += ` ${item.text}`; // parenthetical notes are kept inline with the preceding item
+				return;
+			}
+			flush();
+			parsedItems.push(...parseListCell(item as HTMLElement));
+			return;
+		}
 		if (item.rawTagName === "img") return;
-		if (item.rawTagName && item.rawTagName !== "a") {
+		// <br> flushes accumulated text immediately as a new item
+		if (item.rawTagName === "br") {
+			flush();
+			return;
+		}
+		if (
+			item.rawTagName &&
+			!["a", "b", "i"].includes(item.rawTagName) &&
+			(index === items.length - 1 || items[index + 1]?.rawTagName)
+		) {
+			// Only go to a newline if the current item has a tag and the next item has a different tag (or is the last item).
+			// This prevents unnecessary newlines between consecutive text nodes or inline formatting tags, which are often used together without separators.
 			goToNewline = true;
-			if (item.rawTagName === "br") return;
 		}
 		if (
 			!item.rawTagName &&
@@ -173,8 +199,7 @@ export function parseListCell(cell: HTMLElement): string[] {
 		const itemText = item.text.replace(/\s+/g, " ");
 		text += itemText;
 		if (goToNewline || index === items.length - 1) {
-			if (text.trim()) parsedItems.push(text.trim());
-			text = "";
+			flush();
 			goToNewline = false;
 		}
 	});

@@ -17,6 +17,7 @@ import { handleRecipe } from "@/commands/recipe";
 import { handleRing } from "@/commands/ring";
 import { handleSchedule } from "@/commands/schedule";
 import { handleSeason } from "@/commands/season";
+import { handleTool } from "@/commands/tool";
 import { handleWeapon } from "@/commands/weapon";
 import { formatDate } from "@/constants";
 import { getStatus } from "@/db";
@@ -165,6 +166,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case Command.TOOL:
+			handlerResponse = handleTool(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case Command.WEAPON:
 			handlerResponse = handleWeapon(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
@@ -207,6 +214,7 @@ export async function handleWebQuery(
 				s.deconstructorItemsLastUpdated
 					? new Date(s.deconstructorItemsLastUpdated).getTime()
 					: 0,
+				s.toolsLastUpdated ? new Date(s.toolsLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -255,6 +263,7 @@ export async function handleWebQuery(
 						{ name: `Monsters: ${s.monsterCount}`, value: "", inline: false },
 						{ name: `Recipes: ${s.recipeCount}`, value: "", inline: false },
 						{ name: `Rings: ${s.ringCount}`, value: "", inline: false },
+						{ name: `Tools: ${s.toolCount}`, value: "", inline: false },
 						{ name: `Villagers: ${s.villagerCount}`, value: "", inline: false },
 						{ name: `Weapons: ${s.weaponCount}`, value: "", inline: false },
 					],
@@ -266,7 +275,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artisan, book, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, bundle, mineral, craft, ingredient, gift, monster, recipe, ring, weapon, schedule, season, info`,
+				error: `Unknown command "${command}". Try: artisan, book, bundle, craft, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
 			});
 	}
 
