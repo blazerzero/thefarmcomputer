@@ -451,7 +451,16 @@ export interface ToolRow {
 }
 
 /** A tool row (no JSON fields to decode). */
-export interface Tool extends ToolRow {}
+export interface Tool
+	extends Omit<
+		ToolRow,
+		"ingredients" | "improvements" | "location" | "requirements"
+	> {
+	ingredients: string[];
+	improvements: string[];
+	location: string[];
+	requirements: string[];
+}
 
 /** Discord slash command names. */
 export enum Command {

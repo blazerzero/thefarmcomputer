@@ -14,7 +14,17 @@ export function getTool(sql: SqlStorage, name: string): Tool | null {
 			)
 			.one() as unknown as ToolRow | null;
 		if (!row) return null;
-		return row;
+		return {
+			...row,
+			ingredients: row.ingredients ? (JSON.parse(row.ingredients) ?? []) : [],
+			improvements: row.improvements
+				? (JSON.parse(row.improvements) ?? [])
+				: [],
+			location: row.location ? (JSON.parse(row.location) ?? []) : [],
+			requirements: row.requirements
+				? (JSON.parse(row.requirements) ?? [])
+				: [],
+		};
 	} catch (err) {
 		console.error("DB error in getTool:", err);
 		return null;

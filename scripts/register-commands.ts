@@ -334,7 +334,8 @@ const commands = [
 			{
 				type: OptionType.STRING,
 				name: "name",
-				description: "Tool name (e.g. Copper Hoe, Iridium Pickaxe, Iridium Rod)",
+				description:
+					"Tool name (e.g. Copper Hoe, Iridium Pickaxe, Iridium Rod)",
 				required: true,
 			},
 		],

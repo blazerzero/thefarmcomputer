@@ -7,8 +7,8 @@ const fakeHoeRow = {
 	category: "Hoe",
 	description: "A farming tool used to till the earth.",
 	cost: null,
-	ingredients: "5 Copper Bar (2,000g)",
-	improvements: "Tills 2 columns (3 tiles)",
+	ingredients: '["5 Copper Bar (2,000g)"]',
+	improvements: '["Tills 2 columns (3 tiles)"]',
 	location: null,
 	requirements: null,
 	image_url: "https://example.com/copper-hoe.png",
@@ -37,7 +37,7 @@ const fakePanRow = {
 	cost: null,
 	ingredients: null,
 	improvements: null,
-	location: "Cindersap Forest (after fixing the glittering boulder)",
+	location: '["Cindersap Forest (after fixing the glittering boulder)"]',
 	requirements: null,
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Copper_Pan",
@@ -102,7 +102,7 @@ describe("handleTool", () => {
 		expect(fields?.find((f) => f.name === "Ingredients")).toBeUndefined();
 	});
 
-	it("includes Improvements when present", async () => {
+	it("includes Uses / Improvements when present", async () => {
 		const res = handleTool(
 			makeInteraction("copper hoe"),
 			makeSql([fakeHoeRow]),
@@ -112,13 +112,13 @@ describe("handleTool", () => {
 
 		expect(fields).toContainEqual(
 			expect.objectContaining({
-				name: "Improvements",
+				name: "Uses / Improvements",
 				value: "Tills 2 columns (3 tiles)",
 			}),
 		);
 	});
 
-	it("omits Improvements when null", async () => {
+	it("omits Uses / Improvements when null", async () => {
 		const res = handleTool(
 			makeInteraction("iridium rod"),
 			makeSql([fakeRodRow]),
@@ -126,7 +126,9 @@ describe("handleTool", () => {
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		expect(fields?.find((f) => f.name === "Improvements")).toBeUndefined();
+		expect(
+			fields?.find((f) => f.name === "Uses / Improvements"),
+		).toBeUndefined();
 	});
 
 	it("includes Cost when present", async () => {
@@ -164,9 +166,9 @@ describe("handleTool", () => {
 		expect(fields).toContainEqual(
 			expect.objectContaining({ name: "Location" }),
 		);
-		expect(
-			fields?.find((f) => f.name === "Location")?.value,
-		).toContain("Cindersap Forest");
+		expect(fields?.find((f) => f.name === "Location")?.value).toContain(
+			"Cindersap Forest",
+		);
 	});
 
 	it("omits Location when null", async () => {

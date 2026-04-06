@@ -1,6 +1,11 @@
 import { formatDate } from "@/constants";
 import { getTool } from "@/db";
-import { embedResponse, getOption, notFoundResponse } from "./utils";
+import {
+	embedResponse,
+	getOption,
+	notFoundResponse,
+	renderDotList,
+} from "./utils";
 
 const TOOL_COLOR = 0x8b6914;
 
@@ -27,20 +32,36 @@ export function handleTool(
 		fields.push({ name: "Cost", value: tool.cost, inline: true });
 	}
 
-	if (tool.ingredients) {
-		fields.push({ name: "Ingredients", value: tool.ingredients, inline: false });
+	if (tool.ingredients.length) {
+		fields.push({
+			name: "Ingredients",
+			value: renderDotList(tool.ingredients),
+			inline: false,
+		});
 	}
 
-	if (tool.improvements) {
-		fields.push({ name: "Improvements", value: tool.improvements, inline: false });
+	if (tool.improvements.length) {
+		fields.push({
+			name: "Uses / Improvements",
+			value: renderDotList(tool.improvements),
+			inline: false,
+		});
 	}
 
-	if (tool.location) {
-		fields.push({ name: "Location", value: tool.location, inline: false });
+	if (tool.location.length) {
+		fields.push({
+			name: "Location",
+			value: renderDotList(tool.location),
+			inline: false,
+		});
 	}
 
-	if (tool.requirements) {
-		fields.push({ name: "Requirements", value: tool.requirements, inline: false });
+	if (tool.requirements.length) {
+		fields.push({
+			name: "Requirements",
+			value: renderDotList(tool.requirements),
+			inline: false,
+		});
 	}
 
 	return embedResponse({
