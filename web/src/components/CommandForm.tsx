@@ -81,6 +81,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "deconstruct",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Sprinkler",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "crop",
 		fields: [
 			{

@@ -227,6 +227,15 @@ const fakeArtisanGoodRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeDeconstructRow = {
+	name: "Sprinkler",
+	sell_price: 100,
+	deconstructed_items: JSON.stringify([{ name: "Iron Bar", quantity: 1 }]),
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Sprinkler",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
@@ -263,6 +272,17 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.fields).toContainEqual(
 			expect.objectContaining({ name: "Machine" }),
 		);
+	});
+
+	it("routes 'deconstruct' and returns an embed with the item title", async () => {
+		const res = await handleWebQuery(
+			"deconstruct sprinkler",
+			makeSql([fakeDeconstructRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Sprinkler");
 	});
 
 	it("routes 'crop' and returns an embed with the crop title", async () => {
@@ -422,6 +442,9 @@ describe("handleWebQuery — command routing", () => {
 			`Artisan Goods: 10`,
 		);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Fruits: 10`);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(
+			`Deconstructed Items: 10`,
+		);
 	});
 });
 

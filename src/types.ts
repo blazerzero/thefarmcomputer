@@ -422,6 +422,23 @@ export interface ArtisanGood
 	buffs: string[];
 }
 
+/** A deconstruct item row as stored in SQLite. */
+export interface DeconstructItemRow {
+	id?: number;
+	name: string;
+	sell_price: number | null;
+	deconstructed_items: string | null; // JSON: [{name, quantity}]
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A deconstruct item row with deconstructed_items decoded. */
+export interface DeconstructItem
+	extends Omit<DeconstructItemRow, "deconstructed_items"> {
+	deconstructed_items: Array<{ name: string; quantity: number }>;
+}
+
 /** Energy and health values for an item, including quality-tiered values if applicable. */
 export type EnergyHealthStats = {
 	energy: number | null;
@@ -440,6 +457,7 @@ export enum Command {
 	BOOK = "book",
 	BUNDLE = "bundle",
 	CRAFT = "craft",
+	DECONSTRUCT = "deconstruct",
 	CROP = "crop",
 	FISH = "fish",
 	FOOTWEAR = "footwear",

@@ -10,6 +10,7 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 | `/book <name>` | Look up a book — description, effect on subsequent readings, and where to find it |
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |
 | `/craft <name>` | Look up a crafted item — ingredients, recipe source, duration, and stats |
+| `/deconstruct <name>` | Look up what the Deconstructor yields from an item — sell price and recovered materials |
 | `/crop <name>` | Look up a crop — seasons, growth time, seed price, and sell prices by quality |
 | `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
 | `/footwear <name>` | Look up a piece of footwear — stats, source, purchase price, and sell price |

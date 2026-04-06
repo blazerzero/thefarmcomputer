@@ -2,6 +2,7 @@ import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
+import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleCrop } from "@/commands/crop";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
@@ -24,6 +25,7 @@ import {
 	countBundles,
 	countCraftedItems,
 	countCrops,
+	countDeconstructItems,
 	countFish,
 	countFootwear,
 	countForageables,
@@ -42,6 +44,7 @@ import {
 	upsertBundle,
 	upsertCraftedItem,
 	upsertCrop,
+	upsertDeconstructItem,
 	upsertFish,
 	upsertFootwear,
 	upsertForageable,
@@ -56,6 +59,7 @@ import {
 } from "@/db";
 import type { Env } from "@/env";
 import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
+import { scrapeDeconstructItems } from "@/scraper/deconstructItems";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
@@ -87,6 +91,12 @@ async function refreshBooks(sql: SqlStorage): Promise<number> {
 	const books = await scrapeBooks();
 	for (const book of books) upsertBook(sql, book);
 	return books.length;
+}
+
+async function refreshDeconstructItems(sql: SqlStorage): Promise<number> {
+	const items = await scrapeDeconstructItems();
+	for (const item of items) upsertDeconstructItem(sql, item);
+	return items.length;
 }
 
 async function refreshCrops(sql: SqlStorage): Promise<number> {
@@ -271,6 +281,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	} catch (err) {
 		console.error("Artisan goods scrape failed:", err);
 	}
+	try {
+		const n = await refreshDeconstructItems(sql);
+		console.log(`Updated ${n} deconstruct items`);
+	} catch (err) {
+		console.error("Deconstruct items scrape failed:", err);
+	}
 	console.log("Wiki refresh complete");
 }
 
@@ -290,6 +306,9 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 		case Command.CRAFT:
 		case Command.INGREDIENT:
 			if (countCraftedItems(sql) === 0) await refreshCraftedItems(sql);
+			break;
+		case Command.DECONSTRUCT:
+			if (countDeconstructItems(sql) === 0) await refreshDeconstructItems(sql);
 			break;
 		case Command.CROP:
 		case Command.SEASON:
@@ -391,6 +410,9 @@ export class StardewDO implements DurableObject {
 			} else if (countFruits(this.sql) === 0) {
 				// Fruits table was added in a later deploy — populate without full refresh
 				await refreshFruits(this.sql);
+			} else if (countDeconstructItems(this.sql) === 0) {
+				// Deconstruct items table was added in a later deploy — populate without full refresh
+				await refreshDeconstructItems(this.sql);
 			}
 		});
 	}
@@ -438,6 +460,11 @@ export class StardewDO implements DurableObject {
 				if (countCraftedItems(this.sql) === 0)
 					await refreshCraftedItems(this.sql);
 				return handleCraft(interaction, this.sql);
+			}
+			if (commandName === Command.DECONSTRUCT) {
+				if (countDeconstructItems(this.sql) === 0)
+					await refreshDeconstructItems(this.sql);
+				return handleDeconstruct(interaction, this.sql);
 			}
 			if (commandName === Command.CROP) {
 				if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
@@ -532,6 +559,9 @@ export class StardewDO implements DurableObject {
 					s.footwearLastUpdated ? new Date(s.footwearLastUpdated).getTime() : 0,
 					s.booksLastUpdated ? new Date(s.booksLastUpdated).getTime() : 0,
 					s.ringsLastUpdated ? new Date(s.ringsLastUpdated).getTime() : 0,
+					s.deconstructItemsLastUpdated
+						? new Date(s.deconstructItemsLastUpdated).getTime()
+						: 0,
 				);
 				const lastUpdated = lastUpdatedMs
 					? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -566,6 +596,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Crops: ${s.cropCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Deconstructed Items: ${s.deconstructItemCount}`,
 										value: "",
 										inline: false,
 									},
