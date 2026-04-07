@@ -1,9 +1,10 @@
+import { handleArtifact } from "@/commands/artifact";
 import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
-import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleCrop } from "@/commands/crop";
+import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
 import { handleForage } from "@/commands/forage";
@@ -21,6 +22,7 @@ import { handleTool } from "@/commands/tool";
 import { handleWeapon } from "@/commands/weapon";
 import { formatDate } from "@/constants";
 import {
+	countArtifacts,
 	countArtisanGoods,
 	countBooks,
 	countBundles,
@@ -41,6 +43,7 @@ import {
 	countWeapons,
 	getStatus,
 	initDb,
+	upsertArtifact,
 	upsertArtisanGood,
 	upsertBook,
 	upsertBundle,
@@ -61,6 +64,7 @@ import {
 	upsertWeapon,
 } from "@/db";
 import type { Env } from "@/env";
+import { scrapeArtifacts } from "@/scraper/artifacts";
 import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
@@ -84,6 +88,12 @@ import { verifyDiscordRequest } from "@/verify";
 import { handleWebQuery } from "@/web";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function refreshArtifacts(sql: SqlStorage): Promise<number> {
+	const artifacts = await scrapeArtifacts();
+	for (const a of artifacts) upsertArtifact(sql, a);
+	return artifacts.length;
+}
 
 async function refreshArtisanGoods(sql: SqlStorage): Promise<number> {
 	const items = await scrapeArtisanGoods();
@@ -195,6 +205,12 @@ async function refreshVillagers(sql: SqlStorage): Promise<number> {
 
 async function refreshAll(sql: SqlStorage): Promise<void> {
 	console.log("Wiki refresh starting…");
+	try {
+		const n = await refreshArtifacts(sql);
+		console.log(`Updated ${n} artifacts`);
+	} catch (err) {
+		console.error("Artifact scrape failed:", err);
+	}
 	try {
 		const n = await refreshCrops(sql);
 		console.log(`Updated ${n} crops`);
@@ -310,6 +326,9 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 
 async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 	switch (command) {
+		case Command.ARTIFACT:
+			if (countArtifacts(sql) === 0) await refreshArtifacts(sql);
+			break;
 		case Command.ARTISAN:
 			if (countArtisanGoods(sql) === 0) await refreshArtisanGoods(sql);
 			break;
@@ -436,6 +455,9 @@ export class StardewDO implements DurableObject {
 			} else if (countTools(this.sql) === 0) {
 				// Tools table was added in a later deploy — populate without full refresh
 				await refreshTools(this.sql);
+			} else if (countArtifacts(this.sql) === 0) {
+				// Artifacts table was added in a later deploy — populate without full refresh
+				await refreshArtifacts(this.sql);
 			}
 		});
 	}
@@ -466,6 +488,10 @@ export class StardewDO implements DurableObject {
 			const commandName = (interaction.data as Record<string, unknown>)
 				?.name as string;
 
+			if (commandName === Command.ARTIFACT) {
+				if (countArtifacts(this.sql) === 0) await refreshArtifacts(this.sql);
+				return handleArtifact(interaction, this.sql);
+			}
 			if (commandName === Command.ARTISAN) {
 				if (countArtisanGoods(this.sql) === 0)
 					await refreshArtisanGoods(this.sql);
@@ -560,6 +586,9 @@ export class StardewDO implements DurableObject {
 				const s = getStatus(this.sql);
 				// const fmt = (ts: string | null) => (ts ? formatDate(ts) : "never");
 				const lastUpdatedMs = Math.max(
+					s.artifactsLastUpdated
+						? new Date(s.artifactsLastUpdated).getTime()
+						: 0,
 					s.artisanGoodsLastUpdated
 						? new Date(s.artisanGoodsLastUpdated).getTime()
 						: 0,
@@ -604,6 +633,11 @@ export class StardewDO implements DurableObject {
 								fields: [
 									{
 										name: `Artisan Goods: ${s.artisanGoodCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Artifacts: ${s.artifactCount}`,
 										value: "",
 										inline: false,
 									},

@@ -250,6 +250,16 @@ const fakeDeconstructRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeArtifactRow = {
+	name: "Dwarvish Helm",
+	description: "It's a dwarvish helm.",
+	sell_price: 50,
+	location: '["The Mines (Floors 40-80)"]',
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Dwarvish_Helm",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const springCropRow = {
@@ -274,6 +284,17 @@ const springCropRow = {
 // ── Command routing tests ─────────────────────────────────────────────────────
 
 describe("handleWebQuery — command routing", () => {
+	it("routes 'artifact' and returns an embed with the artifact title", async () => {
+		const res = await handleWebQuery(
+			"artifact dwarvish helm",
+			makeSql([fakeArtifactRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Dwarvish Helm");
+	});
+
 	it("routes 'artisan' and returns an embed with Machine field", async () => {
 		const res = await handleWebQuery(
 			"artisan wine",
@@ -463,6 +484,7 @@ describe("handleWebQuery — command routing", () => {
 
 		expect(json.embed?.title).toBe("The Farm Computer — Status");
 		expect(json.embed?.color).toBe(0x5b8a3c);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Artifacts: 10`);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(
 			`Artisan Goods: 10`,
 		);

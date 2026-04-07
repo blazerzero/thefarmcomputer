@@ -12,6 +12,11 @@ interface CommandItem {
 
 const COMMANDS: CommandItem[] = [
 	{
+		command: Command.ARTIFACT,
+		syntax: "artifact <name>",
+		example: "artifact dwarvish helm",
+	},
+	{
 		command: Command.ARTISAN,
 		syntax: "artisan <name>",
 		example: "artisan wine",

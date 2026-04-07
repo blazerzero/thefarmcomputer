@@ -24,9 +24,7 @@ function buildColIdx(headerRow: HTMLElement): Record<string, number> {
 	const colIdx: Record<string, number> = {};
 	let colI = 0;
 
-	const cells = headerRow.querySelectorAll(
-		":scope > th",
-	) as unknown as HTMLElement[];
+	const cells = headerRow.querySelectorAll(":scope > th");
 	for (const th of cells) {
 		const text = th.text.toLowerCase().trim().replace(/\s+/g, " ");
 		const colspan = parseInt(th.getAttribute("colspan") ?? "1", 10);
@@ -61,7 +59,7 @@ export async function scrapeRecipes(): Promise<
 	const content = root.querySelector("#mw-content-text") ?? root;
 
 	// Find the "Recipes" h2 heading
-	const allH2s = content.querySelectorAll("h2") as unknown as HTMLElement[];
+	const allH2s = content.querySelectorAll("h2");
 	const recipesH2 = allH2s.find(
 		(h) =>
 			(h.querySelector(".mw-headline")?.text.trim() ?? h.text.trim()) ===
@@ -91,9 +89,7 @@ export async function scrapeRecipes(): Promise<
 		return [];
 	}
 
-	const allRows = table.querySelectorAll(
-		":scope > tbody > tr",
-	) as unknown as HTMLElement[];
+	const allRows = table.querySelectorAll(":scope > tbody > tr");
 	if (allRows.length < 2) {
 		console.error("Recipes table has fewer than 2 rows");
 		return [];
@@ -110,9 +106,7 @@ export async function scrapeRecipes(): Promise<
 
 	for (let i = 1; i < allRows.length; i++) {
 		const row = allRows[i]!;
-		const cells = row.querySelectorAll(
-			":scope > td",
-		) as unknown as HTMLElement[];
+		const cells = row.querySelectorAll(":scope > td");
 		if (cells.length === 0) continue;
 
 		// Name + wiki URL
@@ -121,9 +115,7 @@ export async function scrapeRecipes(): Promise<
 		if (seenNameCells.has(nameCell)) continue;
 		seenNameCells.add(nameCell);
 
-		const nameLink = nameCell.querySelector(
-			"a",
-		) as unknown as HTMLElement | null;
+		const nameLink = nameCell.querySelector("a");
 		if (!nameLink) continue;
 		const name = nameLink.text.trim();
 		if (!name || name.toLowerCase() === "name") continue;
@@ -135,9 +127,7 @@ export async function scrapeRecipes(): Promise<
 		let imageUrl: string | null = null;
 		const imageCell = getCol(colIdx, cells, "image");
 		if (imageCell) {
-			const img = imageCell.querySelector(
-				"img",
-			) as unknown as HTMLElement | null;
+			const img = imageCell.querySelector("img");
 			const src = img?.getAttribute("src") ?? "";
 			if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
 		}

@@ -39,9 +39,7 @@ export function getCol(
  */
 export function parseMaterials(cell: HTMLElement): CraftIngredient[] {
 	const ingredients: CraftIngredient[] = [];
-	const spans = cell.querySelectorAll(
-		":scope > span",
-	) as unknown as HTMLElement[];
+	const spans = cell.querySelectorAll(":scope > span");
 
 	for (const span of spans) {
 		const text = span.text.trim().replace(/\s+/g, " ");
@@ -174,6 +172,7 @@ export async function fetchPage(path: string): Promise<string> {
  * Images are ignored; link text is preserved inline.
  */
 export function parseListCell(cell: HTMLElement): string[] {
+	for (const sup of cell.querySelectorAll("sup")) sup.remove();
 	const items = cell.childNodes;
 	const parsedItems: string[] = [];
 	let goToNewline = false;
@@ -217,7 +216,7 @@ export function parseListCell(cell: HTMLElement): string[] {
 		if (
 			!item.rawTagName &&
 			index < items.length - 1 &&
-			items[index + 1]?.rawTagName === "ul"
+			["ul", "li", "p"].includes(items[index + 1]?.rawTagName ?? "")
 		) {
 			goToNewline = true;
 		}

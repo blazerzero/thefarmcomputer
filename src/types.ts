@@ -395,6 +395,23 @@ export interface Ring extends Omit<RingRow, "where_to_find"> {
 	where_to_find: string[];
 }
 
+/** An artifact row as stored in SQLite. */
+export interface ArtifactRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	sell_price: number | null;
+	location: string; // JSON array of location strings
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** An artifact row with location already decoded. */
+export interface Artifact extends Omit<ArtifactRow, "location"> {
+	location: string[];
+}
+
 /** An artisan good row as stored in SQLite. */
 export interface ArtisanGoodRow {
 	id?: number;
@@ -481,6 +498,7 @@ export interface Tool
 
 /** Discord slash command names. */
 export enum Command {
+	ARTIFACT = "artifact",
 	ARTISAN = "artisan",
 	BOOK = "book",
 	BUNDLE = "bundle",

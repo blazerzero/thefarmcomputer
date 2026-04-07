@@ -24,6 +24,20 @@ if (!APPLICATION_ID || !TOKEN) {
 
 const commands = [
 	{
+		name: Command.ARTIFACT,
+		description: COMMAND_DESCRIPTIONS[Command.ARTIFACT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Artifact name (e.g. Dwarvish Helm, Ancient Sword, Chub)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.ARTISAN,
 		description: COMMAND_DESCRIPTIONS[Command.ARTISAN],
 		integration_types: COMMAND_INTEGRATION_TYPES,

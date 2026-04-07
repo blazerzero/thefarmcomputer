@@ -1,4 +1,5 @@
 export function getStatus(sql: SqlStorage): {
+	artifactCount: number;
 	artisanGoodCount: number;
 	cropCount: number;
 	deconstructorItemCount: number;
@@ -34,8 +35,14 @@ export function getStatus(sql: SqlStorage): {
 	footwearLastUpdated: string | null;
 	booksLastUpdated: string | null;
 	ringsLastUpdated: string | null;
+	artifactsLastUpdated: string | null;
 	deconstructorItemsLastUpdated: string | null;
 } {
+	const artifactRow = sql
+		.exec(
+			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM artifacts",
+		)
+		.one() as { n: number; last_updated: string | null } | null;
 	const artisanGoodRow = sql
 		.exec(
 			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM artisan_goods",
@@ -115,6 +122,7 @@ export function getStatus(sql: SqlStorage): {
 		.exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM tools")
 		.one() as { n: number; last_updated: string | null } | null;
 	return {
+		artifactCount: artifactRow?.n ?? 0,
 		artisanGoodCount: artisanGoodRow?.n ?? 0,
 		cropCount: cropRow?.n ?? 0,
 		villagerCount: villagerRow?.n ?? 0,
@@ -150,6 +158,7 @@ export function getStatus(sql: SqlStorage): {
 		footwearLastUpdated: footwearRow?.last_updated ?? null,
 		booksLastUpdated: bookRow?.last_updated ?? null,
 		ringsLastUpdated: ringRow?.last_updated ?? null,
+		artifactsLastUpdated: artifactRow?.last_updated ?? null,
 		deconstructorItemsLastUpdated: deconstructItemRow?.last_updated ?? null,
 	};
 }

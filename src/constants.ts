@@ -1,6 +1,7 @@
 import { Command } from "./types.js";
 
 export const COMMAND_DESCRIPTIONS: Record<Command, string> = {
+	[Command.ARTIFACT]: "Look up an artifact.",
 	[Command.ARTISAN]: "Look up an artisan good.",
 	[Command.BOOK]: "Look up a book.",
 	[Command.BUNDLE]: "Look up the items required for a Community Center bundle.",

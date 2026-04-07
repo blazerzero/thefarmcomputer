@@ -6,6 +6,7 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 
 | Command | Description |
 |---------|-------------|
+| `/artifact <name>` | Look up an artifact — description, sell price, and where to find it |
 | `/artisan <name>` | Look up an artisan good — machine, ingredients, energy/health, sell prices by quality, and Cask aging times |
 | `/book <name>` | Look up a book — description, effect on subsequent readings, and where to find it |
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |

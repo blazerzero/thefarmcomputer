@@ -1,14 +1,14 @@
 export {
+	countArtifacts,
+	getArtifact,
+	upsertArtifact,
+} from "./artifacts";
+export {
 	countArtisanGoods,
 	getArtisanGood,
 	upsertArtisanGood,
 } from "./artisanGoods";
 export { countBooks, getBook, upsertBook } from "./books";
-export {
-	countDeconstructorItems,
-	getDeconstructorItem,
-	upsertDeconstructorItem,
-} from "./deconstructorItems";
 export { countBundles, getBundle, upsertBundle } from "./bundles";
 export {
 	countCraftedItems,
@@ -17,6 +17,11 @@ export {
 	upsertCraftedItem,
 } from "./craftedItems";
 export { countCrops, getCrop, getCropsBySeason, upsertCrop } from "./crops";
+export {
+	countDeconstructorItems,
+	getDeconstructorItem,
+	upsertDeconstructorItem,
+} from "./deconstructorItems";
 export { countFish, getFish, upsertFish } from "./fish";
 export { countFootwear, getFootwear, upsertFootwear } from "./footwear";
 export {

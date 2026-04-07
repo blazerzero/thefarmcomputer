@@ -65,9 +65,7 @@ function resolveRowspans(rows: HTMLElement[]): Array<(HTMLElement | null)[]> {
 	const grid: Array<(HTMLElement | null)[]> = [];
 
 	for (const row of rows) {
-		const rawCells = row.querySelectorAll(
-			":scope > td",
-		) as unknown as HTMLElement[];
+		const rawCells = row.querySelectorAll(":scope > td");
 		const resolved: (HTMLElement | null)[] = [];
 		let rawIdx = 0;
 		let col = 0;
@@ -118,9 +116,7 @@ function buildColIdx(
 	isCask: boolean,
 ): Record<string, number> {
 	const colIdx: Record<string, number> = {};
-	const headerCells = headerRow.querySelectorAll(
-		":scope > th",
-	) as unknown as HTMLElement[];
+	const headerCells = headerRow.querySelectorAll(":scope > th");
 
 	let colI = 0;
 	for (const th of headerCells) {
@@ -215,9 +211,7 @@ export async function scrapeArtisanGoods(): Promise<
 	const ingredientVariantMap = new Map<string, IngredientVariant[]>();
 	const sellVariantMap = new Map<string, SellVariant[]>();
 
-	const elements = content.querySelectorAll(
-		"h2, h3, table.wikitable",
-	) as unknown as HTMLElement[];
+	const elements = content.querySelectorAll("h2, h3, table.wikitable");
 
 	let currentMachine: string | null = null;
 	let isCaskSection = false;
@@ -250,9 +244,7 @@ export async function scrapeArtisanGoods(): Promise<
 		// Only process the second table per section
 		if (tableCountForSection > 2) continue;
 
-		const allRows = el.querySelectorAll(
-			":scope > tbody > tr",
-		) as unknown as HTMLElement[];
+		const allRows = el.querySelectorAll(":scope > tbody > tr");
 		if (allRows.length < 2) continue;
 
 		const headerRow = allRows[0]!;

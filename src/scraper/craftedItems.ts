@@ -18,9 +18,7 @@ function buildColIdx(headerRow: HTMLElement): Record<string, number> {
 	const colIdx: Record<string, number> = {};
 	let colI = 0;
 
-	const cells = headerRow.querySelectorAll(
-		":scope > th",
-	) as unknown as HTMLElement[];
+	const cells = headerRow.querySelectorAll(":scope > th");
 	for (const th of cells) {
 		const text = th.text.toLowerCase().trim().replace(/\s+/g, " ");
 		const colspan = parseInt(th.getAttribute("colspan") ?? "1", 10);
@@ -64,9 +62,7 @@ export async function scrapeCraftedItems(): Promise<
 		"Notes",
 	]);
 
-	const elements = content.querySelectorAll(
-		"h2, table.wikitable",
-	) as unknown as HTMLElement[];
+	const elements = content.querySelectorAll("h2, table.wikitable");
 
 	for (const el of elements) {
 		if (el.tagName === "H2") {
@@ -75,9 +71,7 @@ export async function scrapeCraftedItems(): Promise<
 			continue;
 		}
 
-		const allRows = el.querySelectorAll(
-			":scope > tbody > tr",
-		) as unknown as HTMLElement[];
+		const allRows = el.querySelectorAll(":scope > tbody > tr");
 		if (allRows.length < 2) continue;
 
 		// Build column index from the first header row; if the table has a second header
@@ -86,9 +80,7 @@ export async function scrapeCraftedItems(): Promise<
 		let dataStartRow = 1;
 
 		const firstRow = allRows[0]!;
-		const firstRowHasTh =
-			(firstRow.querySelectorAll(":scope > th") as unknown as HTMLElement[])
-				.length > 0;
+		const firstRowHasTh = firstRow.querySelectorAll(":scope > th").length > 0;
 		if (!firstRowHasTh) continue;
 
 		colIdx = buildColIdx(firstRow);
@@ -96,9 +88,7 @@ export async function scrapeCraftedItems(): Promise<
 		// Check if second row is also a header row (sub-headers like "Days" / "Seasons")
 		if (allRows.length > 2) {
 			const secondRow = allRows[1]!;
-			const secondRowTh = secondRow.querySelectorAll(
-				":scope > th",
-			) as unknown as HTMLElement[];
+			const secondRowTh = secondRow.querySelectorAll(":scope > th");
 			if (secondRowTh.length > 0) {
 				dataStartRow = 2;
 			}
@@ -110,18 +100,14 @@ export async function scrapeCraftedItems(): Promise<
 
 		for (let i = dataStartRow; i < allRows.length; i++) {
 			const row = allRows[i]!;
-			const cells = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
+			const cells = row.querySelectorAll(":scope > td");
 			if (cells.length === 0) continue;
 
 			// Name
 			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
-			const nameLink = nameCell.querySelector(
-				"a",
-			) as unknown as HTMLElement | null;
+			const nameLink = nameCell.querySelector("a");
 			if (!nameLink) continue;
 
 			if (seenNameCells.has(nameCell)) continue;
@@ -137,9 +123,7 @@ export async function scrapeCraftedItems(): Promise<
 			let imageUrl: string | null = null;
 			const imageCell = getCol(colIdx, cells, "image");
 			if (imageCell) {
-				const img = imageCell.querySelector(
-					"img",
-				) as unknown as HTMLElement | null;
+				const img = imageCell.querySelector("img");
 				const src = img?.getAttribute("src") ?? "";
 				if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
 			}
