@@ -1,4 +1,9 @@
 export {
+	countArtifacts,
+	getArtifact,
+	upsertArtifact,
+} from "./artifacts";
+export {
 	countArtisanGoods,
 	getArtisanGood,
 	upsertArtisanGood,

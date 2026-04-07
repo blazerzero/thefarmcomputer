@@ -1,5 +1,18 @@
 export function initDb(sql: SqlStorage): void {
 	sql.exec(`
+    CREATE TABLE IF NOT EXISTS artifacts (
+      id           INTEGER PRIMARY KEY,
+      name         TEXT UNIQUE NOT NULL,
+      description  TEXT,
+      sell_price   INTEGER,
+      location     TEXT,
+      image_url    TEXT,
+      wiki_url     TEXT,
+      last_updated TEXT
+    )
+  `);
+
+	sql.exec(`
     CREATE TABLE IF NOT EXISTS crops (
       id            INTEGER PRIMARY KEY,
       name          TEXT UNIQUE NOT NULL,

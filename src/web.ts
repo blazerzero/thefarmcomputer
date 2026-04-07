@@ -1,3 +1,4 @@
+import { handleArtifact } from "@/commands/artifact";
 import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
@@ -53,6 +54,12 @@ export async function handleWebQuery(
 	let handlerResponse: Response;
 
 	switch (command) {
+		case Command.ARTIFACT:
+			handlerResponse = handleArtifact(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case Command.ARTISAN:
 			handlerResponse = handleArtisan(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
@@ -187,6 +194,9 @@ export async function handleWebQuery(
 		case Command.INFO: {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
+				s.artifactsLastUpdated
+					? new Date(s.artifactsLastUpdated).getTime()
+					: 0,
 				s.artisanGoodsLastUpdated
 					? new Date(s.artisanGoodsLastUpdated).getTime()
 					: 0,
@@ -226,6 +236,11 @@ export async function handleWebQuery(
 					fields: [
 						{
 							name: `Artisan Goods: ${s.artisanGoodCount}`,
+							value: "",
+							inline: false,
+						},
+						{
+							name: `Artifacts: ${s.artifactCount}`,
 							value: "",
 							inline: false,
 						},
@@ -275,7 +290,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artisan, book, bundle, craft, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
+				error: `Unknown command "${command}". Try: artifact, artisan, book, bundle, craft, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
 			});
 	}
 

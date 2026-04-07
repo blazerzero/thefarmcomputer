@@ -33,6 +33,18 @@ const SEASON_OPTIONS = [
 
 const COMMAND_DEFS: CommandDef[] = [
 	{
+		name: "artifact",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Dwarvish Helm",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "artisan",
 		fields: [
 			{
