@@ -38,9 +38,7 @@ export async function scrapeMinerals(): Promise<
 
 	let currentCategory: string | null = null;
 
-	const elements = content.querySelectorAll(
-		"h2, table.wikitable",
-	) as unknown as HTMLElement[];
+	const elements = content.querySelectorAll("h2, table.wikitable");
 
 	for (const el of elements) {
 		const tag = el.tagName;
@@ -57,16 +55,12 @@ export async function scrapeMinerals(): Promise<
 		// ── Mineral data table ────────────────────────────────────────────────────
 		if (!currentCategory) continue;
 
-		const allRows = el.querySelectorAll(
-			":scope > tbody > tr",
-		) as unknown as HTMLElement[];
+		const allRows = el.querySelectorAll(":scope > tbody > tr");
 		if (allRows.length < 2) continue;
 
 		// Parse header row to build column index map
 		const headerRow = allRows[0]!;
-		const headerCells = headerRow.querySelectorAll(
-			":scope > th",
-		) as unknown as HTMLElement[];
+		const headerCells = headerRow.querySelectorAll(":scope > th");
 		if (headerCells.length < 3) continue;
 
 		const colIdx: Record<string, number> = {};
@@ -91,16 +85,12 @@ export async function scrapeMinerals(): Promise<
 
 		for (let i = 1; i < allRows.length; i++) {
 			const row = allRows[i]!;
-			const cells = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
+			const cells = row.querySelectorAll(":scope > td");
 
 			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;
 
-			const nameLink = nameCell.querySelector(
-				"a",
-			) as unknown as HTMLElement | null;
+			const nameLink = nameCell.querySelector("a");
 			if (!nameLink) continue;
 
 			if (seenNameCells.has(nameCell)) continue;
@@ -116,9 +106,7 @@ export async function scrapeMinerals(): Promise<
 			const imageCell = getCol(colIdx, cells, "image");
 			let imageUrl: string | null = null;
 			if (imageCell) {
-				const img = imageCell.querySelector(
-					"img",
-				) as unknown as HTMLElement | null;
+				const img = imageCell.querySelector("img");
 				const src = img?.getAttribute("src") ?? "";
 				if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
 			}

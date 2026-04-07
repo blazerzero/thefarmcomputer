@@ -20,21 +20,15 @@ export async function scrapeFootwear(): Promise<
 
 	const footwear: Omit<FootwearRow, "id" | "last_updated">[] = [];
 
-	const tables = content.querySelectorAll(
-		"table.wikitable",
-	) as unknown as HTMLElement[];
+	const tables = content.querySelectorAll("table.wikitable");
 
 	for (const table of tables) {
-		const allRows = table.querySelectorAll(
-			":scope > tbody > tr",
-		) as unknown as HTMLElement[];
+		const allRows = table.querySelectorAll(":scope > tbody > tr");
 		if (allRows.length < 2) continue;
 
 		// Parse header row to build column index map
 		const headerRow = allRows[0]!;
-		const headerCells = headerRow.querySelectorAll(
-			":scope > th",
-		) as unknown as HTMLElement[];
+		const headerCells = headerRow.querySelectorAll(":scope > th");
 		if (headerCells.length < 2) continue;
 
 		const colIdx: Record<string, number> = {};
@@ -63,9 +57,7 @@ export async function scrapeFootwear(): Promise<
 
 		for (let i = 1; i < allRows.length; i++) {
 			const row = allRows[i]!;
-			const cells = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
+			const cells = row.querySelectorAll(":scope > td");
 
 			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;

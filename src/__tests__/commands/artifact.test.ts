@@ -72,7 +72,7 @@ describe("handleArtifact", () => {
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
-		const locationField = fields.find((f) => f.name === "Location");
+		const locationField = fields.find((f) => f.name === "Location(s)");
 		expect(locationField?.value).toContain("The Mines");
 		expect(locationField?.value).toContain("Artifact Spots");
 	});

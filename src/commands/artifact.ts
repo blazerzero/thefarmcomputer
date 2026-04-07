@@ -32,9 +32,9 @@ export function handleArtifact(
 
 	if (artifact.location.length > 0) {
 		fields.push({
-			name: "Location",
+			name: "Location(s)",
 			value: renderDotList(artifact.location),
-			inline: false,
+			inline: true,
 		});
 	}
 

@@ -12,7 +12,7 @@ function parseSeasons(cell: HTMLElement): string[] {
 	const results: string[] = [];
 
 	// Collect season names from img alt attributes (wiki uses icons for seasons)
-	for (const img of cell.querySelectorAll("img") as unknown as HTMLElement[]) {
+	for (const img of cell.querySelectorAll("img")) {
 		const alt = img.getAttribute("alt")?.trim() ?? "";
 		if (SEASON_NAMES.has(alt) && !results.includes(alt)) {
 			results.push(alt);
@@ -29,7 +29,7 @@ function parseSeasons(cell: HTMLElement): string[] {
 }
 
 function parseWeather(cell: HTMLElement): string {
-	const anchors = cell.querySelectorAll("a") as unknown as HTMLElement[];
+	const anchors = cell.querySelectorAll("a");
 	const weathers = anchors
 		.map((a) => a.text.trim())
 		.filter((t) => t.length > 0);
@@ -108,16 +108,12 @@ export async function scrapeFish(): Promise<
 		}
 
 		// ── Fish data table ───────────────────────────────────────────────────────
-		const allRows = el.querySelectorAll(
-			":scope > tbody > tr",
-		) as unknown as HTMLElement[];
+		const allRows = el.querySelectorAll(":scope > tbody > tr");
 		if (allRows.length < 2) continue;
 
 		// Parse header row to build column index map
 		const headerRow = allRows[0]!;
-		const headerCells = headerRow.querySelectorAll(
-			":scope > th",
-		) as unknown as HTMLElement[];
+		const headerCells = headerRow.querySelectorAll(":scope > th");
 		if (headerCells.length < 3) continue;
 
 		const colIdx: Record<string, number> = {};
@@ -146,9 +142,7 @@ export async function scrapeFish(): Promise<
 
 		for (let i = 1; i < allRows.length; i++) {
 			const row = allRows[i]!;
-			const cells = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
+			const cells = row.querySelectorAll(":scope > td");
 
 			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;

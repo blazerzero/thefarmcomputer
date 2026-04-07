@@ -20,24 +20,18 @@ export async function scrapeArtifacts(): Promise<
 
 	const artifacts: Omit<ArtifactRow, "id" | "last_updated">[] = [];
 
-	const table = content.querySelector("table.wikitable") as unknown as
-		| HTMLElement
-		| undefined;
+	const table = content.querySelector("table.wikitable");
 	if (!table) {
 		console.warn("No wikitable found on Artifacts page");
 		return artifacts;
 	}
 
-	const allRows = table.querySelectorAll(
-		":scope > tbody > tr",
-	) as unknown as HTMLElement[];
+	const allRows = table.querySelectorAll(":scope > tbody > tr");
 	if (allRows.length < 2) return artifacts;
 
 	// Parse header row to build column index map
 	const headerRow = allRows[0]!;
-	const headerCells = headerRow.querySelectorAll(
-		":scope > th",
-	) as unknown as HTMLElement[];
+	const headerCells = headerRow.querySelectorAll(":scope > th");
 
 	const colIdx: Record<string, number> = {};
 	let colI = 0;
@@ -57,19 +51,20 @@ export async function scrapeArtifacts(): Promise<
 	if (colIdx.name === undefined) return artifacts;
 
 	const seenNameCells = new Set<HTMLElement>();
+	// name → all artifact indices + their alt texts, for resolving duplicates
+	const seenNames = new Map<
+		string,
+		{ indices: number[]; alts: (string | null)[] }
+	>();
 
 	for (let i = 1; i < allRows.length; i++) {
 		const row = allRows[i]!;
-		const cells = row.querySelectorAll(
-			":scope > td",
-		) as unknown as HTMLElement[];
+		const cells = row.querySelectorAll(":scope > td");
 
 		const nameCell = getCol(colIdx, cells, "name");
 		if (!nameCell) continue;
 
-		const nameLink = nameCell.querySelector(
-			"a",
-		) as unknown as HTMLElement | null;
+		const nameLink = nameCell.querySelector("a");
 		if (!nameLink) continue;
 
 		if (seenNameCells.has(nameCell)) continue;
@@ -84,19 +79,41 @@ export async function scrapeArtifacts(): Promise<
 		// Image
 		const imageCell = getCol(colIdx, cells, "image");
 		let imageUrl: string | null = null;
-		if (imageCell) {
-			const img = imageCell.querySelector(
-				"img",
-			) as unknown as HTMLElement | null;
-			const src = img?.getAttribute("src") ?? "";
+		const img = imageCell?.querySelector("img") ?? null;
+		if (img) {
+			const src = img.getAttribute("src") ?? "";
 			if (src) imageUrl = src.startsWith("http") ? src : WIKI_BASE + src;
+		}
+
+		// Resolve name: on any duplicate, use image alt text ("[Name].png") for all entries sharing that name
+		const nameFromAlt = (imgEl: HTMLElement | null): string | null => {
+			const alt = imgEl?.getAttribute("alt") ?? "";
+			return alt.endsWith(".png") ? alt.slice(0, -4) : null;
+		};
+
+		const altName = nameFromAlt(img);
+		let resolvedName = artifactName;
+		const entry = seenNames.get(artifactName);
+		if (entry) {
+			// Fix all previously-pushed artifacts with this name
+			for (let j = 0; j < entry.indices.length; j++) {
+				const prevAlt = entry.alts[j];
+				if (prevAlt) artifacts[entry.indices[j]!]!.name = prevAlt;
+			}
+			resolvedName = altName ?? artifactName;
+			entry.indices.push(artifacts.length);
+			entry.alts.push(altName);
+		} else {
+			seenNames.set(artifactName, {
+				indices: [artifacts.length],
+				alts: [altName],
+			});
 		}
 
 		// Description
 		const description =
-			getCol(colIdx, cells, "description")
-				?.text.trim()
-				.replace(/\s+/g, " ") || null;
+			getCol(colIdx, cells, "description")?.text.trim().replace(/\s+/g, " ") ||
+			null;
 
 		// Sell price
 		const sellPriceCell = getCol(colIdx, cells, "sell_price");
@@ -109,7 +126,7 @@ export async function scrapeArtifacts(): Promise<
 		const location = locationCell ? parseListCell(locationCell) : [];
 
 		artifacts.push({
-			name: artifactName,
+			name: resolvedName,
 			description,
 			sell_price: sellPrice,
 			location: JSON.stringify(location),

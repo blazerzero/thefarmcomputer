@@ -87,9 +87,7 @@ function parseStatsCell(cell: HTMLElement): {
 		crit_power: null as number | null,
 		extra_stats: [] as Array<{ name: string; value: string }>,
 	};
-	const elems = cell.querySelectorAll(
-		"span.nametemplate, a[title='Forge']",
-	) as unknown as HTMLElement[];
+	const elems = cell.querySelectorAll("span.nametemplate, a[title='Forge']");
 
 	for (const elem of elems) {
 		const link = elem.tagName === "A" ? elem : elem.querySelector("a");
@@ -134,9 +132,7 @@ export async function scrapeWeapons(): Promise<
 	const weapons: Omit<WeaponRow, "id" | "last_updated">[] = [];
 	let currentCategory = "Sword";
 
-	const elements = content.querySelectorAll(
-		"h2, h3, table.wikitable",
-	) as unknown as HTMLElement[];
+	const elements = content.querySelectorAll("h2, h3, table.wikitable");
 
 	for (const el of elements) {
 		const tag = el.tagName;
@@ -150,16 +146,12 @@ export async function scrapeWeapons(): Promise<
 		}
 
 		// ── Weapon data table ──────────────────────────────────────────────────
-		const allRows = el.querySelectorAll(
-			":scope > tbody > tr",
-		) as unknown as HTMLElement[];
+		const allRows = el.querySelectorAll(":scope > tbody > tr");
 		if (allRows.length < 2) continue;
 
 		// Parse header row to build column index map
 		const headerRow = allRows[0]!;
-		const headerCells = headerRow.querySelectorAll(
-			":scope > th",
-		) as unknown as HTMLElement[];
+		const headerCells = headerRow.querySelectorAll(":scope > th");
 		if (headerCells.length < 2) continue;
 
 		const colIdx: Record<string, number> = {};
@@ -220,9 +212,7 @@ export async function scrapeWeapons(): Promise<
 
 		for (let i = 1; i < allRows.length; i++) {
 			const row = allRows[i]!;
-			const cells = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
+			const cells = row.querySelectorAll(":scope > td");
 
 			const nameCell = getCol(colIdx, cells, "name");
 			if (!nameCell) continue;

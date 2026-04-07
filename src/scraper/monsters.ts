@@ -25,18 +25,14 @@ function parseDrops(cell: HTMLElement): string[] {
 	// Walk direct children in document order so that <p> headers and spans are
 	// interleaved correctly, and <i> cross-reference pointers are skipped.
 	for (const child of cell.childNodes) {
-		if ((child as unknown as { nodeType: number }).nodeType !== 1) {
+		if (child.nodeType !== 1) {
 			// Text node — accumulate as part of a potential inline item
-			inlineHtml += (child as unknown as { text: string }).text;
+			inlineHtml += child.text;
 			continue;
 		}
 
-		const el = child as unknown as HTMLElement;
-		const tag = (
-			(el as unknown as { rawTagName?: string }).rawTagName ??
-			el.tagName ??
-			""
-		).toLowerCase();
+		const el = child as HTMLElement;
+		const tag = (el.rawTagName ?? el.tagName ?? "").toLowerCase();
 
 		if (tag === "i") {
 			// Italicised cross-reference pointer (e.g. "See tables for specific
@@ -61,7 +57,7 @@ function parseDrops(cell: HTMLElement): string[] {
 			// Footnote reference — discard entirely
 		} else if (tag === "img" || tag === "a") {
 			// Part of an inline drop (icon + name + percentage before any span)
-			inlineHtml += (el as unknown as { outerHTML: string }).outerHTML;
+			inlineHtml += el.outerHTML;
 		}
 		// link, style, br, etc. — ignore
 	}
@@ -70,7 +66,7 @@ function parseDrops(cell: HTMLElement): string[] {
 
 	// ── Fallback: bulleted list or plain text ─────────────────────────────────
 	if (drops.length === 0) {
-		const lis = cell.querySelectorAll("li") as unknown as HTMLElement[];
+		const lis = cell.querySelectorAll("li");
 		if (lis.length > 0) {
 			for (const li of lis) {
 				const text = li.text
@@ -128,7 +124,7 @@ interface MonsterVariation {
  * infobox via parseInfoboxVariations.
  */
 function parseVariationsTable(table: HTMLElement): MonsterVariation[] {
-	const ths = table.querySelectorAll("th") as unknown as HTMLElement[];
+	const ths = table.querySelectorAll("th");
 	const headerTexts = ths.map((th) => th.text.trim().toLowerCase());
 
 	// ── Short format: has a "Name" column but no "hp" column ─────────────────
@@ -136,18 +132,14 @@ function parseVariationsTable(table: HTMLElement): MonsterVariation[] {
 		headerTexts.includes("name") &&
 		!headerTexts.some((h) => h === "hp" || h === "base hp")
 	) {
-		const rows = table.querySelectorAll("tr") as unknown as HTMLElement[];
+		const rows = table.querySelectorAll("tr");
 		const variations: MonsterVariation[] = [];
 		for (const row of rows) {
 			if (row.querySelector("th")) continue;
-			const tds = row.querySelectorAll(
-				":scope > td",
-			) as unknown as HTMLElement[];
+			const tds = row.querySelectorAll(":scope > td");
 			if (tds.length < 4) continue;
 			const [imageTd, nameTd, locationTd, dropsTd] = tds;
-			const img = imageTd!.querySelector(
-				"img",
-			) as unknown as HTMLElement | null;
+			const img = imageTd!.querySelector("img");
 			const src = img?.getAttribute("src") ?? null;
 			const image_url = src
 				? src.startsWith("http")
@@ -174,14 +166,14 @@ function parseVariationsTable(table: HTMLElement): MonsterVariation[] {
 	}
 
 	// ── Full format: <th colspan="7/8"> variation name headers ───────────────
-	const rows = table.querySelectorAll("tr") as unknown as HTMLElement[];
+	const rows = table.querySelectorAll("tr");
 	const variations: MonsterVariation[] = [];
 	let currentName: string | null = null;
 	let pendingImage: string | null = null;
 
 	for (const row of rows) {
 		const th = row.querySelector("th");
-		const tds = row.querySelectorAll(":scope > td") as unknown as HTMLElement[];
+		const tds = row.querySelectorAll(":scope > td");
 
 		// ── Variation name header: <th colspan="8"> or <th colspan="7"> ──────
 		if (th && !tds.length) {
@@ -195,7 +187,7 @@ function parseVariationsTable(table: HTMLElement): MonsterVariation[] {
 
 		// ── Image row: single td with rowspan="3" ────────────────────────────
 		if (tds.length === 1 && tds[0]!.getAttribute("rowspan") === "3") {
-			const img = tds[0]!.querySelector("img") as unknown as HTMLElement | null;
+			const img = tds[0]!.querySelector("img");
 			const src = img?.getAttribute("src") ?? null;
 			pendingImage = src
 				? src.startsWith("http")
@@ -243,7 +235,7 @@ function parseVariationsTable(table: HTMLElement): MonsterVariation[] {
  */
 function parseMultiVariationCell(cell: HTMLElement): Map<string, string> {
 	const result = new Map<string, string>();
-	const imgs = cell.querySelectorAll("img") as unknown as HTMLElement[];
+	const imgs = cell.querySelectorAll("img");
 	if (imgs.length <= 1) return result;
 
 	// Split innerHTML on <img> tag boundaries.
@@ -283,16 +275,14 @@ function parseInfoboxVariations(
 	root: HTMLElement,
 	wikiUrl: string,
 ): Omit<MonsterRow, "id" | "last_updated">[] {
-	const infobox = root.querySelector(
-		"#infoboxtable",
-	) as unknown as HTMLElement | null;
+	const infobox = root.querySelector("#infoboxtable");
 	if (!infobox) return [];
 
 	// Collect label → detail cell pairs
 	const fields: Record<string, HTMLElement> = {};
-	const rows = infobox.querySelectorAll("tr") as unknown as HTMLElement[];
+	const rows = infobox.querySelectorAll("tr");
 	for (const row of rows) {
-		const tds = row.querySelectorAll("td") as unknown as HTMLElement[];
+		const tds = row.querySelectorAll("td");
 		if (tds.length < 2) continue;
 		const labelTd = tds[0]!;
 		const valueTd = tds[1]!;
@@ -305,9 +295,7 @@ function parseInfoboxVariations(
 	// Only proceed if at least one stat cell has multiple img elements
 	const statKeys = ["base hp", "base damage", "base def", "speed", "xp"];
 	const hasMultiVariation = statKeys.some(
-		(k) =>
-			((fields[k]?.querySelectorAll("img") as unknown as HTMLElement[]) ?? [])
-				.length > 1,
+		(k) => (fields[k]?.querySelectorAll("img") ?? []).length > 1,
 	);
 	if (!hasMultiVariation) return [];
 
@@ -322,7 +310,7 @@ function parseInfoboxVariations(
 	for (const key of statKeys) {
 		const cell = fields[key];
 		if (!cell) continue;
-		const imgs = cell.querySelectorAll("img") as unknown as HTMLElement[];
+		const imgs = cell.querySelectorAll("img");
 		// Collect images regardless of cell type
 		for (const img of imgs) {
 			const alt = img.getAttribute("alt") ?? "";
@@ -396,19 +384,15 @@ function parseInfobox(
 	root: HTMLElement,
 	fallbackName: string,
 ): Omit<MonsterRow, "id" | "last_updated" | "wiki_url"> | null {
-	const infobox = root.querySelector(
-		"#infoboxtable",
-	) as unknown as HTMLElement | null;
+	const infobox = root.querySelector("#infoboxtable");
 	if (!infobox) return null;
 
 	// Monster name from the header cell
-	const header = infobox.querySelector(
-		"#infoboxheader",
-	) as unknown as HTMLElement | null;
+	const header = infobox.querySelector("#infoboxheader");
 	const name = header?.text.trim() || fallbackName;
 
 	// Image — first <img> inside the table
-	const imgEl = infobox.querySelector("img") as unknown as HTMLElement | null;
+	const imgEl = infobox.querySelector("img");
 	const imgSrc = imgEl?.getAttribute("src") ?? null;
 	const image_url = imgSrc
 		? imgSrc.startsWith("http")
@@ -418,9 +402,9 @@ function parseInfobox(
 
 	// Collect label → detail cell pairs by walking every row
 	const fields: Record<string, HTMLElement> = {};
-	const rows = infobox.querySelectorAll("tr") as unknown as HTMLElement[];
+	const rows = infobox.querySelectorAll("tr");
 	for (const row of rows) {
-		const tds = row.querySelectorAll("td") as unknown as HTMLElement[];
+		const tds = row.querySelectorAll("td");
 		if (tds.length < 2) continue;
 		const labelTd = tds[0]!;
 		const valueTd = tds[1]!;
@@ -472,10 +456,10 @@ async function getMonsterPaths(): Promise<Map<string, string>> {
 
 	const spans = root.querySelectorAll(
 		"span.nametemplate, span.nametemplateinline",
-	) as unknown as HTMLElement[];
+	);
 
 	for (const span of spans) {
-		const link = span.querySelector("a") as unknown as HTMLElement | null;
+		const link = span.querySelector("a");
 		if (!link) continue;
 
 		const href = link.getAttribute("href") ?? "";
@@ -521,9 +505,7 @@ export async function scrapeMonsters(): Promise<
 				const content = root.querySelector("#mw-content-text") ?? root;
 
 				// Find all wikitables that use text-align:center (variation tables)
-				const tables = content.querySelectorAll(
-					"table.wikitable",
-				) as unknown as HTMLElement[];
+				const tables = content.querySelectorAll("table.wikitable");
 				const pageMonsters: Omit<MonsterRow, "id" | "last_updated">[] = [];
 
 				// Parse infobox once — needed when short tables are present.

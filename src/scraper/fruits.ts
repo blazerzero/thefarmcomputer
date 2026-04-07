@@ -44,7 +44,7 @@ function artisanTypeFromAlt(alt: string): string {
  */
 function parseArtisanCell(cell: HTMLElement): Record<string, number> {
 	const result: Record<string, number> = {};
-	for (const row of cell.querySelectorAll("tr") as unknown as HTMLElement[]) {
+	for (const row of cell.querySelectorAll("tr")) {
 		// Item type from .backimage img alt
 		const backImg = row.querySelector(".backimage img");
 		const type = artisanTypeFromAlt(backImg?.getAttribute("alt") ?? "");
