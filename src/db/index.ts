@@ -9,6 +9,11 @@ export {
 	upsertArtisanGood,
 } from "./artisanGoods";
 export { countBooks, getBook, upsertBook } from "./books";
+export {
+	countCrystalariums,
+	getCrystalarium,
+	upsertCrystalarium,
+} from "./crystalariums";
 export { countBundles, getBundle, upsertBundle } from "./bundles";
 export {
 	countCraftedItems,

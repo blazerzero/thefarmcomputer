@@ -215,6 +215,19 @@ export function initDb(sql: SqlStorage): void {
   `);
 
 	sql.exec(`
+    CREATE TABLE IF NOT EXISTS crystalariums (
+      id              INTEGER PRIMARY KEY,
+      name            TEXT UNIQUE NOT NULL,
+      sell_price      INTEGER,
+      processing_time TEXT,
+      gold_per_day    REAL,
+      image_url       TEXT,
+      wiki_url        TEXT,
+      last_updated    TEXT
+    )
+  `);
+
+	sql.exec(`
     CREATE TABLE IF NOT EXISTS crafted_items (
       id               INTEGER PRIMARY KEY,
       name             TEXT UNIQUE NOT NULL,

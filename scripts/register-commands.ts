@@ -226,6 +226,20 @@ const commands = [
 		],
 	},
 	{
+		name: Command.CRYSTALARIUM,
+		description: COMMAND_DESCRIPTIONS[Command.CRYSTALARIUM],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Mineral name (e.g. Diamond, Aquamarine, Ruby)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.DECONSTRUCT,
 		description: COMMAND_DESCRIPTIONS[Command.DECONSTRUCT],
 		integration_types: COMMAND_INTEGRATION_TYPES,
