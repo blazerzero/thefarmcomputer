@@ -32,6 +32,11 @@ const COMMANDS: CommandItem[] = [
 		example: "bundle spring",
 	},
 	{ command: Command.CRAFT, syntax: "craft <name>", example: "craft furnace" },
+	{
+		command: Command.CRYSTALARIUM,
+		syntax: "crystalarium <name>",
+		example: "crystalarium diamond",
+	},
 	{ command: Command.CROP, syntax: "crop <name>", example: "crop parsnip" },
 	{
 		command: Command.DECONSTRUCT,

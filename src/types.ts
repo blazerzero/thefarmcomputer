@@ -496,6 +496,21 @@ export interface Tool
 	requirements: string[];
 }
 
+/** A Crystalarium entry row as stored in SQLite. */
+export interface CrystalariumRow {
+	id?: number;
+	name: string;
+	sell_price: number | null;
+	processing_time: string | null;
+	gold_per_day: number | null;
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A Crystalarium row (no JSON fields to decode). */
+export interface Crystalarium extends CrystalariumRow {}
+
 /** Discord slash command names. */
 export enum Command {
 	ARTIFACT = "artifact",
@@ -503,6 +518,7 @@ export enum Command {
 	BOOK = "book",
 	BUNDLE = "bundle",
 	CRAFT = "craft",
+	CRYSTALARIUM = "crystalarium",
 	DECONSTRUCT = "deconstruct",
 	CROP = "crop",
 	FISH = "fish",

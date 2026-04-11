@@ -262,6 +262,16 @@ const fakeArtifactRow = {
 
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
+const fakeCrystalariumRow = {
+	name: "Diamond",
+	sell_price: 750,
+	processing_time: "5d 20h",
+	gold_per_day: 5.2,
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Diamond",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const springCropRow = {
 	name: "Parsnip",
 	description: null,
@@ -397,6 +407,17 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.title).toBe("Quartz");
 	});
 
+	it("routes 'crystalarium' and returns an embed with the mineral title", async () => {
+		const res = await handleWebQuery(
+			"crystalarium diamond",
+			makeSql([fakeCrystalariumRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Diamond");
+	});
+
 	it("routes 'gift' and returns an embed with the villager title", async () => {
 		const res = await handleWebQuery(
 			"gift emily",
@@ -489,6 +510,9 @@ describe("handleWebQuery — command routing", () => {
 			`Artisan Goods: 10`,
 		);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Fruits: 10`);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(
+			`Crystalarium Items: 10`,
+		);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Tools: 10`);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(
 			`Deconstructed Items: 10`,

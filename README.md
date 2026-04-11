@@ -13,6 +13,7 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 | `/craft <name>` | Look up a crafted item — ingredients, recipe source, duration, and stats |
 | `/deconstruct <name>` | Look up what the Deconstructor yields from an item — sell price and recovered materials |
 | `/crop <name>` | Look up a crop — seasons, growth time, seed price, and sell prices by quality |
+| `/crystalarium <name>` | Look up a mineral's Crystalarium processing time, sell price, and gold per day |
 | `/fish <name>` | Look up a fish — category, location, seasons, weather, difficulty, and sell prices by quality |
 | `/footwear <name>` | Look up a piece of footwear — stats, source, purchase price, and sell price |
 | `/forage <name>` | Look up a forageable item — seasons, found locations, energy/health by quality, and sell prices by quality |

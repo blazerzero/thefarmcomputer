@@ -4,6 +4,7 @@ import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
 import { handleCrop } from "@/commands/crop";
+import { handleCrystalarium } from "@/commands/crystalarium";
 import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
@@ -28,6 +29,7 @@ import {
 	countBundles,
 	countCraftedItems,
 	countCrops,
+	countCrystalariumItems,
 	countDeconstructorItems,
 	countFish,
 	countFootwear,
@@ -49,6 +51,7 @@ import {
 	upsertBundle,
 	upsertCraftedItem,
 	upsertCrop,
+	upsertCrystalariumItem,
 	upsertDeconstructorItem,
 	upsertFish,
 	upsertFootwear,
@@ -70,6 +73,7 @@ import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
 import { scrapeCrops } from "@/scraper/crops";
+import { scrapeCrystalariumItems } from "@/scraper/crystalariumItems";
 import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
@@ -117,6 +121,12 @@ async function refreshCrops(sql: SqlStorage): Promise<number> {
 	const crops = await scrapeCrops();
 	for (const crop of crops) upsertCrop(sql, crop);
 	return crops.length;
+}
+
+async function refreshCrystalariumItems(sql: SqlStorage): Promise<number> {
+	const items = await scrapeCrystalariumItems();
+	for (const item of items) upsertCrystalariumItem(sql, item);
+	return items.length;
 }
 
 async function refreshFruitTrees(sql: SqlStorage): Promise<number> {
@@ -216,6 +226,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.log(`Updated ${n} crops`);
 	} catch (err) {
 		console.error("Crop scrape failed:", err);
+	}
+	try {
+		const n = await refreshCrystalariumItems(sql);
+		console.log(`Updated ${n} crystalarium entries`);
+	} catch (err) {
+		console.error("Crystalarium scrape failed:", err);
 	}
 	try {
 		const n = await refreshForageables(sql);
@@ -350,6 +366,10 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 		case Command.SEASON:
 			if (countCrops(sql) === 0) await refreshCrops(sql);
 			break;
+		case Command.CRYSTALARIUM:
+			if (countCrystalariumItems(sql) === 0)
+				await refreshCrystalariumItems(sql);
+			break;
 		case Command.FISH:
 			if (countFish(sql) === 0) await refreshFish(sql);
 			break;
@@ -458,6 +478,9 @@ export class StardewDO implements DurableObject {
 			} else if (countArtifacts(this.sql) === 0) {
 				// Artifacts table was added in a later deploy — populate without full refresh
 				await refreshArtifacts(this.sql);
+			} else if (countCrystalariumItems(this.sql) === 0) {
+				// Crystalarium items table was added in a later deploy — populate without full refresh
+				await refreshCrystalariumItems(this.sql);
 			}
 		});
 	}
@@ -509,6 +532,11 @@ export class StardewDO implements DurableObject {
 				if (countCraftedItems(this.sql) === 0)
 					await refreshCraftedItems(this.sql);
 				return handleCraft(interaction, this.sql);
+			}
+			if (commandName === Command.CRYSTALARIUM) {
+				if (countCrystalariumItems(this.sql) === 0)
+					await refreshCrystalariumItems(this.sql);
+				return handleCrystalarium(interaction, this.sql);
 			}
 			if (commandName === Command.DECONSTRUCT) {
 				if (countDeconstructorItems(this.sql) === 0)
@@ -597,6 +625,9 @@ export class StardewDO implements DurableObject {
 						? new Date(s.craftedItemsLastUpdated).getTime()
 						: 0,
 					s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
+					s.crystalariumItemsLastUpdated
+						? new Date(s.crystalariumItemsLastUpdated).getTime()
+						: 0,
 					s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
 					s.forageablesLastUpdated
 						? new Date(s.forageablesLastUpdated).getTime()
@@ -658,6 +689,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Crops: ${s.cropCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Crystalarium Items: ${s.crystalariumItemCount}`,
 										value: "",
 										inline: false,
 									},

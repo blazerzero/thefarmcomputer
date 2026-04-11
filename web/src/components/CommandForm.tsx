@@ -93,6 +93,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "crystalarium",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Diamond",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "crop",
 		fields: [
 			{

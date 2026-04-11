@@ -18,6 +18,11 @@ export {
 } from "./craftedItems";
 export { countCrops, getCrop, getCropsBySeason, upsertCrop } from "./crops";
 export {
+	countCrystalariumItems,
+	getCrystalariumItem,
+	upsertCrystalariumItem,
+} from "./crystalariumItems";
+export {
 	countDeconstructorItems,
 	getDeconstructorItem,
 	upsertDeconstructorItem,

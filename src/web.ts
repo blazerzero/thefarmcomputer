@@ -3,6 +3,7 @@ import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
+import { handleCrystalarium } from "@/commands/crystalarium";
 import { handleCrop } from "@/commands/crop";
 import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleFish } from "@/commands/fish";
@@ -132,6 +133,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case Command.CRYSTALARIUM:
+			handlerResponse = handleCrystalarium(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case Command.DECONSTRUCT:
 			handlerResponse = handleDeconstruct(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
@@ -203,6 +210,9 @@ export async function handleWebQuery(
 					? new Date(s.craftedItemsLastUpdated).getTime()
 					: 0,
 				s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
+				s.crystalariumItemsLastUpdated
+					? new Date(s.crystalariumItemsLastUpdated).getTime()
+					: 0,
 				s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
 				s.forageablesLastUpdated
 					? new Date(s.forageablesLastUpdated).getTime()
@@ -251,6 +261,11 @@ export async function handleWebQuery(
 						},
 						{ name: `Crops: ${s.cropCount}`, value: "", inline: false },
 						{
+							name: `Crystalarium Items: ${s.crystalariumItemCount}`,
+							value: "",
+							inline: false,
+						},
+						{
 							name: `Deconstructed Items: ${s.deconstructorItemCount}`,
 							value: "",
 							inline: false,
@@ -288,7 +303,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artifact, artisan, book, bundle, craft, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
+				error: `Unknown command "${command}". Try: artifact, artisan, book, bundle, craft, crystalarium, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
 			});
 	}
 
