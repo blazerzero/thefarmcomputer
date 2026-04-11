@@ -9,11 +9,6 @@ export {
 	upsertArtisanGood,
 } from "./artisanGoods";
 export { countBooks, getBook, upsertBook } from "./books";
-export {
-	countCrystalariums,
-	getCrystalarium,
-	upsertCrystalarium,
-} from "./crystalariums";
 export { countBundles, getBundle, upsertBundle } from "./bundles";
 export {
 	countCraftedItems,
@@ -22,6 +17,11 @@ export {
 	upsertCraftedItem,
 } from "./craftedItems";
 export { countCrops, getCrop, getCropsBySeason, upsertCrop } from "./crops";
+export {
+	countCrystalariumItems,
+	getCrystalariumItem,
+	upsertCrystalariumItem,
+} from "./crystalariumItems";
 export {
 	countDeconstructorItems,
 	getDeconstructorItem,

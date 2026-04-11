@@ -210,8 +210,8 @@ export async function handleWebQuery(
 					? new Date(s.craftedItemsLastUpdated).getTime()
 					: 0,
 				s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
-				s.crystalariumsLastUpdated
-					? new Date(s.crystalariumsLastUpdated).getTime()
+				s.crystalariumItemsLastUpdated
+					? new Date(s.crystalariumItemsLastUpdated).getTime()
 					: 0,
 				s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
 				s.forageablesLastUpdated
@@ -261,7 +261,7 @@ export async function handleWebQuery(
 						},
 						{ name: `Crops: ${s.cropCount}`, value: "", inline: false },
 						{
-							name: `Crystalariums: ${s.crystalariumCount}`,
+							name: `Crystalarium Items: ${s.crystalariumItemCount}`,
 							value: "",
 							inline: false,
 						},

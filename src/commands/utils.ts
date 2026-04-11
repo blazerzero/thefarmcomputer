@@ -1,3 +1,4 @@
+import pluralize from "pluralize";
 import { DEFAULT_COLOR, SEASON_COLORS } from "@/constants";
 import type { EnergyHealthStats } from "@/types";
 import { InteractionResponseType } from "@/types";
@@ -109,6 +110,21 @@ export function getEnergyHealthValues(item: EnergyHealthStats): string {
 			return length > 1 ? `${label}: ${val}` : val;
 		});
 	return lines.join("\n") || "—";
+}
+
+/**
+ * Converts a "D:HH:MM" wiki time format to a human-readable string.
+ * e.g. "5:20:00" → "5 days, 20 hours"
+ */
+export function formatGameDuration(raw: string): string {
+	const parts = raw.split(":").map(Number);
+	if (parts.length !== 3 || parts.some(isNaN)) return raw;
+	const [days, hours, minutes] = parts as [number, number, number];
+	const segments: string[] = [];
+	if (days > 0) segments.push(pluralize("day", days, true));
+	if (hours > 0) segments.push(pluralize("hour", hours, true));
+	if (minutes > 0) segments.push(pluralize("minute", minutes, true));
+	return segments.length > 0 ? segments.join(", ") : raw;
 }
 
 /** Format a number with an explicit sign: +3, -2, +0. */

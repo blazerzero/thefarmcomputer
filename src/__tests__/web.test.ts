@@ -511,7 +511,7 @@ describe("handleWebQuery — command routing", () => {
 		);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Fruits: 10`);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(
-			`Crystalariums: 10`,
+			`Crystalarium Items: 10`,
 		);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Tools: 10`);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(

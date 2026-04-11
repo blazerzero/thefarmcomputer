@@ -2,14 +2,14 @@ import type { Crystalarium, CrystalariumRow } from "@/types";
 
 const now = () => new Date().toISOString();
 
-export function getCrystalarium(
+export function getCrystalariumItem(
 	sql: SqlStorage,
 	name: string,
 ): Crystalarium | null {
 	try {
 		const row = sql
 			.exec(
-				`SELECT * FROM crystalariums WHERE name LIKE ?
+				`SELECT * FROM crystalarium_items WHERE name LIKE ?
          ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 ELSE length(name) END
          LIMIT 1`,
 				`%${name}%`,
@@ -19,17 +19,17 @@ export function getCrystalarium(
 		if (!row) return null;
 		return { ...row };
 	} catch (err) {
-		console.error("DB error in getCrystalarium:", err);
+		console.error("DB error in getCrystalariumItem:", err);
 		return null;
 	}
 }
 
-export function upsertCrystalarium(
+export function upsertCrystalariumItem(
 	sql: SqlStorage,
 	data: Omit<CrystalariumRow, "id" | "last_updated">,
 ): void {
 	sql.exec(
-		`INSERT INTO crystalariums
+		`INSERT INTO crystalarium_items
        (name, sell_price, processing_time, gold_per_day, image_url, wiki_url, last_updated)
      VALUES (?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
@@ -49,10 +49,10 @@ export function upsertCrystalarium(
 	);
 }
 
-export function countCrystalariums(sql: SqlStorage): number {
+export function countCrystalariumItems(sql: SqlStorage): number {
 	return (
 		(
-			sql.exec("SELECT COUNT(*) AS n FROM crystalariums").one() as {
+			sql.exec("SELECT COUNT(*) AS n FROM crystalarium_items").one() as {
 				n: number;
 			} | null
 		)?.n ?? 0

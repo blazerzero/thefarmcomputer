@@ -4,23 +4,23 @@ import { fetchPage, getCol, parsePriceTiers, WIKI_BASE } from "./wiki";
 
 // ── Main scraper ──────────────────────────────────────────────────────────────
 
-export async function scrapeCrystalariums(): Promise<
+export async function scrapeCrystalariumItems(): Promise<
 	Omit<CrystalariumRow, "id" | "last_updated">[]
 > {
 	const html = await fetchPage("/Crystalarium");
 	const root = parse(html);
 	const content = root.querySelector("#mw-content-text") ?? root;
 
-	const crystalariums: Omit<CrystalariumRow, "id" | "last_updated">[] = [];
+	const crystalariumItems: Omit<CrystalariumRow, "id" | "last_updated">[] = [];
 
 	const table = content.querySelector("table.wikitable");
 	if (!table) {
 		console.warn("No wikitable found on Crystalarium page");
-		return crystalariums;
+		return crystalariumItems;
 	}
 
 	const allRows = table.querySelectorAll(":scope > tbody > tr");
-	if (allRows.length < 2) return crystalariums;
+	if (allRows.length < 2) return crystalariumItems;
 
 	// Build column index map from header row
 	const headerRow = allRows[0]!;
@@ -42,7 +42,7 @@ export async function scrapeCrystalariums(): Promise<
 
 	if (colIdx.name === undefined) {
 		console.warn("Could not find 'name' column in Crystalarium table");
-		return crystalariums;
+		return crystalariumItems;
 	}
 
 	for (let i = 1; i < allRows.length; i++) {
@@ -90,7 +90,7 @@ export async function scrapeCrystalariums(): Promise<
 			if (m) goldPerDay = parseFloat(m[0]!);
 		}
 
-		crystalariums.push({
+		crystalariumItems.push({
 			name: mineralName,
 			sell_price: sellPrice,
 			processing_time: processingTime,
@@ -100,6 +100,6 @@ export async function scrapeCrystalariums(): Promise<
 		});
 	}
 
-	console.log(`Scraped ${crystalariums.length} crystalarium entries`);
-	return crystalariums;
+	console.log(`Scraped ${crystalariumItems.length} crystalarium item entries`);
+	return crystalariumItems;
 }

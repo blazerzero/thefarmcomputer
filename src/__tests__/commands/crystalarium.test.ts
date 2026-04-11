@@ -5,7 +5,7 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 const fakeDiamondRow = {
 	name: "Diamond",
 	sell_price: 750,
-	processing_time: "5d 20h",
+	processing_time: "5:20:00",
 	gold_per_day: 5.2,
 	image_url: "https://example.com/diamond.png",
 	wiki_url: "https://stardewvalleywiki.com/Diamond",
@@ -16,7 +16,7 @@ const fakeAquamarineRow = {
 	...fakeDiamondRow,
 	name: "Aquamarine",
 	sell_price: 180,
-	processing_time: "1d 17h",
+	processing_time: "1:17:00",
 	gold_per_day: 4.3,
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Aquamarine",
@@ -39,7 +39,7 @@ describe("handleCrystalarium", () => {
 		expect(embed?.color).toBe(0xc084fc);
 	});
 
-	it("includes Sells For, Processing Time, and Gold/Day fields", async () => {
+	it("includes Sell Value Per Gem and Time to Duplicate fields", async () => {
 		const res = handleCrystalarium(
 			makeInteraction("diamond"),
 			makeSql([fakeDiamondRow]),
@@ -48,44 +48,34 @@ describe("handleCrystalarium", () => {
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Sells For", value: "750g" }),
+			expect.objectContaining({ name: "Sell Value Per Gem", value: "750g" }),
 		);
 		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Processing Time", value: "5d 20h" }),
-		);
-		expect(fields).toContainEqual(
-			expect.objectContaining({ name: "Gold/Day", value: "5.2g/day" }),
+			expect.objectContaining({
+				name: "Time to Duplicate",
+				value: "5 days, 20 hours",
+			}),
 		);
 	});
 
-	it("omits Sells For when sell_price is null", async () => {
+	it("omits Sell Value Per Gem when sell_price is null", async () => {
 		const row = { ...fakeDiamondRow, sell_price: null };
 		const res = handleCrystalarium(makeInteraction("diamond"), makeSql([row]));
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
 
-		expect(fieldNames).not.toContain("Sells For");
+		expect(fieldNames).not.toContain("Sell Value Per Gem");
 	});
 
-	it("omits Processing Time when null", async () => {
+	it("omits Time to Duplicate when null", async () => {
 		const row = { ...fakeDiamondRow, processing_time: null };
 		const res = handleCrystalarium(makeInteraction("diamond"), makeSql([row]));
 		const json = (await res.json()) as DiscordResponse;
 		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
 		const fieldNames = fields.map((f) => f.name);
 
-		expect(fieldNames).not.toContain("Processing Time");
-	});
-
-	it("omits Gold/Day when null", async () => {
-		const row = { ...fakeDiamondRow, gold_per_day: null };
-		const res = handleCrystalarium(makeInteraction("diamond"), makeSql([row]));
-		const json = (await res.json()) as DiscordResponse;
-		const fields = json.data.embeds?.[0]?.fields as EmbedField[];
-		const fieldNames = fields.map((f) => f.name);
-
-		expect(fieldNames).not.toContain("Gold/Day");
+		expect(fieldNames).not.toContain("Time to Duplicate");
 	});
 
 	it("omits thumbnail when image_url is null", async () => {
@@ -104,6 +94,6 @@ describe("handleCrystalarium", () => {
 		const json = (await res.json()) as DiscordResponse;
 
 		expect(json.data.flags).toBe(64);
-		expect(json.data.content).toContain("No Crystalarium entry for");
+		expect(json.data.content).toContain("No Crystalarium item entry for");
 	});
 });

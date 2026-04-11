@@ -215,7 +215,7 @@ export function initDb(sql: SqlStorage): void {
   `);
 
 	sql.exec(`
-    CREATE TABLE IF NOT EXISTS crystalariums (
+    CREATE TABLE IF NOT EXISTS crystalarium_items (
       id              INTEGER PRIMARY KEY,
       name            TEXT UNIQUE NOT NULL,
       sell_price      INTEGER,

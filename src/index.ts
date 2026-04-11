@@ -3,8 +3,8 @@ import { handleArtisan } from "@/commands/artisan";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
-import { handleCrystalarium } from "@/commands/crystalarium";
 import { handleCrop } from "@/commands/crop";
+import { handleCrystalarium } from "@/commands/crystalarium";
 import { handleDeconstruct } from "@/commands/deconstruct";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
@@ -29,7 +29,7 @@ import {
 	countBundles,
 	countCraftedItems,
 	countCrops,
-	countCrystalariums,
+	countCrystalariumItems,
 	countDeconstructorItems,
 	countFish,
 	countFootwear,
@@ -51,7 +51,7 @@ import {
 	upsertBundle,
 	upsertCraftedItem,
 	upsertCrop,
-	upsertCrystalarium,
+	upsertCrystalariumItem,
 	upsertDeconstructorItem,
 	upsertFish,
 	upsertFootwear,
@@ -73,7 +73,7 @@ import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
 import { scrapeCrops } from "@/scraper/crops";
-import { scrapeCrystalariums } from "@/scraper/crystalariums";
+import { scrapeCrystalariumItems } from "@/scraper/crystalariumItems";
 import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
@@ -123,9 +123,9 @@ async function refreshCrops(sql: SqlStorage): Promise<number> {
 	return crops.length;
 }
 
-async function refreshCrystalariums(sql: SqlStorage): Promise<number> {
-	const items = await scrapeCrystalariums();
-	for (const item of items) upsertCrystalarium(sql, item);
+async function refreshCrystalariumItems(sql: SqlStorage): Promise<number> {
+	const items = await scrapeCrystalariumItems();
+	for (const item of items) upsertCrystalariumItem(sql, item);
 	return items.length;
 }
 
@@ -228,7 +228,7 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.error("Crop scrape failed:", err);
 	}
 	try {
-		const n = await refreshCrystalariums(sql);
+		const n = await refreshCrystalariumItems(sql);
 		console.log(`Updated ${n} crystalarium entries`);
 	} catch (err) {
 		console.error("Crystalarium scrape failed:", err);
@@ -367,7 +367,8 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 			if (countCrops(sql) === 0) await refreshCrops(sql);
 			break;
 		case Command.CRYSTALARIUM:
-			if (countCrystalariums(sql) === 0) await refreshCrystalariums(sql);
+			if (countCrystalariumItems(sql) === 0)
+				await refreshCrystalariumItems(sql);
 			break;
 		case Command.FISH:
 			if (countFish(sql) === 0) await refreshFish(sql);
@@ -477,9 +478,9 @@ export class StardewDO implements DurableObject {
 			} else if (countArtifacts(this.sql) === 0) {
 				// Artifacts table was added in a later deploy — populate without full refresh
 				await refreshArtifacts(this.sql);
-			} else if (countCrystalariums(this.sql) === 0) {
-				// Crystalariums table was added in a later deploy — populate without full refresh
-				await refreshCrystalariums(this.sql);
+			} else if (countCrystalariumItems(this.sql) === 0) {
+				// Crystalarium items table was added in a later deploy — populate without full refresh
+				await refreshCrystalariumItems(this.sql);
 			}
 		});
 	}
@@ -533,8 +534,8 @@ export class StardewDO implements DurableObject {
 				return handleCraft(interaction, this.sql);
 			}
 			if (commandName === Command.CRYSTALARIUM) {
-				if (countCrystalariums(this.sql) === 0)
-					await refreshCrystalariums(this.sql);
+				if (countCrystalariumItems(this.sql) === 0)
+					await refreshCrystalariumItems(this.sql);
 				return handleCrystalarium(interaction, this.sql);
 			}
 			if (commandName === Command.DECONSTRUCT) {
@@ -624,8 +625,8 @@ export class StardewDO implements DurableObject {
 						? new Date(s.craftedItemsLastUpdated).getTime()
 						: 0,
 					s.cropsLastUpdated ? new Date(s.cropsLastUpdated).getTime() : 0,
-					s.crystalariumsLastUpdated
-						? new Date(s.crystalariumsLastUpdated).getTime()
+					s.crystalariumItemsLastUpdated
+						? new Date(s.crystalariumItemsLastUpdated).getTime()
 						: 0,
 					s.fishLastUpdated ? new Date(s.fishLastUpdated).getTime() : 0,
 					s.forageablesLastUpdated
@@ -692,7 +693,7 @@ export class StardewDO implements DurableObject {
 										inline: false,
 									},
 									{
-										name: `Crystalariums: ${s.crystalariumCount}`,
+										name: `Crystalarium Items: ${s.crystalariumItemCount}`,
 										value: "",
 										inline: false,
 									},
