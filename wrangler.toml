@@ -22,3 +22,8 @@ class_name = "StardewDO"
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["StardewDO"]
+
+[[d1_databases]]
+binding = "USER_DB"
+database_name = "thefarmcomputer-users"
+database_id = "PLACEHOLDER_RUN_WRANGLER_D1_CREATE"
