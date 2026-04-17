@@ -2,8 +2,6 @@ import type { Env } from "@/env";
 import {
 	handleGoogleStart,
 	handleGoogleCallback,
-	handleAppleStart,
-	handleAppleCallback,
 	handleLogout,
 } from "@/auth/routes";
 import {
@@ -80,16 +78,6 @@ const ROUTES: Route[] = [
 		method: "GET",
 		pattern: "/auth/google/callback",
 		handler: (req, env) => handleGoogleCallback(req, env),
-	},
-	{
-		method: "GET",
-		pattern: "/auth/apple/start",
-		handler: (req, env) => handleAppleStart(req, env),
-	},
-	{
-		method: "POST",
-		pattern: "/auth/apple/callback",
-		handler: (req, env) => handleAppleCallback(req, env),
 	},
 	{
 		method: "POST",

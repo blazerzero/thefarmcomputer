@@ -105,22 +105,13 @@ export function InvitationPage() {
 								<p style={{ color: "var(--text-muted)" }}>
 									Sign in to accept or decline this invitation.
 								</p>
-								<div className={styles.row}>
-									<a
-										href={`/auth/google/start?redirect=/invitations/${id}`}
-										className={styles.btnPrimary}
-										style={{ textDecoration: "none" }}
-									>
-										Sign in with Google
-									</a>
-									<a
-										href={`/auth/apple/start?redirect=/invitations/${id}`}
-										className={styles.btnGhost}
-										style={{ textDecoration: "none" }}
-									>
-										Sign in with Apple
-									</a>
-								</div>
+								<a
+									href={`/auth/google/start?redirect=/invitations/${id}`}
+									className={styles.btnPrimary}
+									style={{ textDecoration: "none" }}
+								>
+									Sign in with Google
+								</a>
 							</div>
 						) : actionStatus === "accepted" ? (
 							<div>
