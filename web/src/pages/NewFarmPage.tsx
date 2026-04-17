@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Navbar } from "../components/Navbar";
 import styles from "./shared.module.scss";
 
 export function NewFarmPage() {
@@ -39,72 +40,69 @@ export function NewFarmPage() {
 	}
 
 	return (
-		<div className={styles.page}>
-			<nav className={styles.nav}>
-				<Link to="/dashboard">Dashboard</Link>
-				<span className={styles.sep}>›</span>
-				<span>New farm</span>
-			</nav>
+		<>
+			<Navbar />
+			<div className={styles.page}>
+				<h1 className={styles.h1}>Add a farm</h1>
 
-			<h1 className={styles.h1}>Add a farm</h1>
+				<form
+					onSubmit={handleSubmit}
+					className={styles.card}
+					style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+				>
+					<div className={styles.fieldGroup}>
+						<label className={styles.label} htmlFor="farm-name">
+							Farm name
+						</label>
+						<input
+							id="farm-name"
+							className={styles.input}
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							placeholder="Pelican Town Farm"
+							maxLength={64}
+							required
+						/>
+					</div>
 
-			<form
-				onSubmit={handleSubmit}
-				className={styles.card}
-				style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-			>
-				<div className={styles.fieldGroup}>
-					<label className={styles.label} htmlFor="farm-name">
-						Farm name
-					</label>
-					<input
-						id="farm-name"
-						className={styles.input}
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						placeholder="Pelican Town Farm"
-						maxLength={64}
-						required
-					/>
-				</div>
+					<div className={styles.fieldGroup}>
+						<label className={styles.label} htmlFor="farm-emoji">
+							Emoji (optional)
+						</label>
+						<input
+							id="farm-emoji"
+							className={styles.input}
+							value={emoji}
+							onChange={(e) => setEmoji(e.target.value)}
+							placeholder="🌾"
+							maxLength={8}
+							style={{ maxWidth: "6rem" }}
+						/>
+						<span className={styles.hint}>
+							A single emoji to identify this farm in The Farm Computer.
+						</span>
+					</div>
 
-				<div className={styles.fieldGroup}>
-					<label className={styles.label} htmlFor="farm-emoji">
-						Emoji (optional)
-					</label>
-					<input
-						id="farm-emoji"
-						className={styles.input}
-						value={emoji}
-						onChange={(e) => setEmoji(e.target.value)}
-						placeholder="🌾"
-						maxLength={8}
-						style={{ maxWidth: "6rem" }}
-					/>
-					<span className={styles.hint}>
-						A single emoji to identify this farm in The Farm Computer.
-					</span>
-				</div>
+					{error && <p className={styles.error}>{error}</p>}
 
-				{error && <p className={styles.error}>{error}</p>}
-
-				<div className={styles.row}>
-					<button
-						type="submit"
-						className={styles.btnPrimary}
-						disabled={!name.trim() || saving}
-					>
-						{saving ? "Creating…" : "Create farm"}
-					</button>
-					<Link
-						to="/dashboard"
-						className={styles.btnGhost}
-						style={{ textDecoration: "none" }}
-					>
-						Cancel
-					</Link>
-				</div>
-			</form>
-		</div>
+					<div className={styles.row}>
+						<button
+							type="submit"
+							className={styles.btnPrimary}
+							disabled={!name.trim() || saving}
+						>
+							{saving ? "Creating…" : "Create farm"}
+						</button>
+						<Link
+							to="/dashboard"
+							className={styles.btnGhost}
+							style={{ textDecoration: "none" }}
+						>
+							Cancel
+						</Link>
+					</div>
+				</form>
+			</div>
+		</>
 	);
 }

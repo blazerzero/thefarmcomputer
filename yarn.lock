@@ -926,6 +926,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formkit/auto-animate@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@formkit/auto-animate@npm:0.9.0"
+  checksum: 10c0/5337bb905761d347cc07cf323b54fbd9967c1eac5469cb63f6ad67cf6705b08493c80ddafc470f317eee82fcc1c05f34391eb05896d41aa9f2f8a02738614ce4
+  languageName: node
+  linkType: hard
+
 "@gar/promise-retry@npm:^1.0.0":
   version: 1.0.2
   resolution: "@gar/promise-retry@npm:1.0.2"
@@ -2159,7 +2166,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.2.2":
+"csstype@npm:^3.1.3, csstype@npm:^3.2.2":
   version: 3.2.3
   resolution: "csstype@npm:3.2.3"
   checksum: 10c0/cd29c51e70fa822f1cecd8641a1445bed7063697469d35633b516e60fe8c1bde04b08f6c5b6022136bb669b64c63d4173af54864510fbb4ee23281801841a3ce
@@ -2707,6 +2714,15 @@ __metadata:
     minipass: "npm:^7.1.3"
     path-scurry: "npm:^2.0.2"
   checksum: 10c0/269c236f11a9b50357fe7a8c6aadac667e01deb5242b19c84975628f05f4438d8ee1354bb62c5d6c10f37fd59911b54d7799730633a2786660d8c69f1d18120a
+  languageName: node
+  linkType: hard
+
+"goober@npm:^2.1.16":
+  version: 2.1.18
+  resolution: "goober@npm:2.1.18"
+  peerDependencies:
+    csstype: ^3.0.10
+  checksum: 10c0/de9bf7b6f57417900afac81a479b85d8c0bcb0322ba8b174f9287d10e7891ba7e33db5fe2b0cdd75281c69130e76eb0c694345acf45ea57e4e4a2db8e4c4f021
   languageName: node
   linkType: hard
 
@@ -3927,6 +3943,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-hot-toast@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "react-hot-toast@npm:2.6.0"
+  dependencies:
+    csstype: "npm:^3.1.3"
+    goober: "npm:^2.1.16"
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
+  checksum: 10c0/c25652e0a477ab501b365a6a2d20b314275a1d9963dd56a9803972d602845f0d44ade2c3345cd66ccd251d62e2e5a10001a55fd80fa183c0e41343f3780ffa9f
+  languageName: node
+  linkType: hard
+
 "react-icons@npm:^5.6.0":
   version: 5.6.0
   resolution: "react-icons@npm:5.6.0"
@@ -4578,11 +4607,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "thefarmcomputer-web@workspace:web"
   dependencies:
+    "@formkit/auto-animate": "npm:^0.9.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@vitejs/plugin-react": "npm:^4.7.0"
     react: "npm:^19.2.5"
     react-dom: "npm:^19.2.5"
+    react-hot-toast: "npm:^2.6.0"
     react-icons: "npm:^5.6.0"
     react-markdown: "npm:^10.1.0"
     react-router-dom: "npm:^7.14.1"

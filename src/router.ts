@@ -191,12 +191,12 @@ const ROUTES: Route[] = [
 	},
 	{
 		method: "POST",
-		pattern: "/api/farms/:farmId/bundles/:bundleId/items/:itemName",
+		pattern: "/api/farms/:farmId/bundles/:bundleId/items/:itemIndex",
 		handler: (req, env, p) => handleMarkBundleItem(req, env, p),
 	},
 	{
 		method: "DELETE",
-		pattern: "/api/farms/:farmId/bundles/:bundleId/items/:itemName",
+		pattern: "/api/farms/:farmId/bundles/:bundleId/items/:itemIndex",
 		handler: (req, env, p) => handleUnmarkBundleItem(req, env, p),
 	},
 ];

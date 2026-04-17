@@ -57,13 +57,13 @@ export async function handleGetBundleProgress(
 		getFarmBundleProgress(env.USER_DB, farmId),
 	]);
 
-	// Index progress by bundleId + itemName
+	// Index progress by bundleId + itemIndex
 	const checkedMap = new Map<
 		string,
 		{ marked_by: string; marked_at: string }
 	>();
 	for (const row of progressRows) {
-		checkedMap.set(`${row.bundle_id}:${row.item_name}`, {
+		checkedMap.set(`${row.bundle_id}:${row.item_index}`, {
 			marked_by: row.marked_by,
 			marked_at: row.marked_at,
 		});
@@ -73,10 +73,11 @@ export async function handleGetBundleProgress(
 		const items: BundleItem[] = JSON.parse(
 			bundle.items || "[]",
 		) as BundleItem[];
-		const annotated = items.map((item) => {
-			const key = `${bundle.id}:${item.name}`;
+		const annotated = items.map((item, index) => {
+			const key = `${bundle.id}:${index}`;
 			const checked = checkedMap.get(key);
 			return {
+				index,
 				name: item.name,
 				quantity: item.quantity,
 				quality: item.quality ?? null,
@@ -111,8 +112,8 @@ export async function handleMarkBundleItem(
 	const user = await checkSetup(request, env);
 	if (user instanceof Response) return user;
 
-	const { farmId, bundleId, itemName } = params;
-	if (!farmId || !bundleId || !itemName)
+	const { farmId, bundleId, itemIndex } = params;
+	if (!farmId || !bundleId || itemIndex === undefined)
 		return json({ error: "missing_params" }, 400);
 
 	const member = await isFarmMember(env.USER_DB, farmId, user.userId);
@@ -123,7 +124,7 @@ export async function handleMarkBundleItem(
 		farmId,
 		user.userId,
 		Number(bundleId),
-		itemName,
+		Number(itemIndex),
 	);
 	return json({ ok: true });
 }
@@ -136,13 +137,18 @@ export async function handleUnmarkBundleItem(
 	const user = await checkSetup(request, env);
 	if (user instanceof Response) return user;
 
-	const { farmId, bundleId, itemName } = params;
-	if (!farmId || !bundleId || !itemName)
+	const { farmId, bundleId, itemIndex } = params;
+	if (!farmId || !bundleId || itemIndex === undefined)
 		return json({ error: "missing_params" }, 400);
 
 	const member = await isFarmMember(env.USER_DB, farmId, user.userId);
 	if (!member) return json({ error: "forbidden" }, 403);
 
-	await unmarkBundleItem(env.USER_DB, farmId, Number(bundleId), itemName);
+	await unmarkBundleItem(
+		env.USER_DB,
+		farmId,
+		Number(bundleId),
+		Number(itemIndex),
+	);
 	return json({ ok: true });
 }

@@ -1,6 +1,6 @@
 export interface BundleProgressRow {
 	bundle_id: number;
-	item_name: string;
+	item_index: number;
 	marked_by: string;
 	marked_at: string;
 }
@@ -10,13 +10,13 @@ export async function markBundleItem(
 	farmId: string,
 	userId: string,
 	bundleId: number,
-	itemName: string,
+	itemIndex: number,
 ): Promise<void> {
 	await db
 		.prepare(
-			"INSERT OR IGNORE INTO farm_bundle_items (id, farm_id, user_id, bundle_id, item_name) VALUES (?, ?, ?, ?, ?)",
+			"INSERT OR IGNORE INTO farm_bundle_items (id, farm_id, user_id, bundle_id, item_index) VALUES (?, ?, ?, ?, ?)",
 		)
-		.bind(crypto.randomUUID(), farmId, userId, bundleId, itemName)
+		.bind(crypto.randomUUID(), farmId, userId, bundleId, itemIndex)
 		.run();
 }
 
@@ -24,13 +24,13 @@ export async function unmarkBundleItem(
 	db: D1Database,
 	farmId: string,
 	bundleId: number,
-	itemName: string,
+	itemIndex: number,
 ): Promise<void> {
 	await db
 		.prepare(
-			"DELETE FROM farm_bundle_items WHERE farm_id = ? AND bundle_id = ? AND item_name = ?",
+			"DELETE FROM farm_bundle_items WHERE farm_id = ? AND bundle_id = ? AND item_index = ?",
 		)
-		.bind(farmId, bundleId, itemName)
+		.bind(farmId, bundleId, itemIndex)
 		.run();
 }
 
@@ -40,7 +40,7 @@ export async function getFarmBundleProgress(
 ): Promise<BundleProgressRow[]> {
 	const result = await db
 		.prepare(
-			`SELECT fbi.bundle_id, fbi.item_name, u.username AS marked_by, fbi.marked_at
+			`SELECT fbi.bundle_id, fbi.item_index, u.username AS marked_by, fbi.marked_at
 			 FROM farm_bundle_items fbi
 			 JOIN users u ON u.id = fbi.user_id
 			 WHERE fbi.farm_id = ?
