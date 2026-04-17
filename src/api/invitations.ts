@@ -131,6 +131,7 @@ export async function handleCreateInvitation(
 				invitationId,
 				deployUrl: env.DEPLOY_URL,
 				resendApiKey: env.RESEND_API_KEY,
+				resendFromEmail: env.RESEND_FROM_EMAIL,
 				isNewUserInvite: !existingUser,
 			});
 		} catch {

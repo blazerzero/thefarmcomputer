@@ -26,4 +26,7 @@ new_sqlite_classes = ["StardewDO"]
 [[d1_databases]]
 binding = "USER_DB"
 database_name = "thefarmcomputer-users"
-database_id = "PLACEHOLDER_RUN_WRANGLER_D1_CREATE"
+database_id = "7920f6fe-5165-4e55-a9cf-5986c0941b7a"
+
+[vars]
+DEPLOY_URL = "https://thefarmcomputer.worksbythepg.com"
