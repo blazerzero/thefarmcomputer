@@ -19,12 +19,12 @@
 		"db:migrate:local": "wrangler d1 migrations apply thefarmcomputer-users --local"
 	},
 	"engines": {
-		"node": "^25"
+		"node": "^25.6"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.12",
 		"@cloudflare/workers-types": "4.20260417.1",
-		"@types/node": "^25",
+		"@types/node": "^25.6",
 		"@types/pluralize": "^0.0.33",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",

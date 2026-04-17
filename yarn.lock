@@ -1722,7 +1722,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^25":
+"@types/node@npm:^25.6":
   version: 25.6.0
   resolution: "@types/node@npm:25.6.0"
   dependencies:
@@ -4600,7 +4600,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^2.4.12"
     "@cloudflare/workers-types": "npm:4.20260417.1"
-    "@types/node": "npm:^25"
+    "@types/node": "npm:^25.6"
     "@types/pluralize": "npm:^0.0.33"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^16.4.0"
