@@ -10,7 +10,7 @@ Bump `version` in `package.json` with every set of changes using semantic versio
 
 ## Environment Configuration
 
-This project is optimized for a Node 24 environment and has not yet been confirmed to work in Node 25 and beyond.
+This project is optimized for a Node 25.6 environment and has not yet been confirmed to work in Node 25.7+ and beyond.
 
 ## Registering Discord Slash Commands
 

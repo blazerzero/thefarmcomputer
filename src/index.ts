@@ -489,6 +489,15 @@ export class StardewDO implements DurableObject {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 
+		if (url.pathname === "/internal/bundles" && request.method === "GET") {
+			const rows = this.sql
+				.exec(
+					"SELECT id, name, room, items, items_required, reward, image_url, wiki_url FROM bundles ORDER BY id",
+				)
+				.toArray();
+			return Response.json(rows);
+		}
+
 		if (url.pathname === "/admin/refresh" && request.method === "POST") {
 			this.state.waitUntil(refreshAll(this.sql));
 			return Response.json({ ok: true });
@@ -779,9 +788,20 @@ export class StardewDO implements DurableObject {
 
 // ── Thin Worker (verifies signature, routes to DO) ────────────────────────────
 
+import { routeUserApiRequest } from "@/router";
+
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
+
+		// User account system routes (auth, farms, invitations, bundle tracking)
+		const userResponse = await routeUserApiRequest(
+			request,
+			env,
+			url.pathname,
+			request.method,
+		);
+		if (userResponse) return userResponse;
 
 		if (url.pathname === "/admin/refresh" && request.method === "POST") {
 			const auth = request.headers.get("Authorization");

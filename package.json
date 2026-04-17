@@ -1,7 +1,7 @@
 {
 	"name": "thefarmcomputer",
 	"type": "module",
-	"version": "0.15.0",
+	"version": "1.0.0",
 	"private": true,
 	"scripts": {
 		"dev": "wrangler dev",
@@ -14,22 +14,24 @@
 		"web:dev": "yarn workspace thefarmcomputer-web dev",
 		"web:build": "yarn workspace thefarmcomputer-web build",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"db:migrate": "wrangler d1 migrations apply thefarmcomputer-users",
+		"db:migrate:local": "wrangler d1 migrations apply thefarmcomputer-users --local"
 	},
 	"engines": {
-		"node": "^24"
+		"node": "^25.6"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.8",
-		"@cloudflare/workers-types": "4.20250224.0",
-		"@types/node": "^24",
+		"@biomejs/biome": "^2.4.12",
+		"@cloudflare/workers-types": "4.20260417.1",
+		"@types/node": "^25.6",
 		"@types/pluralize": "^0.0.33",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
 		"vitest": "^3.2.4",
-		"wrangler": "^4"
+		"wrangler": "4.73.0"
 	},
 	"dependencies": {
 		"node-html-parser": "^6.1.13",
