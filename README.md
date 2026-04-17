@@ -41,7 +41,7 @@ An "Add to Discord" button is also available to install the bot directly from th
 
 ### Prerequisites
 
-- [Node 24](https://nodejs.org/) (Node 25+ not yet verified)
+- [Node 25.6](https://nodejs.org/) (Node 25.7+ not yet verified)
 - [Yarn](https://yarnpkg.com/)
 - A [Cloudflare account](https://dash.cloudflare.com/) with Workers enabled
 - A Discord application with a bot token
