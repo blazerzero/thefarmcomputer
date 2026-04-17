@@ -1,5 +1,5 @@
 import type { Env } from "@/env";
-import { requireAuth, isPendingUsername } from "@/auth/session";
+import { requireAuth } from "@/auth/session";
 import { isFarmMember, isFarmOwner, getFarm } from "@/user-db/farms";
 import {
 	createInvitation,
@@ -11,24 +11,8 @@ import {
 } from "@/user-db/invitations";
 import { getUserByUsername, getUser } from "@/user-db/users";
 import { sendInvitationEmail } from "@/email/invitations";
-
-function json(data: unknown, status = 200): Response {
-	return new Response(JSON.stringify(data), {
-		status,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
-async function checkSetup(
-	request: Request,
-	env: Env,
-): Promise<{ userId: string; session: { username: string } } | Response> {
-	const auth = await requireAuth(request, env);
-	if (auth instanceof Response) return auth;
-	if (isPendingUsername(auth.session.username))
-		return json({ error: "username_required" }, 403);
-	return { userId: auth.session.userId, session: auth.session };
-}
+import { json } from "@/api/response";
+import { checkSetupWithSession as checkSetup } from "@/auth/middleware";
 
 export async function handleCreateInvitation(
 	request: Request,

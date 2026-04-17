@@ -1,3 +1,5 @@
+import { base64urlEncode } from "@/auth/encoding";
+
 export interface OAuthState {
 	nonce: string;
 	redirectTo: string;
@@ -25,20 +27,16 @@ async function hmacSign(data: string, secret: string): Promise<string> {
 		key,
 		new TextEncoder().encode(data),
 	);
-	return btoa(String.fromCharCode(...new Uint8Array(sig)))
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_")
-		.replace(/=/g, "");
+	return base64urlEncode(sig);
 }
 
 export async function buildStateParam(
 	state: OAuthState,
 	secret: string,
 ): Promise<string> {
-	const json = btoa(JSON.stringify(state))
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_")
-		.replace(/=/g, "");
+	const json = base64urlEncode(
+		new TextEncoder().encode(JSON.stringify(state)).buffer as ArrayBuffer,
+	);
 	const sig = await hmacSign(json, secret);
 	return `${json}.${sig}`;
 }

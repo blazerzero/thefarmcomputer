@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
+import { useSignOut } from "../hooks/useSignOut";
 import { ConfirmModal } from "./ConfirmModal";
 import FarmComputerIcon from "@/assets/farm-computer.png";
 import styles from "./Navbar.module.scss";
 
 export function Navbar() {
-	const { user, refetch } = useSession();
-	const navigate = useNavigate();
+	const { user } = useSession();
+	const handleSignOut = useSignOut();
 	const [open, setOpen] = useState(false);
 	const [confirmSignOut, setConfirmSignOut] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
@@ -21,12 +22,6 @@ export function Navbar() {
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
-
-	async function handleSignOut() {
-		await fetch("/auth/logout", { method: "POST" });
-		refetch();
-		navigate("/", { replace: true });
-	}
 
 	return (
 		<>

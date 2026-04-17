@@ -1,16 +1,9 @@
 import { useState } from "react";
 import { CommandForm } from "./CommandForm";
 import { EmbedCard } from "./EmbedCard";
+import { stripMarkdown } from "../utils/formatting";
 import type { QueryResult } from "../types";
 import styles from "./QueryPanel.module.scss";
-
-function stripMarkdown(text: string): string {
-	return text
-		.replace(/\*\*/g, "")
-		.replace(/\*/g, "")
-		.replace(/__/g, "")
-		.replace(/_/g, "");
-}
 
 export function QueryPanel() {
 	const [result, setResult] = useState<QueryResult | null>(null);

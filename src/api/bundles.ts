@@ -1,30 +1,13 @@
 import type { Env } from "@/env";
 import type { BundleRow, BundleItem } from "@/types";
-import { requireAuth, isPendingUsername } from "@/auth/session";
 import { isFarmMember } from "@/user-db/farms";
 import {
 	markBundleItem,
 	unmarkBundleItem,
 	getFarmBundleProgress,
 } from "@/user-db/bundles";
-
-function json(data: unknown, status = 200): Response {
-	return new Response(JSON.stringify(data), {
-		status,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
-async function checkSetup(
-	request: Request,
-	env: Env,
-): Promise<{ userId: string } | Response> {
-	const auth = await requireAuth(request, env);
-	if (auth instanceof Response) return auth;
-	if (isPendingUsername(auth.session.username))
-		return json({ error: "username_required" }, 403);
-	return { userId: auth.session.userId };
-}
+import { json } from "@/api/response";
+import { checkSetup } from "@/auth/middleware";
 
 /** Fetches all bundle rows from the StardewDO via the internal endpoint. */
 async function getAllBundles(

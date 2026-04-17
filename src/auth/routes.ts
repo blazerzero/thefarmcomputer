@@ -9,6 +9,7 @@ import {
 	isSecure,
 	getSession,
 } from "@/auth/session";
+import { badRequest, serverError } from "@/api/response";
 
 function googleRedirectUri(env: Env): string {
 	return `${env.DEPLOY_URL}/auth/google/callback`;
@@ -117,18 +118,4 @@ async function getUsernameForSession(
 		.bind(userId)
 		.first<{ username: string }>();
 	return row?.username ?? `_pending_${userId}`;
-}
-
-function badRequest(msg: string): Response {
-	return new Response(JSON.stringify({ error: msg }), {
-		status: 400,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
-function serverError(msg: string): Response {
-	return new Response(JSON.stringify({ error: msg }), {
-		status: 500,
-		headers: { "Content-Type": "application/json" },
-	});
 }

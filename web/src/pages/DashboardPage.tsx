@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
+import { useSignOut } from "../hooks/useSignOut";
 import { Navbar } from "../components/Navbar";
 import { ConfirmModal } from "../components/ConfirmModal";
 import styles from "./shared.module.scss";
@@ -22,8 +23,8 @@ interface Invitation {
 }
 
 export function DashboardPage() {
-	const { user, refetch } = useSession();
-	const navigate = useNavigate();
+	const { user } = useSession();
+	const handleSignOut = useSignOut();
 	const [farms, setFarms] = useState<Farm[]>([]);
 	const [invitations, setInvitations] = useState<Invitation[]>([]);
 	const [confirmSignOut, setConfirmSignOut] = useState(false);
@@ -38,12 +39,6 @@ export function DashboardPage() {
 			.then((d: { invitations: Invitation[] }) => setInvitations(d.invitations))
 			.catch(console.error);
 	}, []);
-
-	async function handleSignOut() {
-		await fetch("/auth/logout", { method: "POST" });
-		refetch();
-		navigate("/", { replace: true });
-	}
 
 	return (
 		<>

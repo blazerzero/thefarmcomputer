@@ -6,6 +6,7 @@ import {
 	isSecure,
 	isPendingUsername,
 } from "@/auth/session";
+import { json } from "@/api/response";
 import {
 	getUser,
 	setUsername,
@@ -135,11 +136,4 @@ export async function handleSearchUsers(
 
 	const users = await dbSearchUsers(env.USER_DB, q, 10);
 	return json({ users });
-}
-
-function json(data: unknown, status = 200): Response {
-	return new Response(JSON.stringify(data), {
-		status,
-		headers: { "Content-Type": "application/json" },
-	});
 }

@@ -7,16 +7,9 @@ import { CommandHelp } from "../components/CommandHelp";
 import { EmbedCard } from "../components/EmbedCard";
 import { GitHubBadge } from "../components/GitHubBadge";
 import { useSession } from "../context/SessionContext";
+import { stripMarkdown } from "../utils/formatting";
 import type { QueryResult } from "../types";
 import styles from "./HomePage.module.scss";
-
-function stripMarkdown(text: string): string {
-	return text
-		.replace(/\*\*/g, "")
-		.replace(/\*/g, "")
-		.replace(/__/g, "")
-		.replace(/_/g, "");
-}
 
 const FULL_TITLE = "The Farm Computer";
 const GITHUB_REPO = "blazerzero/thefarmcomputer";
