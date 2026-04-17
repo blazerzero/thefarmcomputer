@@ -238,8 +238,7 @@ export function FarmPage() {
 								{isOwner && m.role !== "owner" && (
 									<button
 										type="button"
-										className={styles.btnGhost}
-										style={{ fontSize: "0.8125rem" }}
+										className={styles.btnGhostSm}
 										onClick={() => handleRemoveMember(m.user_id)}
 									>
 										Remove
@@ -258,21 +257,21 @@ export function FarmPage() {
 								type="button"
 								className={
 									inviteMode === "username"
-										? styles.btnPrimary
-										: styles.btnGhost
+										? styles.btnPrimarySm
+										: styles.btnGhostSm
 								}
 								onClick={() => setInviteMode("username")}
-								style={{ fontSize: "0.875rem" }}
 							>
 								By username
 							</button>
 							<button
 								type="button"
 								className={
-									inviteMode === "email" ? styles.btnPrimary : styles.btnGhost
+									inviteMode === "email"
+										? styles.btnPrimarySm
+										: styles.btnGhostSm
 								}
 								onClick={() => setInviteMode("email")}
-								style={{ fontSize: "0.875rem" }}
 							>
 								By email
 							</button>

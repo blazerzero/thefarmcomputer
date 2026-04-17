@@ -38,7 +38,35 @@ export async function handleListFarms(
 	const user = await checkSetup(request, env);
 	if (user instanceof Response) return user;
 	const farms = await listFarmsForUser(env.USER_DB, user.userId);
-	return json({ farms });
+
+	if (farms.length === 0) return json({ farms: [] });
+
+	// Batch-fetch member avatars for all farms in one query
+	const farmIds = farms.map((f) => f.id);
+	const placeholders = farmIds.map(() => "?").join(",");
+	const memberRows = await env.USER_DB.prepare(
+		`SELECT fm.farm_id, u.avatar_url
+		 FROM farm_members fm
+		 JOIN users u ON u.id = fm.user_id
+		 WHERE fm.farm_id IN (${placeholders})
+		 ORDER BY fm.joined_at ASC`,
+	)
+		.bind(...farmIds)
+		.all<{ farm_id: string; avatar_url: string | null }>();
+
+	const avatarsByFarm = new Map<string, (string | null)[]>();
+	for (const row of memberRows.results) {
+		const list = avatarsByFarm.get(row.farm_id) ?? [];
+		list.push(row.avatar_url);
+		avatarsByFarm.set(row.farm_id, list);
+	}
+
+	const farmsWithMembers = farms.map((f) => ({
+		...f,
+		member_avatars: avatarsByFarm.get(f.id) ?? [],
+	}));
+
+	return json({ farms: farmsWithMembers });
 }
 
 export async function handleCreateFarm(

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
 import { Navbar } from "../components/Navbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import styles from "./shared.module.scss";
 
 interface Farm {
@@ -9,6 +10,7 @@ interface Farm {
 	name: string;
 	emoji: string | null;
 	role: string;
+	member_avatars: (string | null)[];
 }
 
 interface Invitation {
@@ -20,9 +22,11 @@ interface Invitation {
 }
 
 export function DashboardPage() {
-	const { user } = useSession();
+	const { user, refetch } = useSession();
+	const navigate = useNavigate();
 	const [farms, setFarms] = useState<Farm[]>([]);
 	const [invitations, setInvitations] = useState<Invitation[]>([]);
+	const [confirmSignOut, setConfirmSignOut] = useState(false);
 
 	useEffect(() => {
 		fetch("/api/farms")
@@ -35,9 +39,10 @@ export function DashboardPage() {
 			.catch(console.error);
 	}, []);
 
-	async function handleLogout() {
+	async function handleSignOut() {
 		await fetch("/auth/logout", { method: "POST" });
-		window.location.href = "/";
+		refetch();
+		navigate("/", { replace: true });
 	}
 
 	return (
@@ -65,9 +70,8 @@ export function DashboardPage() {
 					</div>
 					<button
 						type="button"
-						onClick={handleLogout}
+						onClick={() => setConfirmSignOut(true)}
 						className={styles.btnGhost}
-						style={{ alignSelf: "flex-start" }}
 					>
 						Sign out
 					</button>
@@ -93,11 +97,7 @@ export function DashboardPage() {
 									</div>
 									<Link
 										to={`/invitations/${inv.id}`}
-										className={styles.btnPrimary}
-										style={{
-											fontSize: "0.875rem",
-											padding: "0.375rem 0.875rem",
-										}}
+										className={styles.btnPrimarySm}
 									>
 										View
 									</Link>
@@ -115,15 +115,7 @@ export function DashboardPage() {
 						<h2 className={styles.h2} style={{ margin: 0 }}>
 							My farms
 						</h2>
-						<Link
-							to="/farms/new"
-							className={styles.btnPrimary}
-							style={{
-								fontSize: "0.875rem",
-								padding: "0.375rem 0.875rem",
-								textDecoration: "none",
-							}}
-						>
+						<Link to="/farms/new" className={styles.btnPrimarySm}>
 							+ Add farm
 						</Link>
 					</div>
@@ -136,40 +128,62 @@ export function DashboardPage() {
 						<div className={styles.list}>
 							{farms.map((farm) => (
 								<div key={farm.id} className={styles.listItem}>
-									<div>
-										<strong>
-											{farm.emoji ? `${farm.emoji} ` : ""}
-											{farm.name}
-										</strong>
-										{farm.role === "owner" && (
-											<span
-												className={styles.hint}
-												style={{ marginLeft: "0.5rem" }}
-											>
-												owner
-											</span>
+									<div className={styles.row} style={{ gap: "0.75rem" }}>
+										<div>
+											<strong>
+												{farm.emoji ? `${farm.emoji} ` : ""}
+												{farm.name}
+											</strong>
+											{farm.role === "owner" && (
+												<span
+													className={styles.hint}
+													style={{ marginLeft: "0.5rem" }}
+												>
+													owner
+												</span>
+											)}
+										</div>
+										{farm.member_avatars.length > 1 && (
+											<div className={styles.avatarStack}>
+												{farm.member_avatars.slice(0, 5).map((url, i) =>
+													url ? (
+														<img
+															key={i}
+															src={url}
+															alt=""
+															className={styles.stackedAvatar}
+															style={{
+																zIndex: farm.member_avatars.length - i,
+															}}
+														/>
+													) : (
+														<div
+															key={i}
+															className={`${styles.stackedAvatar} ${styles.stackedAvatarFallback}`}
+															style={{
+																zIndex: farm.member_avatars.length - i,
+															}}
+														/>
+													),
+												)}
+												{farm.member_avatars.length > 5 && (
+													<span className={styles.avatarOverflow}>
+														+{farm.member_avatars.length - 5}
+													</span>
+												)}
+											</div>
 										)}
 									</div>
 									<div className={styles.row}>
 										<Link
 											to={`/farms/${farm.id}/bundles`}
-											className={styles.btnGhost}
-											style={{
-												fontSize: "0.875rem",
-												padding: "0.375rem 0.875rem",
-												textDecoration: "none",
-											}}
+											className={styles.btnGhostSm}
 										>
 											Bundles
 										</Link>
 										<Link
 											to={`/farms/${farm.id}`}
-											className={styles.btnGhost}
-											style={{
-												fontSize: "0.875rem",
-												padding: "0.375rem 0.875rem",
-												textDecoration: "none",
-											}}
+											className={styles.btnGhostSm}
 										>
 											Manage
 										</Link>
@@ -180,6 +194,15 @@ export function DashboardPage() {
 					)}
 				</div>
 			</div>
+
+			<ConfirmModal
+				isOpen={confirmSignOut}
+				title="Sign out?"
+				message="Are you sure you want to sign out?"
+				confirmLabel="Sign out"
+				onConfirm={handleSignOut}
+				onCancel={() => setConfirmSignOut(false)}
+			/>
 		</>
 	);
 }

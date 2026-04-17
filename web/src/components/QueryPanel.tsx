@@ -32,7 +32,7 @@ export function QueryPanel() {
 
 	return (
 		<div className={styles.panel}>
-			<h2 className={styles.heading}>Farm Computer</h2>
+			<h2 className={styles.heading}>Ask the Farm Computer</h2>
 			<CommandForm onSubmit={handleSubmit} loading={loading} />
 			{loading && <p className={styles.hint}>Loading…</p>}
 			{result &&

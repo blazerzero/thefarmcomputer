@@ -93,11 +93,7 @@ export function NewFarmPage() {
 						>
 							{saving ? "Creating…" : "Create farm"}
 						</button>
-						<Link
-							to="/dashboard"
-							className={styles.btnGhost}
-							style={{ textDecoration: "none" }}
-						>
+						<Link to="/dashboard" className={styles.btnGhost}>
 							Cancel
 						</Link>
 					</div>

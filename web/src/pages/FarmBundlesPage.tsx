@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { motion } from "framer-motion";
 import { Navbar } from "../components/Navbar";
 import { QueryPanel } from "../components/QueryPanel";
 import styles from "./shared.module.scss";
@@ -36,16 +36,17 @@ function BundleRoomGrid({
 	bundles: Bundle[];
 	onToggle: (bundle: Bundle, item: BundleItem) => void;
 }) {
-	const [parent] = useAutoAnimate<HTMLDivElement>();
 	const sorted = [...bundles].sort(
 		(a, b) => Number(a.complete) - Number(b.complete),
 	);
 
 	return (
-		<div ref={parent} className={pageStyles.bundleGrid}>
+		<div className={pageStyles.bundleGrid}>
 			{sorted.map((bundle) => (
-				<div
+				<motion.div
 					key={bundle.id}
+					layout
+					transition={{ duration: 0.5, ease: "easeInOut" }}
 					className={`${pageStyles.bundle} ${bundle.complete ? pageStyles.complete : ""}`}
 				>
 					<div className={pageStyles.bundleHeader}>
@@ -92,7 +93,7 @@ function BundleRoomGrid({
 					{bundle.reward && (
 						<div className={pageStyles.reward}>Reward: {bundle.reward}</div>
 					)}
-				</div>
+				</motion.div>
 			))}
 		</div>
 	);
@@ -103,6 +104,7 @@ export function FarmBundlesPage() {
 	const [bundles, setBundles] = useState<Bundle[]>([]);
 	const [farmName, setFarmName] = useState("");
 	const [loading, setLoading] = useState(true);
+	const [collapsedRooms, setCollapsedRooms] = useState<Set<string>>(new Set());
 
 	useEffect(() => {
 		if (!farmId) return;
@@ -118,8 +120,25 @@ export function FarmBundlesPage() {
 			.then((d: { bundles: Bundle[] }) => {
 				setBundles(d.bundles);
 				setLoading(false);
+				const roomNames = [...new Set(d.bundles.map((b) => b.room))];
+				setCollapsedRooms(
+					new Set(
+						roomNames.filter((room) =>
+							d.bundles.filter((b) => b.room === room).every((b) => b.complete),
+						),
+					),
+				);
 			});
 	}, [farmId]);
+
+	function toggleRoom(room: string) {
+		setCollapsedRooms((prev) => {
+			const next = new Set(prev);
+			if (next.has(room)) next.delete(room);
+			else next.add(room);
+			return next;
+		});
+	}
 
 	async function toggleItem(bundle: Bundle, item: BundleItem) {
 		if (!farmId) return;
@@ -164,37 +183,69 @@ export function FarmBundlesPage() {
 	return (
 		<>
 			<Navbar />
-			<div className={pageStyles.layout}>
-				<main className={pageStyles.main}>
-					<div>
-						<nav className={styles.nav}>
-							<Link to={`/farms/${farmId}`}>{farmName || "Farm"}</Link>
-							<span className={styles.sep}>›</span>
-							<span>Bundles</span>
-						</nav>
-						<h1 className={styles.h1} style={{ marginTop: "0.25rem" }}>
-							Bundle progress
-						</h1>
-					</div>
+			<div className={pageStyles.pageWrapper}>
+				<div className={pageStyles.pageHeader}>
+					<nav className={styles.nav}>
+						<Link to={`/farms/${farmId}`}>{farmName || "Farm"}</Link>
+						<span className={styles.sep}>›</span>
+						<span>Bundles</span>
+					</nav>
+					<h1 className={styles.h1} style={{ marginTop: "0.25rem" }}>
+						Bundle progress
+					</h1>
+				</div>
 
-					{loading ? (
-						<p className={styles.hint}>Loading bundles…</p>
-					) : (
-						rooms.map((room) => (
-							<div key={room} className={styles.card}>
-								<h2 className={styles.h2}>{room}</h2>
-								<BundleRoomGrid
-									bundles={bundles.filter((b) => b.room === room)}
-									onToggle={toggleItem}
-								/>
-							</div>
-						))
-					)}
-				</main>
+				<div className={pageStyles.layout}>
+					<main className={pageStyles.main}>
+						{loading ? (
+							<p className={styles.hint}>Loading bundles…</p>
+						) : (
+							rooms.map((room) => {
+								const collapsed = collapsedRooms.has(room);
+								return (
+									<div key={room} className={styles.card}>
+										<button
+											type="button"
+											className={pageStyles.roomHeader}
+											onClick={() => toggleRoom(room)}
+										>
+											<h2 className={styles.h2} style={{ margin: 0 }}>
+												{room}
+											</h2>
+											<span
+												className={pageStyles.roomChevron}
+												style={{
+													transform: collapsed
+														? "rotate(-90deg)"
+														: "rotate(0deg)",
+												}}
+											>
+												▾
+											</span>
+										</button>
+										<motion.div
+											initial={false}
+											animate={{ height: collapsed ? 0 : "auto" }}
+											transition={{ duration: 0.3, ease: "easeInOut" }}
+											style={{ overflow: "hidden" }}
+										>
+											<div style={{ paddingTop: "0.75rem" }}>
+												<BundleRoomGrid
+													bundles={bundles.filter((b) => b.room === room)}
+													onToggle={toggleItem}
+												/>
+											</div>
+										</motion.div>
+									</div>
+								);
+							})
+						)}
+					</main>
 
-				<aside className={pageStyles.sidebar}>
-					<QueryPanel />
-				</aside>
+					<aside className={pageStyles.sidebar}>
+						<QueryPanel />
+					</aside>
+				</div>
 			</div>
 		</>
 	);
