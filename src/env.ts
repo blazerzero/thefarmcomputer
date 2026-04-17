@@ -16,4 +16,5 @@ export interface Env {
 	GOOGLE_CLIENT_SECRET: string;
 	JWT_SECRET: string; // 32+ byte random hex for HMAC-SHA256
 	RESEND_API_KEY: string;
+	RESEND_FROM_EMAIL: string; // e.g. "The Farm Computer <noreply@yourdomain.com>"
 }

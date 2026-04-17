@@ -6,6 +6,7 @@ interface SendInvitationEmailOptions {
 	invitationId: string;
 	deployUrl: string;
 	resendApiKey: string;
+	resendFromEmail: string;
 	isNewUserInvite: boolean;
 }
 
@@ -17,6 +18,7 @@ export async function sendInvitationEmail({
 	invitationId,
 	deployUrl,
 	resendApiKey,
+	resendFromEmail,
 	isNewUserInvite,
 }: SendInvitationEmailOptions): Promise<void> {
 	const acceptUrl = `${deployUrl}/invitations/${invitationId}`;
@@ -33,7 +35,7 @@ export async function sendInvitationEmail({
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			from: "The Farm Computer <noreply@TODO_YOUR_DOMAIN>", // TODO: configure sender domain in Resend
+			from: resendFromEmail,
 			to: [toEmail],
 			subject: `${inviterUsername} invited you to join ${displayName} on The Farm Computer`,
 			html: `
