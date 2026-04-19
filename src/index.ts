@@ -229,7 +229,7 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	}
 	try {
 		const n = await refreshCrystalariumItems(sql);
-		console.log(`Updated ${n} crystalarium entries`);
+		console.log(`Updated ${n} crystalarium item entries`);
 	} catch (err) {
 		console.error("Crystalarium scrape failed:", err);
 	}
