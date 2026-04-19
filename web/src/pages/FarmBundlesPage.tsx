@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
+import { IoCheckmarkCircle } from "react-icons/io5";
 import { Navbar } from "../components/Navbar";
 import { QueryPanel } from "../components/QueryPanel";
 import styles from "./shared.module.scss";
@@ -23,6 +24,7 @@ interface Bundle {
 	room: string;
 	items_required: number;
 	reward: string;
+	description: string | null;
 	image_url: string | null;
 	items: BundleItem[];
 	items_checked: number;
@@ -50,11 +52,24 @@ function BundleRoomGrid({
 					className={`${pageStyles.bundle} ${bundle.complete ? pageStyles.complete : ""}`}
 				>
 					<div className={pageStyles.bundleHeader}>
-						<span className={pageStyles.bundleName}>{bundle.name}</span>
+						<span className={pageStyles.bundleName}>
+							{bundle.name}
+							{bundle.complete && (
+								<IoCheckmarkCircle className={pageStyles.completeMark} />
+							)}
+						</span>
 						<span className={pageStyles.bundleProgress}>
 							{bundle.items_checked}/{bundle.items_required}
 						</span>
 					</div>
+					{bundle.description && (
+						<p className={pageStyles.bundleDescription}>{bundle.description}</p>
+					)}
+					{bundle.items_required < bundle.items.length && (
+						<p className={pageStyles.bundleChoiceHint}>
+							Choose any {bundle.items_required} of {bundle.items.length}
+						</p>
+					)}
 					<div className={pageStyles.bundleItems}>
 						{bundle.items.map((item) => (
 							<button
@@ -146,8 +161,9 @@ export function FarmBundlesPage() {
 		const method = item.checked ? "DELETE" : "POST";
 		await fetch(endpoint, { method });
 
-		// Detect bundle completion before updating state
+		// Detect item check and bundle completion before updating state
 		if (!item.checked) {
+			toast.success(item.name, { duration: 2000 });
 			const newCount = bundle.items_checked + 1;
 			if (newCount >= bundle.items_required && !bundle.complete) {
 				toast.success(`${bundle.name} complete! 🎉`, { duration: 4000 });
@@ -178,7 +194,15 @@ export function FarmBundlesPage() {
 		);
 	}
 
-	const rooms = [...new Set(bundles.map((b) => b.room))];
+	const rooms = [...new Set(bundles.map((b) => b.room))].sort((a, b) => {
+		const aComplete = bundles
+			.filter((b2) => b2.room === a)
+			.every((b2) => b2.complete);
+		const bComplete = bundles
+			.filter((b2) => b2.room === b)
+			.every((b2) => b2.complete);
+		return Number(aComplete) - Number(bComplete);
+	});
 
 	return (
 		<>
@@ -202,15 +226,35 @@ export function FarmBundlesPage() {
 						) : (
 							rooms.map((room) => {
 								const collapsed = collapsedRooms.has(room);
+								const roomComplete = bundles
+									.filter((b) => b.room === room)
+									.every((b) => b.complete);
 								return (
-									<div key={room} className={styles.card}>
+									<motion.div
+										key={room}
+										layout
+										transition={{ duration: 0.5, ease: "easeInOut" }}
+										className={`${styles.card} ${roomComplete ? pageStyles.roomComplete : ""}`}
+									>
 										<button
 											type="button"
 											className={pageStyles.roomHeader}
 											onClick={() => toggleRoom(room)}
 										>
-											<h2 className={styles.h2} style={{ margin: 0 }}>
+											<h2
+												className={styles.h2}
+												style={{
+													margin: 0,
+													display: "flex",
+													alignItems: "center",
+												}}
+											>
 												{room}
+												{roomComplete && (
+													<IoCheckmarkCircle
+														className={pageStyles.completeMark}
+													/>
+												)}
 											</h2>
 											<span
 												className={pageStyles.roomChevron}
@@ -236,7 +280,7 @@ export function FarmBundlesPage() {
 												/>
 											</div>
 										</motion.div>
-									</div>
+									</motion.div>
 								);
 							})
 						)}

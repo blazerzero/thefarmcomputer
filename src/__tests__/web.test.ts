@@ -123,6 +123,7 @@ const fakeBundleRow = {
 	items: '[{"name":"Daffodil","quantity":1}]',
 	items_required: 1,
 	reward: "Spring Seeds ×30",
+	description: null,
 	image_url: null,
 	wiki_url: "https://stardewvalleywiki.com/Spring_Foraging_Bundle",
 	last_updated: "2024-03-01T00:00:00.000Z",

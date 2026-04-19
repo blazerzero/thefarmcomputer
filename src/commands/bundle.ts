@@ -55,6 +55,7 @@ export function handleBundle(
 		url: bundle.wiki_url,
 		color: ROOM_COLORS[bundle.room] ?? DEFAULT_COLOR,
 		thumbnail: bundle.image_url ? { url: bundle.image_url } : undefined,
+		description: bundle.description ?? undefined,
 		fields: [
 			{ name: "Room", value: bundle.room, inline: true },
 			{ name: "Reward", value: bundle.reward, inline: true },

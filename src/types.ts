@@ -130,6 +130,7 @@ export interface BundleRow {
 	items: string; // JSON array of BundleItem
 	items_required: number; // may be less than items.length for choice bundles
 	reward: string;
+	description: string | null;
 	image_url: string | null;
 	wiki_url: string;
 	last_updated: string;

@@ -8,11 +8,11 @@ import "./index.scss";
 
 function ToasterWrapper() {
 	const [position, setPosition] = useState<"top-right" | "top-center">(
-		window.innerWidth >= 768 ? "top-right" : "top-center",
+		window.innerWidth >= 1024 ? "top-right" : "top-center",
 	);
 
 	useEffect(() => {
-		const mq = window.matchMedia("(min-width: 768px)");
+		const mq = window.matchMedia("(min-width: 1024px)");
 		const handler = (e: MediaQueryListEvent) => {
 			setPosition(e.matches ? "top-right" : "top-center");
 		};

@@ -20,9 +20,13 @@
 
 	@media (min-width: 960px) {
 		display: grid;
-		grid-template-columns: 2fr 1fr;
+		grid-template-columns: 1fr 1fr;
 		align-items: start;
 		gap: 2rem;
+	}
+
+	@media (min-width: 1280px) {
+		grid-template-columns: 1.5fr 1fr;
 	}
 }
 
@@ -41,6 +45,18 @@
 		position: sticky;
 		top: 3.5rem;
 	}
+}
+
+.completeMark {
+	color: var(--accent);
+	font-size: 1.5rem;
+	margin-left: 0.35em;
+	flex-shrink: 0;
+}
+
+.roomComplete {
+	border-color: var(--accent);
+	opacity: 0.75;
 }
 
 .roomHeader {
@@ -95,12 +111,27 @@
 .bundleName {
 	font-weight: 600;
 	color: var(--text);
+	display: flex;
+	align-items: center;
 }
 
 .bundleProgress {
 	font-size: 0.8125rem;
 	color: var(--text-muted);
 	font-variant-numeric: tabular-nums;
+}
+
+.bundleDescription {
+	margin: 0 0 0.5rem;
+	font-size: 0.8125rem;
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.bundleChoiceHint {
+	margin: 0 0 0.5rem;
+	font-size: 0.8125rem;
+	color: var(--text-muted);
 }
 
 .bundleItems {

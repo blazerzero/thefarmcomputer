@@ -157,11 +157,17 @@ export function initDb(sql: SqlStorage): void {
       items          TEXT NOT NULL,
       items_required INTEGER NOT NULL,
       reward         TEXT NOT NULL,
+      description    TEXT,
       image_url      TEXT,
       wiki_url       TEXT,
       last_updated   TEXT
     )
   `);
+	try {
+		sql.exec("ALTER TABLE bundles ADD COLUMN description TEXT");
+	} catch {
+		/* already exists */
+	}
 
 	sql.exec(`
     CREATE TABLE IF NOT EXISTS forageables (
