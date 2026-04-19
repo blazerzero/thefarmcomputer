@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BLOCKED_USERNAMES } from "@/api/shared/username";
 import { useSession } from "../context/SessionContext";
 import styles from "./shared.module.scss";
 
@@ -8,7 +9,7 @@ export function UsernameSetupPage() {
 	const navigate = useNavigate();
 	const [username, setUsername] = useState("");
 	const [status, setStatus] = useState<
-		"idle" | "checking" | "available" | "taken" | "invalid"
+		"idle" | "checking" | "available" | "taken" | "invalid" | "reserved"
 	>("idle");
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -32,6 +33,10 @@ export function UsernameSetupPage() {
 		}
 		if (!/^[a-z0-9_]{3,24}$/.test(lower)) {
 			setStatus("invalid");
+			return;
+		}
+		if (BLOCKED_USERNAMES.has(lower)) {
+			setStatus("reserved");
 			return;
 		}
 
@@ -59,12 +64,15 @@ export function UsernameSetupPage() {
 			});
 			const data = (await res.json()) as { ok: boolean; error?: string };
 			if (!data.ok) {
-				setError(
-					data.error === "taken"
-						? "That username was just taken. Try another."
-						: "Something went wrong.",
-				);
-				setStatus("idle");
+				if (data.error === "taken") {
+					setError("That username was just taken. Try another.");
+				} else if (data.error === "reserved") {
+					setError("That username is reserved. Please choose another.");
+					setStatus("reserved");
+				} else {
+					setError("Something went wrong.");
+				}
+				if (data.error !== "reserved") setStatus("idle");
 			} else {
 				refetch();
 				navigate("/dashboard", { replace: true });
@@ -79,6 +87,7 @@ export function UsernameSetupPage() {
 		available: "Available!",
 		taken: "Already taken",
 		invalid: "3–24 chars, lowercase letters, numbers, underscores only",
+		reserved: "That username is reserved",
 	};
 
 	return (

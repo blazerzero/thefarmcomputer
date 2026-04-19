@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { IoCheckmarkCircle } from "react-icons/io5";
+import { Link, useParams } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { QueryPanel } from "../components/QueryPanel";
-import styles from "./shared.module.scss";
+import { useSession } from "../context/SessionContext";
 import pageStyles from "./FarmBundlesPage.module.scss";
+import styles from "./shared.module.scss";
 
 interface BundleItem {
 	index: number;
@@ -34,9 +35,11 @@ interface Bundle {
 function BundleRoomGrid({
 	bundles,
 	onToggle,
+	currentUsername,
 }: {
 	bundles: Bundle[];
 	onToggle: (bundle: Bundle, item: BundleItem) => void;
+	currentUsername: string | null;
 }) {
 	const sorted = [...bundles].sort(
 		(a, b) => Number(a.complete) - Number(b.complete),
@@ -78,7 +81,9 @@ function BundleRoomGrid({
 								className={`${pageStyles.item} ${item.checked ? pageStyles.itemChecked : ""}`}
 								onClick={() => onToggle(bundle, item)}
 								title={
-									item.checked ? `Added by ${item.checked_by}` : "Mark as added"
+									item.checked
+										? `Added by ${item.checked_by === currentUsername ? "you" : item.checked_by}`
+										: "Mark as added"
 								}
 							>
 								<span className={pageStyles.itemCheck}>
@@ -100,7 +105,11 @@ function BundleRoomGrid({
 									)}
 								</span>
 								{item.checked && item.checked_by && (
-									<span className={pageStyles.itemBy}>{item.checked_by}</span>
+									<span className={pageStyles.itemBy}>
+										{item.checked_by === currentUsername
+											? "you"
+											: item.checked_by}
+									</span>
 								)}
 							</button>
 						))}
@@ -116,6 +125,7 @@ function BundleRoomGrid({
 
 export function FarmBundlesPage() {
 	const { farmId } = useParams<{ farmId: string }>();
+	const { user } = useSession();
 	const [bundles, setBundles] = useState<Bundle[]>([]);
 	const [farmName, setFarmName] = useState("");
 	const [loading, setLoading] = useState(true);
@@ -277,6 +287,7 @@ export function FarmBundlesPage() {
 												<BundleRoomGrid
 													bundles={bundles.filter((b) => b.room === room)}
 													onToggle={toggleItem}
+													currentUsername={user?.username ?? null}
 												/>
 											</div>
 										</motion.div>

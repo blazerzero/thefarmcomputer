@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ConfirmModal } from "../components/ConfirmModal";
+import { Navbar } from "../components/Navbar";
 import { useSession } from "../context/SessionContext";
 import { useSignOut } from "../hooks/useSignOut";
-import { Navbar } from "../components/Navbar";
-import { ConfirmModal } from "../components/ConfirmModal";
 import styles from "./shared.module.scss";
 
 interface Farm {
