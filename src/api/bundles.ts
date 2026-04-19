@@ -76,6 +76,7 @@ export async function handleGetBundleProgress(
 			room: bundle.room,
 			items_required: bundle.items_required,
 			reward: bundle.reward,
+			description: bundle.description ?? null,
 			image_url: bundle.image_url,
 			wiki_url: bundle.wiki_url,
 			items: annotated,

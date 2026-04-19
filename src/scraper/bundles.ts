@@ -96,10 +96,24 @@ export async function scrapeBundles(): Promise<
 		let reward = "";
 		let bundleImageUrl: string | null = null;
 		let items_required: number | null = null;
+		let description: string | null = null;
 
 		for (let i = 1; i < rows.length; i++) {
 			const row = rows[i]!;
 			const rowText = row.text.replace(/\s+/g, " ").trim();
+
+			// ── Description row (td spans all columns) ──────────────────────────
+			// Detected before any items are collected; captures wiki description text.
+			if (description === null && items.length === 0) {
+				const spanCell = row.querySelector(":scope > td[colspan]");
+				if (spanCell) {
+					const spanVal = parseInt(spanCell.getAttribute("colspan") ?? "1", 10);
+					if (spanVal >= 2) {
+						description = spanCell.text.replace(/\s+/g, " ").trim();
+						continue;
+					}
+				}
+			}
 
 			// Check for "N of M" choice-bundle indicator in any non-item row
 			// e.g. "Any 5 of the following" / "Choose 5" / "Complete 5 of 9 items"
@@ -153,10 +167,21 @@ export async function scrapeBundles(): Promise<
 
 			// ── Item row ────────────────────────────────────────────────────────────
 			for (const td of tds) {
-				// A td with a rowspan is the bundle image column — grab the image URL
+				// A td with a rowspan is either the bundle image or the bundle slots column.
 				const rowspan = td.getAttribute("rowspan");
 				if (rowspan && parseInt(rowspan, 10) > 1) {
-					if (!bundleImageUrl) {
+					// Bundle slots cell: each "Bundle Slot" image = one required slot.
+					const slotCount = td
+						.querySelectorAll("img")
+						.filter((img) =>
+							(img.getAttribute("alt") ?? "")
+								.toLowerCase()
+								.includes("bundle slot"),
+						).length;
+					if (slotCount > 0) {
+						if (items_required === null) items_required = slotCount;
+					} else if (!bundleImageUrl) {
+						// Bundle image cell
 						const imgSrc = td.querySelector("img")?.getAttribute("src") ?? null;
 						bundleImageUrl = imgSrc
 							? imgSrc.startsWith("http")
@@ -164,7 +189,7 @@ export async function scrapeBundles(): Promise<
 								: WIKI_BASE + imgSrc
 							: null;
 					}
-					continue; // skip the bundle image cell itself
+					continue; // skip the cell itself
 				}
 
 				// Look for a non-File item page link in this cell
@@ -209,6 +234,7 @@ export async function scrapeBundles(): Promise<
 			items: JSON.stringify(items),
 			items_required: items_required ?? items.length,
 			reward: reward || "Unknown",
+			description,
 			image_url: bundleImageUrl,
 			wiki_url: `${WIKI_BASE}/Bundles#${anchor}`,
 		});

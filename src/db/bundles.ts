@@ -27,13 +27,14 @@ export function upsertBundle(
 ): void {
 	sql.exec(
 		`INSERT INTO bundles
-       (name, room, items, items_required, reward, image_url, wiki_url, last_updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+       (name, room, items, items_required, reward, description, image_url, wiki_url, last_updated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET
        room           = excluded.room,
        items          = excluded.items,
        items_required = excluded.items_required,
        reward         = excluded.reward,
+       description    = excluded.description,
        image_url      = excluded.image_url,
        wiki_url       = excluded.wiki_url,
        last_updated   = excluded.last_updated`,
@@ -42,6 +43,7 @@ export function upsertBundle(
 		data.items,
 		data.items_required,
 		data.reward,
+		data.description,
 		data.image_url,
 		data.wiki_url,
 		now(),
