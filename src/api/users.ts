@@ -1,20 +1,21 @@
-import type { Env } from "@/env";
-import {
-	requireAuth,
-	createSessionToken,
-	buildSessionCookie,
-	isSecure,
-	isPendingUsername,
-} from "@/auth/session";
 import { json } from "@/api/response";
 import {
-	getUser,
-	setUsername,
-	deleteUser,
-	searchUsers as dbSearchUsers,
-	isValidUsername,
-} from "@/user-db/users";
+	buildSessionCookie,
+	createSessionToken,
+	isPendingUsername,
+	isSecure,
+	requireAuth,
+} from "@/auth/session";
+import type { Env } from "@/env";
 import { listFarmsForUser } from "@/user-db/farms";
+import {
+	searchUsers as dbSearchUsers,
+	deleteUser,
+	getUser,
+	isReservedUsername,
+	isValidUsername,
+	setUsername,
+} from "@/user-db/users";
 
 export async function handleGetMe(
 	request: Request,
@@ -63,6 +64,8 @@ export async function handleSetUsername(
 			},
 			422,
 		);
+	if (isReservedUsername(username))
+		return json({ ok: false, error: "reserved" }, 422);
 
 	const result = await setUsername(env.USER_DB, session.userId, username);
 	if (result.conflict) return json({ ok: false, error: "taken" }, 409);

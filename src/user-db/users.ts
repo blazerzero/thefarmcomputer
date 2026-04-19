@@ -1,4 +1,8 @@
-const USERNAME_RE = /^[a-z0-9_]{3,24}$/;
+export {
+	BLOCKED_USERNAMES,
+	isReservedUsername,
+	isValidUsername,
+} from "@/shared/username";
 
 export interface UserRow {
 	id: string;
@@ -69,10 +73,6 @@ export async function upsertOAuthUser(
 			.bind(crypto.randomUUID(), userId, provider, providerId, email),
 	]);
 	return { userId, isNewUser: true };
-}
-
-export function isValidUsername(username: string): boolean {
-	return USERNAME_RE.test(username);
 }
 
 export async function setUsername(
