@@ -160,6 +160,13 @@ export function FarmPage() {
 					>
 						Bundle progress
 					</Link>
+					<Link
+						to={`/farms/${farmId}/museum`}
+						className={styles.btnPrimary}
+						style={{ textDecoration: "none" }}
+					>
+						Museum
+					</Link>
 				</div>
 
 				{isOwner && (

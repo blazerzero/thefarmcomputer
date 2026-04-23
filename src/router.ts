@@ -32,6 +32,11 @@ import {
 	handleMarkBundleItem,
 	handleUnmarkBundleItem,
 } from "@/api/bundles";
+import {
+	handleGetMuseumProgress,
+	handleMarkDonation,
+	handleUnmarkDonation,
+} from "@/api/museum";
 
 /** Extracts path params from a pattern like '/api/farms/:farmId/members/:userId'. Returns null if no match. */
 export function matchPath(
@@ -198,6 +203,23 @@ const ROUTES: Route[] = [
 		method: "DELETE",
 		pattern: "/api/farms/:farmId/bundles/:bundleId/items/:itemIndex",
 		handler: (req, env, p) => handleUnmarkBundleItem(req, env, p),
+	},
+
+	// Museum donation tracking
+	{
+		method: "GET",
+		pattern: "/api/farms/:farmId/museum",
+		handler: (req, env, p) => handleGetMuseumProgress(req, env, p),
+	},
+	{
+		method: "POST",
+		pattern: "/api/farms/:farmId/museum/:itemType/:itemId",
+		handler: (req, env, p) => handleMarkDonation(req, env, p),
+	},
+	{
+		method: "DELETE",
+		pattern: "/api/farms/:farmId/museum/:itemType/:itemId",
+		handler: (req, env, p) => handleUnmarkDonation(req, env, p),
 	},
 ];
 
