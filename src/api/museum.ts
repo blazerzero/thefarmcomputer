@@ -29,14 +29,18 @@ interface MineralRow {
 
 async function getAllArtifacts(env: Env): Promise<ArtifactRow[]> {
 	const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
-	const res = await stub.fetch(new Request("https://internal/internal/artifacts"));
+	const res = await stub.fetch(
+		new Request("https://internal/internal/artifacts"),
+	);
 	if (!res.ok) throw new Error("Failed to fetch artifacts from DO");
 	return (await res.json()) as ArtifactRow[];
 }
 
 async function getAllMinerals(env: Env): Promise<MineralRow[]> {
 	const stub = env.STARDEW_DO.get(env.STARDEW_DO.idFromName("primary"));
-	const res = await stub.fetch(new Request("https://internal/internal/minerals"));
+	const res = await stub.fetch(
+		new Request("https://internal/internal/minerals"),
+	);
 	if (!res.ok) throw new Error("Failed to fetch minerals from DO");
 	return (await res.json()) as MineralRow[];
 }
@@ -61,7 +65,10 @@ export async function handleGetMuseumProgress(
 		getFarmMuseumProgress(env.USER_DB, farmId),
 	]);
 
-	const donatedMap = new Map<string, { marked_by: string; marked_at: string }>();
+	const donatedMap = new Map<
+		string,
+		{ marked_by: string; marked_at: string }
+	>();
 	for (const row of progressRows) {
 		donatedMap.set(`${row.item_type}:${row.item_id}`, {
 			marked_by: row.marked_by,
@@ -120,7 +127,13 @@ export async function handleMarkDonation(
 	const member = await isFarmMember(env.USER_DB, farmId, user.userId);
 	if (!member) return json({ error: "forbidden" }, 403);
 
-	await markDonation(env.USER_DB, farmId, user.userId, itemType, Number(itemId));
+	await markDonation(
+		env.USER_DB,
+		farmId,
+		user.userId,
+		itemType,
+		Number(itemId),
+	);
 	return json({ ok: true });
 }
 

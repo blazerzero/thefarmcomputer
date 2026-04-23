@@ -220,6 +220,8 @@ export function FarmBundlesPage() {
 			<div className={pageStyles.pageWrapper}>
 				<div className={pageStyles.pageHeader}>
 					<nav className={styles.nav}>
+						<Link to="/dashboard">My farms</Link>
+						<span className={styles.sep}>›</span>
 						<Link to={`/farms/${farmId}`}>{farmName || "Farm"}</Link>
 						<span className={styles.sep}>›</span>
 						<span>Bundles</span>

@@ -1,0 +1,15 @@
+.farmItem {
+	border: 1px solid var(--border);
+	cursor: pointer;
+	transition:
+		border-color 0.15s ease,
+		background 0.15s ease;
+
+	&:hover {
+		border-color: var(--accent);
+	}
+
+	&:active {
+		background: var(--surface);
+	}
+}

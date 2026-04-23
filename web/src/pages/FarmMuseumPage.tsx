@@ -34,15 +34,26 @@ interface MuseumData {
 	minerals: MineralItem[];
 }
 
-function ItemRow({
-	item,
-	currentUsername,
-	onToggle,
-}: {
+interface ItemRowProps {
 	item: MuseumItem;
 	currentUsername: string | null;
 	onToggle: () => void;
-}) {
+}
+
+interface ItemSectionProps {
+	title: string;
+	items: MuseumItem[];
+	currentUsername: string | null;
+	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
+}
+
+interface MineralSectionProps {
+	minerals: MineralItem[];
+	currentUsername: string | null;
+	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
+}
+
+function ItemRow({ item, currentUsername, onToggle }: ItemRowProps) {
 	return (
 		<button
 			type="button"
@@ -56,11 +67,7 @@ function ItemRow({
 		>
 			<span className={pageStyles.itemCheck}>{item.donated ? "✓" : ""}</span>
 			{item.image_url && (
-				<img
-					src={item.image_url}
-					alt=""
-					className={pageStyles.itemThumb}
-				/>
+				<img src={item.image_url} alt="" className={pageStyles.itemThumb} />
 			)}
 			<span className={pageStyles.itemName}>{item.name}</span>
 			{item.donated && item.donated_by && (
@@ -77,21 +84,18 @@ function ItemSection({
 	items,
 	currentUsername,
 	onToggle,
-}: {
-	title: string;
-	items: MuseumItem[];
-	currentUsername: string | null;
-	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
-}) {
+}: ItemSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const donatedCount = items.filter((i) => i.donated).length;
 	const complete = donatedCount === items.length;
-	const itemType = "category" in items[0] ? "mineral" : "artifact";
 
 	// Auto-collapse when complete
 	useEffect(() => {
 		if (complete) setCollapsed(true);
 	}, [complete]);
+
+	if (items.length === 0) return null;
+	const itemType = "category" in items[0]! ? "mineral" : "artifact";
 
 	return (
 		<motion.div
@@ -137,7 +141,7 @@ function ItemSection({
 							key={item.id}
 							item={item}
 							currentUsername={currentUsername}
-							onToggle={() => onToggle(item, itemType as "artifact" | "mineral")}
+							onToggle={() => onToggle(item, itemType)}
 						/>
 					))}
 				</div>
@@ -150,11 +154,7 @@ function MineralSection({
 	minerals,
 	currentUsername,
 	onToggle,
-}: {
-	minerals: MineralItem[];
-	currentUsername: string | null;
-	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
-}) {
+}: MineralSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const donatedCount = minerals.filter((m) => m.donated).length;
 	const complete = donatedCount === minerals.length;
@@ -163,10 +163,13 @@ function MineralSection({
 		if (complete) setCollapsed(true);
 	}, [complete]);
 
-	const byCategory = minerals.reduce<Record<string, MineralItem[]>>((acc, m) => {
-		(acc[m.category] ??= []).push(m);
-		return acc;
-	}, {});
+	const byCategory = minerals.reduce<Record<string, MineralItem[]>>(
+		(acc, m) => {
+			(acc[m.category] ??= []).push(m);
+			return acc;
+		},
+		{},
+	);
 
 	const categoryOrder = ["Foraged Mineral", "Gem", "Geode"];
 	const sortedCategories = [
@@ -258,7 +261,10 @@ export function FarmMuseumPage() {
 			});
 	}, [farmId]);
 
-	async function toggleItem(item: MuseumItem, itemType: "artifact" | "mineral") {
+	async function toggleItem(
+		item: MuseumItem,
+		itemType: "artifact" | "mineral",
+	) {
 		if (!farmId) return;
 		const endpoint = `/api/farms/${farmId}/museum/${itemType}/${item.id}`;
 		const method = item.donated ? "DELETE" : "POST";
@@ -307,6 +313,8 @@ export function FarmMuseumPage() {
 			<div className={pageStyles.pageWrapper}>
 				<div className={pageStyles.pageHeader}>
 					<nav className={styles.nav}>
+						<Link to="/dashboard">My farms</Link>
+						<span className={styles.sep}>›</span>
 						<Link to={`/farms/${farmId}`}>{farmName || "Farm"}</Link>
 						<span className={styles.sep}>›</span>
 						<span>Museum</span>
