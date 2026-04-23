@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { useSession } from "../context/SessionContext";
+import pageStyles from "./FarmPage.module.scss";
 import styles from "./shared.module.scss";
 
 interface Farm {
@@ -148,17 +149,41 @@ export function FarmPage() {
 		<>
 			<Navbar />
 			<div className={styles.page}>
-				<div className={styles.row} style={{ justifyContent: "space-between" }}>
-					<h1 className={styles.h1}>
+				<div>
+					<nav className={styles.nav}>
+						<Link to="/dashboard">My farms</Link>
+						<span className={styles.sep}>›</span>
+						<span>
+							{farm.emoji ? `${farm.emoji} ` : ""}
+							{farm.name}
+						</span>
+					</nav>
+					<h1 className={styles.h1} style={{ marginTop: "0.25rem" }}>
 						{farm.emoji ? `${farm.emoji} ` : ""}
 						{farm.name}
 					</h1>
+				</div>
+
+				<div className={pageStyles.featureGrid}>
 					<Link
 						to={`/farms/${farmId}/bundles`}
-						className={styles.btnPrimary}
-						style={{ textDecoration: "none" }}
+						className={pageStyles.featureCard}
 					>
-						Bundle progress
+						<span className={pageStyles.featureIcon}>📦</span>
+						<span className={pageStyles.featureTitle}>Bundles</span>
+						<span className={pageStyles.featureDesc}>
+							Track Community Center bundle progress
+						</span>
+					</Link>
+					<Link
+						to={`/farms/${farmId}/museum`}
+						className={pageStyles.featureCard}
+					>
+						<span className={pageStyles.featureIcon}>🏛️</span>
+						<span className={pageStyles.featureTitle}>Museum</span>
+						<span className={pageStyles.featureDesc}>
+							Track artifact and mineral donations
+						</span>
 					</Link>
 				</div>
 

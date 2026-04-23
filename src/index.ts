@@ -498,6 +498,24 @@ export class StardewDO implements DurableObject {
 			return Response.json(rows);
 		}
 
+		if (url.pathname === "/internal/artifacts" && request.method === "GET") {
+			const rows = this.sql
+				.exec(
+					"SELECT id, name, description, location, image_url, wiki_url FROM artifacts ORDER BY name",
+				)
+				.toArray();
+			return Response.json(rows);
+		}
+
+		if (url.pathname === "/internal/minerals" && request.method === "GET") {
+			const rows = this.sql
+				.exec(
+					"SELECT id, name, category, description, source, image_url, wiki_url FROM minerals ORDER BY category, name",
+				)
+				.toArray();
+			return Response.json(rows);
+		}
+
 		if (url.pathname === "/admin/refresh" && request.method === "POST") {
 			this.state.waitUntil(refreshAll(this.sql));
 			return Response.json({ ok: true });

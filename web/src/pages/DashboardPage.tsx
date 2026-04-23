@@ -4,6 +4,7 @@ import { ConfirmModal } from "../components/ConfirmModal";
 import { Navbar } from "../components/Navbar";
 import { useSession } from "../context/SessionContext";
 import { useSignOut } from "../hooks/useSignOut";
+import pageStyles from "./DashboardPage.module.scss";
 import styles from "./shared.module.scss";
 
 interface Farm {
@@ -122,7 +123,12 @@ export function DashboardPage() {
 					) : (
 						<div className={styles.list}>
 							{farms.map((farm) => (
-								<div key={farm.id} className={styles.listItem}>
+								<Link
+									key={farm.id}
+									to={`/farms/${farm.id}`}
+									className={`${styles.listItem} ${pageStyles.farmItem}`}
+									style={{ textDecoration: "none", color: "inherit" }}
+								>
 									<div className={styles.row} style={{ gap: "0.75rem" }}>
 										<div>
 											<strong>
@@ -169,21 +175,7 @@ export function DashboardPage() {
 											</div>
 										)}
 									</div>
-									<div className={styles.row}>
-										<Link
-											to={`/farms/${farm.id}/bundles`}
-											className={styles.btnGhostSm}
-										>
-											Bundles
-										</Link>
-										<Link
-											to={`/farms/${farm.id}`}
-											className={styles.btnGhostSm}
-										>
-											Manage
-										</Link>
-									</div>
-								</div>
+								</Link>
 							))}
 						</div>
 					)}
