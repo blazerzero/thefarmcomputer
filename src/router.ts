@@ -37,6 +37,11 @@ import {
 	handleMarkDonation,
 	handleUnmarkDonation,
 } from "@/api/museum";
+import {
+	handleGetFishProgress,
+	handleMarkFishCaught,
+	handleUnmarkFishCaught,
+} from "@/api/fish";
 
 /** Extracts path params from a pattern like '/api/farms/:farmId/members/:userId'. Returns null if no match. */
 export function matchPath(
@@ -220,6 +225,23 @@ const ROUTES: Route[] = [
 		method: "DELETE",
 		pattern: "/api/farms/:farmId/museum/:itemType/:itemId",
 		handler: (req, env, p) => handleUnmarkDonation(req, env, p),
+	},
+
+	// Fish catching tracking
+	{
+		method: "GET",
+		pattern: "/api/farms/:farmId/fish",
+		handler: (req, env, p) => handleGetFishProgress(req, env, p),
+	},
+	{
+		method: "POST",
+		pattern: "/api/farms/:farmId/fish/:fishId",
+		handler: (req, env, p) => handleMarkFishCaught(req, env, p),
+	},
+	{
+		method: "DELETE",
+		pattern: "/api/farms/:farmId/fish/:fishId",
+		handler: (req, env, p) => handleUnmarkFishCaught(req, env, p),
 	},
 ];
 

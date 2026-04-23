@@ -185,6 +185,13 @@ export function FarmPage() {
 							Track artifact and mineral donations
 						</span>
 					</Link>
+					<Link to={`/farms/${farmId}/fish`} className={pageStyles.featureCard}>
+						<span className={pageStyles.featureIcon}>🐟</span>
+						<span className={pageStyles.featureTitle}>Fish</span>
+						<span className={pageStyles.featureDesc}>
+							Track fish you've caught
+						</span>
+					</Link>
 				</div>
 
 				{isOwner && (

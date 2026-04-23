@@ -7,6 +7,7 @@ import { NewFarmPage } from "./pages/NewFarmPage";
 import { FarmPage } from "./pages/FarmPage";
 import { FarmBundlesPage } from "./pages/FarmBundlesPage";
 import { FarmMuseumPage } from "./pages/FarmMuseumPage";
+import { FarmFishPage } from "./pages/FarmFishPage";
 import { InvitationPage } from "./pages/InvitationPage";
 import type { ReactNode } from "react";
 
@@ -60,6 +61,14 @@ export default function App() {
 				element={
 					<ProtectedRoute>
 						<FarmMuseumPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/farms/:farmId/fish"
+				element={
+					<ProtectedRoute>
+						<FarmFishPage />
 					</ProtectedRoute>
 				}
 			/>
