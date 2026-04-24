@@ -21,7 +21,7 @@
 	justify-content: center;
 	gap: 0.5rem;
 
-	@media (max-width: 479px) {
+	@media (max-width: 29.9375rem) {
 		grid-column: 1;
 		justify-self: start;
 	}
@@ -39,7 +39,7 @@
 }
 
 .logoText {
-	@media (max-width: 479px) {
+	@media (max-width: 29.9375rem) {
 		display: none;
 	}
 }

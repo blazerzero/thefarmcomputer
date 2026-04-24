@@ -31,7 +31,10 @@
 .title {
 	font-weight: 600;
 	font-size: 1.25rem;
-	width: fit-content;
+
+	@media (min-width: 62.5rem) {
+		width: fit-content;
+	}
 
 	&.link {
 		display: block;

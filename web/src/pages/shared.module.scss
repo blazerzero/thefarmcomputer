@@ -216,28 +216,42 @@
 	&:first-child {
 		margin-left: 0;
 	}
-
-	&:hover .avatarTooltip {
-		opacity: 1;
-	}
 }
 
 .avatarTooltip {
-	position: absolute;
-	bottom: calc(100% + 4px);
-	left: 50%;
-	transform: translateX(-50%);
 	background: var(--surface-raised);
 	border: 1px solid var(--border);
 	border-radius: 0.25rem;
 	padding: 0.15rem 0.45rem;
 	font-size: 0.75rem;
 	white-space: nowrap;
-	opacity: 0;
 	pointer-events: none;
-	z-index: 10;
-	transition: opacity 0.15s;
+	z-index: 9999;
 	color: var(--text);
+	filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45));
+
+	&::after {
+		content: "";
+		position: absolute;
+		left: 50%;
+		width: 7px;
+		height: 7px;
+		background: var(--surface-raised);
+	}
+
+	&[data-placement="top"]::after {
+		bottom: -4px;
+		transform: translateX(-50%) rotate(45deg);
+		border-right: 1px solid var(--border);
+		border-bottom: 1px solid var(--border);
+	}
+
+	&[data-placement="bottom"]::after {
+		top: -4px;
+		transform: translateX(-50%) rotate(45deg);
+		border-left: 1px solid var(--border);
+		border-top: 1px solid var(--border);
+	}
 }
 
 .stackedAvatar {

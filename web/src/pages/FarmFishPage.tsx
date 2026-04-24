@@ -51,6 +51,16 @@ function ItemRow({ item, memberMap, currentUsername, onToggle }: ItemRowProps) {
 		username: u,
 		avatar_url: memberMap[u] ?? null,
 	}));
+	if (
+		item.caught_by_me &&
+		currentUsername &&
+		!alsoUsers.some((u) => u.username === currentUsername)
+	) {
+		alsoUsers.unshift({
+			username: currentUsername,
+			avatar_url: memberMap[currentUsername] ?? null,
+		});
+	}
 
 	return (
 		<button
