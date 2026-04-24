@@ -115,6 +115,7 @@ function BundleRoomGrid({
 												avatar_url: memberMap[item.checked_by] ?? null,
 											},
 										]}
+										currentUsername={currentUsername}
 									/>
 								)}
 							</button>

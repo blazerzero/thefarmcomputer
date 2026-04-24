@@ -7,9 +7,10 @@ export interface AvatarUser {
 
 interface AvatarStackProps {
 	users: AvatarUser[];
+	currentUsername?: string | null;
 }
 
-export function AvatarStack({ users }: AvatarStackProps) {
+export function AvatarStack({ users, currentUsername }: AvatarStackProps) {
 	if (users.length === 0) return null;
 	return (
 		<div className={styles.avatarStack}>
@@ -24,7 +25,11 @@ export function AvatarStack({ users }: AvatarStackProps) {
 							{u.username[0]?.toUpperCase()}
 						</div>
 					)}
-					<span className={styles.avatarTooltip}>{u.username}</span>
+					<span className={styles.avatarTooltip}>
+						{u.username === currentUsername
+							? `${u.username} (you)`
+							: u.username}
+					</span>
 				</div>
 			))}
 		</div>

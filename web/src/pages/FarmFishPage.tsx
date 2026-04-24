@@ -34,6 +34,7 @@ interface FishData {
 interface ItemRowProps {
 	item: FishItem;
 	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: () => void;
 }
 
@@ -41,10 +42,11 @@ interface ItemSectionProps {
 	title: string;
 	items: FishItem[];
 	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: (item: FishItem) => void;
 }
 
-function ItemRow({ item, memberMap, onToggle }: ItemRowProps) {
+function ItemRow({ item, memberMap, currentUsername, onToggle }: ItemRowProps) {
 	const alsoUsers: AvatarUser[] = item.also_caught_by.map((u) => ({
 		username: u,
 		avatar_url: memberMap[u] ?? null,
@@ -64,12 +66,20 @@ function ItemRow({ item, memberMap, onToggle }: ItemRowProps) {
 				<img src={item.image_url} alt="" className={pageStyles.itemThumb} />
 			)}
 			<span className={pageStyles.itemName}>{item.name}</span>
-			{alsoUsers.length > 0 && <AvatarStack users={alsoUsers} />}
+			{alsoUsers.length > 0 && (
+				<AvatarStack users={alsoUsers} currentUsername={currentUsername} />
+			)}
 		</button>
 	);
 }
 
-function ItemSection({ title, items, memberMap, onToggle }: ItemSectionProps) {
+function ItemSection({
+	title,
+	items,
+	memberMap,
+	currentUsername,
+	onToggle,
+}: ItemSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const caughtCount = items.filter((i) => i.caught_by_me).length;
 	const complete = caughtCount === items.length;
@@ -124,6 +134,7 @@ function ItemSection({ title, items, memberMap, onToggle }: ItemSectionProps) {
 							key={item.id}
 							item={item}
 							memberMap={memberMap}
+							currentUsername={currentUsername}
 							onToggle={() => onToggle(item)}
 						/>
 					))}
@@ -249,6 +260,7 @@ export function FarmFishPage() {
 										title={category}
 										items={byCategory[category] ?? []}
 										memberMap={memberMap}
+										currentUsername={user?.username ?? null}
 										onToggle={toggleFish}
 									/>
 								))}

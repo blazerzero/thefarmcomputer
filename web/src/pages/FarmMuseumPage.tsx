@@ -38,6 +38,7 @@ interface MuseumData {
 interface ItemRowProps {
 	item: MuseumItem;
 	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: () => void;
 }
 
@@ -45,16 +46,18 @@ interface ItemSectionProps {
 	title: string;
 	items: MuseumItem[];
 	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
 }
 
 interface MineralSectionProps {
 	minerals: MineralItem[];
 	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
 }
 
-function ItemRow({ item, memberMap, onToggle }: ItemRowProps) {
+function ItemRow({ item, memberMap, currentUsername, onToggle }: ItemRowProps) {
 	return (
 		<button
 			type="button"
@@ -75,13 +78,20 @@ function ItemRow({ item, memberMap, onToggle }: ItemRowProps) {
 							avatar_url: memberMap[item.donated_by] ?? null,
 						},
 					]}
+					currentUsername={currentUsername}
 				/>
 			)}
 		</button>
 	);
 }
 
-function ItemSection({ title, items, memberMap, onToggle }: ItemSectionProps) {
+function ItemSection({
+	title,
+	items,
+	memberMap,
+	currentUsername,
+	onToggle,
+}: ItemSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const donatedCount = items.filter((i) => i.donated).length;
 	const complete = donatedCount === items.length;
@@ -138,6 +148,7 @@ function ItemSection({ title, items, memberMap, onToggle }: ItemSectionProps) {
 							key={item.id}
 							item={item}
 							memberMap={memberMap}
+							currentUsername={currentUsername}
 							onToggle={() => onToggle(item, itemType)}
 						/>
 					))}
@@ -150,6 +161,7 @@ function ItemSection({ title, items, memberMap, onToggle }: ItemSectionProps) {
 function MineralSection({
 	minerals,
 	memberMap,
+	currentUsername,
 	onToggle,
 }: MineralSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
@@ -222,6 +234,7 @@ function MineralSection({
 										key={item.id}
 										item={item}
 										memberMap={memberMap}
+										currentUsername={currentUsername}
 										onToggle={() => onToggle(item, "mineral")}
 									/>
 								))}
@@ -344,11 +357,13 @@ export function FarmMuseumPage() {
 									title="Artifacts"
 									items={data.artifacts}
 									memberMap={memberMap}
+									currentUsername={user?.username ?? null}
 									onToggle={toggleItem}
 								/>
 								<MineralSection
 									minerals={data.minerals}
 									memberMap={memberMap}
+									currentUsername={user?.username ?? null}
 									onToggle={toggleItem}
 								/>
 							</>
