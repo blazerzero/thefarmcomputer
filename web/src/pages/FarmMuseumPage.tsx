@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { IoCheckmarkCircle } from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
+import { AvatarStack } from "../components/AvatarStack";
 import { Navbar } from "../components/Navbar";
 import { QueryPanel } from "../components/QueryPanel";
 import { useSession } from "../context/SessionContext";
@@ -36,34 +37,30 @@ interface MuseumData {
 
 interface ItemRowProps {
 	item: MuseumItem;
-	currentUsername: string | null;
+	memberMap: Record<string, string | null>;
 	onToggle: () => void;
 }
 
 interface ItemSectionProps {
 	title: string;
 	items: MuseumItem[];
-	currentUsername: string | null;
+	memberMap: Record<string, string | null>;
 	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
 }
 
 interface MineralSectionProps {
 	minerals: MineralItem[];
-	currentUsername: string | null;
+	memberMap: Record<string, string | null>;
 	onToggle: (item: MuseumItem, itemType: "artifact" | "mineral") => void;
 }
 
-function ItemRow({ item, currentUsername, onToggle }: ItemRowProps) {
+function ItemRow({ item, memberMap, onToggle }: ItemRowProps) {
 	return (
 		<button
 			type="button"
 			className={`${pageStyles.item} ${item.donated ? pageStyles.itemDonated : ""}`}
 			onClick={onToggle}
-			title={
-				item.donated
-					? `Donated by ${item.donated_by === currentUsername ? "you" : item.donated_by}`
-					: "Mark as donated"
-			}
+			title={item.donated ? undefined : "Mark as donated"}
 		>
 			<span className={pageStyles.itemCheck}>{item.donated ? "✓" : ""}</span>
 			{item.image_url && (
@@ -71,20 +68,20 @@ function ItemRow({ item, currentUsername, onToggle }: ItemRowProps) {
 			)}
 			<span className={pageStyles.itemName}>{item.name}</span>
 			{item.donated && item.donated_by && (
-				<span className={pageStyles.itemBy}>
-					{item.donated_by === currentUsername ? "you" : item.donated_by}
-				</span>
+				<AvatarStack
+					users={[
+						{
+							username: item.donated_by,
+							avatar_url: memberMap[item.donated_by] ?? null,
+						},
+					]}
+				/>
 			)}
 		</button>
 	);
 }
 
-function ItemSection({
-	title,
-	items,
-	currentUsername,
-	onToggle,
-}: ItemSectionProps) {
+function ItemSection({ title, items, memberMap, onToggle }: ItemSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const donatedCount = items.filter((i) => i.donated).length;
 	const complete = donatedCount === items.length;
@@ -140,7 +137,7 @@ function ItemSection({
 						<ItemRow
 							key={item.id}
 							item={item}
-							currentUsername={currentUsername}
+							memberMap={memberMap}
 							onToggle={() => onToggle(item, itemType)}
 						/>
 					))}
@@ -152,7 +149,7 @@ function ItemSection({
 
 function MineralSection({
 	minerals,
-	currentUsername,
+	memberMap,
 	onToggle,
 }: MineralSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
@@ -224,7 +221,7 @@ function MineralSection({
 									<ItemRow
 										key={item.id}
 										item={item}
-										currentUsername={currentUsername}
+										memberMap={memberMap}
 										onToggle={() => onToggle(item, "mineral")}
 									/>
 								))}
@@ -237,12 +234,18 @@ function MineralSection({
 	);
 }
 
+interface Member {
+	username: string;
+	avatar_url: string | null;
+}
+
 export function FarmMuseumPage() {
 	const { farmId } = useParams<{ farmId: string }>();
 	const { user } = useSession();
 	const [data, setData] = useState<MuseumData | null>(null);
 	const [farmName, setFarmName] = useState("");
 	const [loading, setLoading] = useState(true);
+	const [memberMap, setMemberMap] = useState<Record<string, string | null>>({});
 
 	useEffect(() => {
 		if (!farmId) return;
@@ -252,6 +255,13 @@ export function FarmMuseumPage() {
 				setFarmName(
 					d.farm.emoji ? `${d.farm.emoji} ${d.farm.name}` : d.farm.name,
 				);
+			});
+		fetch(`/api/farms/${farmId}/members`)
+			.then((r) => r.json())
+			.then((d: { members: Member[] }) => {
+				const map: Record<string, string | null> = {};
+				for (const m of d.members) map[m.username] = m.avatar_url;
+				setMemberMap(map);
 			});
 		fetch(`/api/farms/${farmId}/museum`)
 			.then((r) => r.json())
@@ -333,12 +343,12 @@ export function FarmMuseumPage() {
 								<ItemSection
 									title="Artifacts"
 									items={data.artifacts}
-									currentUsername={user?.username ?? null}
+									memberMap={memberMap}
 									onToggle={toggleItem}
 								/>
 								<MineralSection
 									minerals={data.minerals}
-									currentUsername={user?.username ?? null}
+									memberMap={memberMap}
 									onToggle={toggleItem}
 								/>
 							</>
