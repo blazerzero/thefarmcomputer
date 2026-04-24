@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { IoCheckmarkCircle } from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
+import { AvatarStack } from "../components/AvatarStack";
 import { Navbar } from "../components/Navbar";
 import { QueryPanel } from "../components/QueryPanel";
 import { useSession } from "../context/SessionContext";
@@ -36,10 +37,12 @@ function BundleRoomGrid({
 	bundles,
 	onToggle,
 	currentUsername,
+	memberMap,
 }: {
 	bundles: Bundle[];
 	onToggle: (bundle: Bundle, item: BundleItem) => void;
 	currentUsername: string | null;
+	memberMap: Record<string, string | null>;
 }) {
 	const sorted = [...bundles].sort(
 		(a, b) => Number(a.complete) - Number(b.complete),
@@ -105,11 +108,15 @@ function BundleRoomGrid({
 									)}
 								</span>
 								{item.checked && item.checked_by && (
-									<span className={pageStyles.itemBy}>
-										{item.checked_by === currentUsername
-											? "you"
-											: item.checked_by}
-									</span>
+									<AvatarStack
+										users={[
+											{
+												username: item.checked_by,
+												avatar_url: memberMap[item.checked_by] ?? null,
+											},
+										]}
+										currentUsername={currentUsername}
+									/>
 								)}
 							</button>
 						))}
@@ -123,6 +130,11 @@ function BundleRoomGrid({
 	);
 }
 
+interface Member {
+	username: string;
+	avatar_url: string | null;
+}
+
 export function FarmBundlesPage() {
 	const { farmId } = useParams<{ farmId: string }>();
 	const { user } = useSession();
@@ -130,6 +142,7 @@ export function FarmBundlesPage() {
 	const [farmName, setFarmName] = useState("");
 	const [loading, setLoading] = useState(true);
 	const [collapsedRooms, setCollapsedRooms] = useState<Set<string>>(new Set());
+	const [memberMap, setMemberMap] = useState<Record<string, string | null>>({});
 
 	useEffect(() => {
 		if (!farmId) return;
@@ -139,6 +152,13 @@ export function FarmBundlesPage() {
 				setFarmName(
 					d.farm.emoji ? `${d.farm.emoji} ${d.farm.name}` : d.farm.name,
 				);
+			});
+		fetch(`/api/farms/${farmId}/members`)
+			.then((r) => r.json())
+			.then((d: { members: Member[] }) => {
+				const map: Record<string, string | null> = {};
+				for (const m of d.members) map[m.username] = m.avatar_url;
+				setMemberMap(map);
 			});
 		fetch(`/api/farms/${farmId}/bundles`)
 			.then((r) => r.json())
@@ -189,7 +209,7 @@ export function FarmBundlesPage() {
 						: {
 								...i,
 								checked: !item.checked,
-								checked_by: item.checked ? null : "you",
+								checked_by: item.checked ? null : (user?.username ?? null),
 								checked_at: item.checked ? null : new Date().toISOString(),
 							},
 				);
@@ -290,6 +310,7 @@ export function FarmBundlesPage() {
 													bundles={bundles.filter((b) => b.room === room)}
 													onToggle={toggleItem}
 													currentUsername={user?.username ?? null}
+													memberMap={memberMap}
 												/>
 											</div>
 										</motion.div>

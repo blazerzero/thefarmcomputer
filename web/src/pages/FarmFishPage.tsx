@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { IoCheckmarkCircle } from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
+import { AvatarStack, type AvatarUser } from "../components/AvatarStack";
 import { Navbar } from "../components/Navbar";
 import { QueryPanel } from "../components/QueryPanel";
 import { useSession } from "../context/SessionContext";
@@ -32,16 +33,25 @@ interface FishData {
 
 interface ItemRowProps {
 	item: FishItem;
+	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: () => void;
 }
 
 interface ItemSectionProps {
 	title: string;
 	items: FishItem[];
+	memberMap: Record<string, string | null>;
+	currentUsername: string | null;
 	onToggle: (item: FishItem) => void;
 }
 
-function ItemRow({ item, onToggle }: ItemRowProps) {
+function ItemRow({ item, memberMap, currentUsername, onToggle }: ItemRowProps) {
+	const alsoUsers: AvatarUser[] = item.also_caught_by.map((u) => ({
+		username: u,
+		avatar_url: memberMap[u] ?? null,
+	}));
+
 	return (
 		<button
 			type="button"
@@ -56,16 +66,20 @@ function ItemRow({ item, onToggle }: ItemRowProps) {
 				<img src={item.image_url} alt="" className={pageStyles.itemThumb} />
 			)}
 			<span className={pageStyles.itemName}>{item.name}</span>
-			{item.also_caught_by.length > 0 && (
-				<span className={pageStyles.itemAlso}>
-					also: {item.also_caught_by.join(", ")}
-				</span>
+			{alsoUsers.length > 0 && (
+				<AvatarStack users={alsoUsers} currentUsername={currentUsername} />
 			)}
 		</button>
 	);
 }
 
-function ItemSection({ title, items, onToggle }: ItemSectionProps) {
+function ItemSection({
+	title,
+	items,
+	memberMap,
+	currentUsername,
+	onToggle,
+}: ItemSectionProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const caughtCount = items.filter((i) => i.caught_by_me).length;
 	const complete = caughtCount === items.length;
@@ -119,6 +133,8 @@ function ItemSection({ title, items, onToggle }: ItemSectionProps) {
 						<ItemRow
 							key={item.id}
 							item={item}
+							memberMap={memberMap}
+							currentUsername={currentUsername}
 							onToggle={() => onToggle(item)}
 						/>
 					))}
@@ -136,12 +152,18 @@ const CATEGORY_ORDER = [
 	"Legendary II",
 ];
 
+interface Member {
+	username: string;
+	avatar_url: string | null;
+}
+
 export function FarmFishPage() {
 	const { farmId } = useParams<{ farmId: string }>();
 	const { user } = useSession();
 	const [data, setData] = useState<FishData | null>(null);
 	const [farmName, setFarmName] = useState("");
 	const [loading, setLoading] = useState(true);
+	const [memberMap, setMemberMap] = useState<Record<string, string | null>>({});
 
 	useEffect(() => {
 		if (!farmId) return;
@@ -151,6 +173,13 @@ export function FarmFishPage() {
 				setFarmName(
 					d.farm.emoji ? `${d.farm.emoji} ${d.farm.name}` : d.farm.name,
 				);
+			});
+		fetch(`/api/farms/${farmId}/members`)
+			.then((r) => r.json())
+			.then((d: { members: Member[] }) => {
+				const map: Record<string, string | null> = {};
+				for (const m of d.members) map[m.username] = m.avatar_url;
+				setMemberMap(map);
 			});
 		fetch(`/api/farms/${farmId}/fish`)
 			.then((r) => r.json())
@@ -230,6 +259,8 @@ export function FarmFishPage() {
 										key={category}
 										title={category}
 										items={byCategory[category] ?? []}
+										memberMap={memberMap}
+										currentUsername={user?.username ?? null}
 										onToggle={toggleFish}
 									/>
 								))}
