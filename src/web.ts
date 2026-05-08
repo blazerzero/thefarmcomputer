@@ -10,6 +10,7 @@ import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
 import { handleForage } from "@/commands/forage";
 import { handleFruit } from "@/commands/fruit";
+import { handleFarmBuilding } from "@/commands/farmBuilding";
 import { handleFruitTree } from "@/commands/fruitTree";
 import { handleGift } from "@/commands/gift";
 import { handleIngredient } from "@/commands/ingredient";
@@ -75,6 +76,12 @@ export async function handleWebQuery(
 			break;
 		case Command.CROP:
 			handlerResponse = handleCrop(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
+		case Command.FARM_BUILDING:
+			handlerResponse = handleFarmBuilding(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
@@ -233,6 +240,9 @@ export async function handleWebQuery(
 					? new Date(s.deconstructorItemsLastUpdated).getTime()
 					: 0,
 				s.toolsLastUpdated ? new Date(s.toolsLastUpdated).getTime() : 0,
+				s.farmBuildingsLastUpdated
+					? new Date(s.farmBuildingsLastUpdated).getTime()
+					: 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -270,6 +280,11 @@ export async function handleWebQuery(
 							value: "",
 							inline: false,
 						},
+						{
+							name: `Farm Buildings: ${s.farmBuildingCount}`,
+							value: "",
+							inline: false,
+						},
 						{ name: `Fish: ${s.fishCount}`, value: "", inline: false },
 						{ name: `Footwear: ${s.footwearCount}`, value: "", inline: false },
 						{
@@ -303,7 +318,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artifact, artisan, book, bundle, craft, crystalarium, crop, deconstruct, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
+				error: `Unknown command "${command}". Try: artifact, artisan, book, bundle, craft, crystalarium, crop, deconstruct, farm-building, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
 			});
 	}
 

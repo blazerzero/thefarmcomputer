@@ -10,6 +10,7 @@ export const COMMAND_DESCRIPTIONS: Record<Command, string> = {
 		"Look up a mineral's Crystalarium processing time and gold-per-day rate.",
 	[Command.DECONSTRUCT]: "Look up what a Deconstructor yields from an item.",
 	[Command.CROP]: "Look up info about a crop.",
+	[Command.FARM_BUILDING]: "Look up info about a farm building.",
 	[Command.FISH]: "Look up info about a fish.",
 	[Command.FOOTWEAR]: "Look up info about a piece of footwear.",
 	[Command.FORAGE]: "Look up info about a forageable item.",

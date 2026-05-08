@@ -141,6 +141,20 @@ const commands = [
 		],
 	},
 	{
+		name: Command.FARM_BUILDING,
+		description: COMMAND_DESCRIPTIONS[Command.FARM_BUILDING],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Building name (e.g. Coop, Barn, Silo, Stable)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.FISH,
 		description: COMMAND_DESCRIPTIONS[Command.FISH],
 		integration_types: COMMAND_INTEGRATION_TYPES,

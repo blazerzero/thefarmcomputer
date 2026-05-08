@@ -129,6 +129,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "farm-building",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Coop",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "fish",
 		fields: [
 			{
