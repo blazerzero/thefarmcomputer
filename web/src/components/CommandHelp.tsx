@@ -43,6 +43,11 @@ const COMMANDS: CommandItem[] = [
 		syntax: "deconstruct <name>",
 		example: "deconstruct sprinkler",
 	},
+	{
+		command: Command.FARM_BUILDING,
+		syntax: "farm-building <name>",
+		example: "farm-building coop",
+	},
 	{ command: Command.FISH, syntax: "fish <name>", example: "fish tuna" },
 	{
 		command: Command.FOOTWEAR,

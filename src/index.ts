@@ -6,6 +6,7 @@ import { handleCraft } from "@/commands/craft";
 import { handleCrop } from "@/commands/crop";
 import { handleCrystalarium } from "@/commands/crystalarium";
 import { handleDeconstruct } from "@/commands/deconstruct";
+import { handleFarmBuilding } from "@/commands/farmBuilding";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
 import { handleForage } from "@/commands/forage";
@@ -31,6 +32,7 @@ import {
 	countCrops,
 	countCrystalariumItems,
 	countDeconstructorItems,
+	countFarmBuildings,
 	countFish,
 	countFootwear,
 	countForageables,
@@ -53,6 +55,7 @@ import {
 	upsertCrop,
 	upsertCrystalariumItem,
 	upsertDeconstructorItem,
+	upsertFarmBuilding,
 	upsertFish,
 	upsertFootwear,
 	upsertForageable,
@@ -75,6 +78,7 @@ import { scrapeCraftedItems } from "@/scraper/craftedItems";
 import { scrapeCrops } from "@/scraper/crops";
 import { scrapeCrystalariumItems } from "@/scraper/crystalariumItems";
 import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
+import { scrapeFarmBuildings } from "@/scraper/farmBuildings";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
 import { scrapeForageables } from "@/scraper/forageables";
@@ -127,6 +131,12 @@ async function refreshCrystalariumItems(sql: SqlStorage): Promise<number> {
 	const items = await scrapeCrystalariumItems();
 	for (const item of items) upsertCrystalariumItem(sql, item);
 	return items.length;
+}
+
+async function refreshFarmBuildings(sql: SqlStorage): Promise<number> {
+	const buildings = await scrapeFarmBuildings();
+	for (const b of buildings) upsertFarmBuilding(sql, b);
+	return buildings.length;
 }
 
 async function refreshFruitTrees(sql: SqlStorage): Promise<number> {
@@ -335,6 +345,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	} catch (err) {
 		console.error("Deconstructor items scrape failed:", err);
 	}
+	try {
+		const n = await refreshFarmBuildings(sql);
+		console.log(`Updated ${n} farm buildings`);
+	} catch (err) {
+		console.error("Farm buildings scrape failed:", err);
+	}
 	console.log("Wiki refresh complete");
 }
 
@@ -369,6 +385,9 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 		case Command.CRYSTALARIUM:
 			if (countCrystalariumItems(sql) === 0)
 				await refreshCrystalariumItems(sql);
+			break;
+		case Command.FARM_BUILDING:
+			if (countFarmBuildings(sql) === 0) await refreshFarmBuildings(sql);
 			break;
 		case Command.FISH:
 			if (countFish(sql) === 0) await refreshFish(sql);
@@ -481,6 +500,9 @@ export class StardewDO implements DurableObject {
 			} else if (countCrystalariumItems(this.sql) === 0) {
 				// Crystalarium items table was added in a later deploy — populate without full refresh
 				await refreshCrystalariumItems(this.sql);
+			} else if (countFarmBuildings(this.sql) === 0) {
+				// Farm buildings table was added in a later deploy — populate without full refresh
+				await refreshFarmBuildings(this.sql);
 			}
 		});
 	}
@@ -582,6 +604,11 @@ export class StardewDO implements DurableObject {
 			if (commandName === Command.CROP) {
 				if (countCrops(this.sql) === 0) await refreshCrops(this.sql);
 				return handleCrop(interaction, this.sql);
+			}
+			if (commandName === Command.FARM_BUILDING) {
+				if (countFarmBuildings(this.sql) === 0)
+					await refreshFarmBuildings(this.sql);
+				return handleFarmBuilding(interaction, this.sql);
 			}
 			if (commandName === Command.FISH) {
 				if (countFish(this.sql) === 0) await refreshFish(this.sql);
@@ -686,6 +713,9 @@ export class StardewDO implements DurableObject {
 						? new Date(s.deconstructorItemsLastUpdated).getTime()
 						: 0,
 					s.toolsLastUpdated ? new Date(s.toolsLastUpdated).getTime() : 0,
+					s.farmBuildingsLastUpdated
+						? new Date(s.farmBuildingsLastUpdated).getTime()
+						: 0,
 				);
 				const lastUpdated = lastUpdatedMs
 					? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -735,6 +765,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Deconstructed Items: ${s.deconstructorItemCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Farm Buildings: ${s.farmBuildingCount}`,
 										value: "",
 										inline: false,
 									},

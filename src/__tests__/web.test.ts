@@ -71,6 +71,19 @@ const fakeFruitTreeRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeFarmBuildingRow = {
+	name: "Coop",
+	description: "Houses 4 coop-dwelling animals.",
+	animals_housed: "Chickens",
+	cost: 4000,
+	materials: '[{"name":"Wood","quantity":300},{"name":"Stone","quantity":100}]',
+	size: "6x3",
+	construction_time: "3 days",
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Coop",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeForageRow = {
 	name: "Daffodil",
 	seasons: '["Spring"]',
@@ -362,6 +375,17 @@ describe("handleWebQuery — command routing", () => {
 		const json = (await res.json()) as WebApiResponse;
 
 		expect(json.embed?.title).toBe("Apple Tree");
+	});
+
+	it("routes 'farm-building' and returns an embed with the building title", async () => {
+		const res = await handleWebQuery(
+			"farm-building coop",
+			makeSql([fakeFarmBuildingRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Coop");
 	});
 
 	it("routes 'forage' and returns an embed with the item title", async () => {

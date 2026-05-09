@@ -27,6 +27,11 @@ export {
 	getDeconstructorItem,
 	upsertDeconstructorItem,
 } from "./deconstructorItems";
+export {
+	countFarmBuildings,
+	getFarmBuilding,
+	upsertFarmBuilding,
+} from "./farmBuildings";
 export { countFish, getFish, upsertFish } from "./fish";
 export { countFootwear, getFootwear, upsertFootwear } from "./footwear";
 export {

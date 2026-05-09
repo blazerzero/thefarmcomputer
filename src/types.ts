@@ -512,6 +512,26 @@ export interface CrystalariumRow {
 /** A Crystalarium row (no JSON fields to decode). */
 export interface Crystalarium extends CrystalariumRow {}
 
+/** A farm building row as stored in D1. */
+export interface FarmBuildingRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	animals_housed: string | null;
+	cost: number | null;
+	materials: string; // JSON array of CraftIngredient
+	size: string | null;
+	construction_time: string | null;
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A farm building row with materials already decoded. */
+export interface FarmBuilding extends Omit<FarmBuildingRow, "materials"> {
+	materials: CraftIngredient[];
+}
+
 /** Discord slash command names. */
 export enum Command {
 	ARTIFACT = "artifact",
@@ -522,6 +542,7 @@ export enum Command {
 	CRYSTALARIUM = "crystalarium",
 	DECONSTRUCT = "deconstruct",
 	CROP = "crop",
+	FARM_BUILDING = "farm-building",
 	FISH = "fish",
 	FOOTWEAR = "footwear",
 	FORAGE = "forage",
