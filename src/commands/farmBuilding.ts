@@ -51,7 +51,7 @@ export function handleFarmBuilding(
 		fields.push({
 			name: "Materials",
 			value: materialsValue,
-			inline: false,
+			inline: true,
 		});
 	}
 

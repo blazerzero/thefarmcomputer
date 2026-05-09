@@ -6,11 +6,11 @@ import { handleCraft } from "@/commands/craft";
 import { handleCrop } from "@/commands/crop";
 import { handleCrystalarium } from "@/commands/crystalarium";
 import { handleDeconstruct } from "@/commands/deconstruct";
+import { handleFarmBuilding } from "@/commands/farmBuilding";
 import { handleFish } from "@/commands/fish";
 import { handleFootwear } from "@/commands/footwear";
 import { handleForage } from "@/commands/forage";
 import { handleFruit } from "@/commands/fruit";
-import { handleFarmBuilding } from "@/commands/farmBuilding";
 import { handleFruitTree } from "@/commands/fruitTree";
 import { handleGift } from "@/commands/gift";
 import { handleIngredient } from "@/commands/ingredient";
@@ -55,11 +55,11 @@ import {
 	upsertCrop,
 	upsertCrystalariumItem,
 	upsertDeconstructorItem,
+	upsertFarmBuilding,
 	upsertFish,
 	upsertFootwear,
 	upsertForageable,
 	upsertFruit,
-	upsertFarmBuilding,
 	upsertFruitTree,
 	upsertMineral,
 	upsertMonster,
@@ -78,11 +78,11 @@ import { scrapeCraftedItems } from "@/scraper/craftedItems";
 import { scrapeCrops } from "@/scraper/crops";
 import { scrapeCrystalariumItems } from "@/scraper/crystalariumItems";
 import { scrapeDeconstructorItems } from "@/scraper/deconstructorItems";
+import { scrapeFarmBuildings } from "@/scraper/farmBuildings";
 import { scrapeFish } from "@/scraper/fish";
 import { scrapeFootwear } from "@/scraper/footwear";
 import { scrapeForageables } from "@/scraper/forageables";
 import { scrapeFruits } from "@/scraper/fruits";
-import { scrapeFarmBuildings } from "@/scraper/farmBuildings";
 import { scrapeFruitTrees } from "@/scraper/fruitTrees";
 import { scrapeMinerals } from "@/scraper/minerals";
 import { scrapeMonsters } from "@/scraper/monsters";
