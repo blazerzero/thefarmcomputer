@@ -396,6 +396,25 @@ export interface Ring extends Omit<RingRow, "where_to_find"> {
 	where_to_find: string[];
 }
 
+/** A tackle row as stored in SQLite. */
+export interface TackleRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	notes: string | null;
+	purchase_price: number | null;
+	crafting: string | null; // JSON: string[]
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A tackle row with crafting and notes already decoded. */
+export interface Tackle extends Omit<TackleRow, "crafting" | "notes"> {
+	crafting: string[];
+	notes: string[];
+}
+
 /** An artifact row as stored in SQLite. */
 export interface ArtifactRow {
 	id?: number;
@@ -577,6 +596,7 @@ export enum Command {
 	RING = "ring",
 	SCHEDULE = "schedule",
 	SEASON = "season",
+	TACKLE = "tackle",
 	TOOL = "tool",
 	WEAPON = "weapon",
 }

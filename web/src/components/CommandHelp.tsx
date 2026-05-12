@@ -111,6 +111,11 @@ const COMMANDS: CommandItem[] = [
 		syntax: "season <season>",
 		example: "season Summer",
 	},
+	{
+		command: Command.TACKLE,
+		syntax: "tackle <name>",
+		example: "tackle spinner",
+	},
 	{ command: Command.TOOL, syntax: "tool <name>", example: "tool copper hoe" },
 	{
 		command: Command.WEAPON,

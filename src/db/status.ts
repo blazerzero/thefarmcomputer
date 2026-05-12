@@ -21,6 +21,7 @@ export function getStatus(sql: SqlStorage): {
 	footwearCount: number;
 	bookCount: number;
 	ringCount: number;
+	tackleCount: number;
 	baitLastUpdated: string | null;
 	artisanGoodsLastUpdated: string | null;
 	cropsLastUpdated: string | null;
@@ -43,6 +44,7 @@ export function getStatus(sql: SqlStorage): {
 	artifactsLastUpdated: string | null;
 	deconstructorItemsLastUpdated: string | null;
 	farmBuildingsLastUpdated: string | null;
+	tackleLastUpdated: string | null;
 } {
 	const artifactRow = sql
 		.exec(
@@ -140,6 +142,9 @@ export function getStatus(sql: SqlStorage): {
 			"SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM farm_buildings",
 		)
 		.one() as { n: number; last_updated: string | null } | null;
+	const tackleRow = sql
+		.exec("SELECT COUNT(*) AS n, MAX(last_updated) AS last_updated FROM tackle")
+		.one() as { n: number; last_updated: string | null } | null;
 	return {
 		artifactCount: artifactRow?.n ?? 0,
 		artisanGoodCount: artisanGoodRow?.n ?? 0,
@@ -161,6 +166,7 @@ export function getStatus(sql: SqlStorage): {
 		footwearCount: footwearRow?.n ?? 0,
 		bookCount: bookRow?.n ?? 0,
 		ringCount: ringRow?.n ?? 0,
+		tackleCount: tackleRow?.n ?? 0,
 		deconstructorItemCount: deconstructItemRow?.n ?? 0,
 		farmBuildingCount: farmBuildingRow?.n ?? 0,
 		baitLastUpdated: baitRow?.last_updated ?? null,
@@ -185,5 +191,6 @@ export function getStatus(sql: SqlStorage): {
 		artifactsLastUpdated: artifactRow?.last_updated ?? null,
 		deconstructorItemsLastUpdated: deconstructItemRow?.last_updated ?? null,
 		farmBuildingsLastUpdated: farmBuildingRow?.last_updated ?? null,
+		tackleLastUpdated: tackleRow?.last_updated ?? null,
 	};
 }

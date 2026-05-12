@@ -396,6 +396,20 @@ const commands = [
 		],
 	},
 	{
+		name: Command.TACKLE,
+		description: COMMAND_DESCRIPTIONS[Command.TACKLE],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Tackle name (e.g. Spinner, Trap Bobber, Barbed Hook)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.TOOL,
 		description: COMMAND_DESCRIPTIONS[Command.TOOL],
 		integration_types: COMMAND_INTEGRATION_TYPES,

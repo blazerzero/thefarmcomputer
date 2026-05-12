@@ -20,6 +20,7 @@ import { handleMonster } from "@/commands/monster";
 import { handleRecipe } from "@/commands/recipe";
 import { handleRing } from "@/commands/ring";
 import { handleSchedule } from "@/commands/schedule";
+import { handleTackle } from "@/commands/tackle";
 import { handleSeason } from "@/commands/season";
 import { handleTool } from "@/commands/tool";
 import { handleWeapon } from "@/commands/weapon";
@@ -44,6 +45,7 @@ import {
 	countMonsters,
 	countRecipes,
 	countRings,
+	countTackle,
 	countTools,
 	countVillagers,
 	countWeapons,
@@ -68,6 +70,7 @@ import {
 	upsertMonster,
 	upsertRecipe,
 	upsertRing,
+	upsertTackle,
 	upsertTool,
 	upsertVillager,
 	upsertWeapon,
@@ -92,6 +95,7 @@ import { scrapeMinerals } from "@/scraper/minerals";
 import { scrapeMonsters } from "@/scraper/monsters";
 import { scrapeRecipes } from "@/scraper/recipes";
 import { scrapeRings } from "@/scraper/rings";
+import { scrapeTackle } from "@/scraper/tackle";
 import { scrapeTools } from "@/scraper/tools";
 import { scrapeVillagers } from "@/scraper/villagers";
 import { scrapeWeapons } from "@/scraper/weapons";
@@ -224,6 +228,12 @@ async function refreshRecipes(sql: SqlStorage): Promise<number> {
 async function refreshFootwear(sql: SqlStorage): Promise<number> {
 	const items = await scrapeFootwear();
 	for (const item of items) upsertFootwear(sql, item);
+	return items.length;
+}
+
+async function refreshTackle(sql: SqlStorage): Promise<number> {
+	const items = await scrapeTackle();
+	for (const item of items) upsertTackle(sql, item);
 	return items.length;
 }
 
@@ -367,6 +377,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 	} catch (err) {
 		console.error("Farm buildings scrape failed:", err);
 	}
+	try {
+		const n = await refreshTackle(sql);
+		console.log(`Updated ${n} tackle items`);
+	} catch (err) {
+		console.error("Tackle scrape failed:", err);
+	}
 	console.log("Wiki refresh complete");
 }
 
@@ -441,6 +457,9 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 			break;
 		case Command.RING:
 			if (countRings(sql) === 0) await refreshRings(sql);
+			break;
+		case Command.TACKLE:
+			if (countTackle(sql) === 0) await refreshTackle(sql);
 			break;
 		case Command.TOOL:
 			if (countTools(sql) === 0) await refreshTools(sql);
@@ -522,6 +541,9 @@ export class StardewDO implements DurableObject {
 			} else if (countFarmBuildings(this.sql) === 0) {
 				// Farm buildings table was added in a later deploy — populate without full refresh
 				await refreshFarmBuildings(this.sql);
+			} else if (countTackle(this.sql) === 0) {
+				// Tackle table was added in a later deploy — populate without full refresh
+				await refreshTackle(this.sql);
 			}
 		});
 	}
@@ -687,6 +709,10 @@ export class StardewDO implements DurableObject {
 				if (countRings(this.sql) === 0) await refreshRings(this.sql);
 				return handleRing(interaction, this.sql);
 			}
+			if (commandName === Command.TACKLE) {
+				if (countTackle(this.sql) === 0) await refreshTackle(this.sql);
+				return handleTackle(interaction, this.sql);
+			}
 			if (commandName === Command.SCHEDULE) {
 				if (countVillagers(this.sql) === 0) await refreshVillagers(this.sql);
 				return handleSchedule(interaction, this.sql);
@@ -740,6 +766,7 @@ export class StardewDO implements DurableObject {
 					s.farmBuildingsLastUpdated
 						? new Date(s.farmBuildingsLastUpdated).getTime()
 						: 0,
+					s.tackleLastUpdated ? new Date(s.tackleLastUpdated).getTime() : 0,
 				);
 				const lastUpdated = lastUpdatedMs
 					? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -844,6 +871,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Rings: ${s.ringCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Tackle: ${s.tackleCount}`,
 										value: "",
 										inline: false,
 									},

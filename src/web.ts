@@ -21,6 +21,7 @@ import { handleRecipe } from "@/commands/recipe";
 import { handleRing } from "@/commands/ring";
 import { handleSchedule } from "@/commands/schedule";
 import { handleSeason } from "@/commands/season";
+import { handleTackle } from "@/commands/tackle";
 import { handleTool } from "@/commands/tool";
 import { handleWeapon } from "@/commands/weapon";
 import { formatDate } from "@/constants";
@@ -212,6 +213,12 @@ export async function handleWebQuery(
 				sql,
 			);
 			break;
+		case Command.TACKLE:
+			handlerResponse = handleTackle(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
 		case Command.INFO: {
 			const s = getStatus(sql);
 			const lastUpdatedMs = Math.max(
@@ -251,6 +258,7 @@ export async function handleWebQuery(
 				s.farmBuildingsLastUpdated
 					? new Date(s.farmBuildingsLastUpdated).getTime()
 					: 0,
+				s.tackleLastUpdated ? new Date(s.tackleLastUpdated).getTime() : 0,
 			);
 			const lastUpdated = lastUpdatedMs
 				? formatDate(new Date(lastUpdatedMs).toISOString())
@@ -315,6 +323,7 @@ export async function handleWebQuery(
 						{ name: `Monsters: ${s.monsterCount}`, value: "", inline: false },
 						{ name: `Recipes: ${s.recipeCount}`, value: "", inline: false },
 						{ name: `Rings: ${s.ringCount}`, value: "", inline: false },
+						{ name: `Tackle: ${s.tackleCount}`, value: "", inline: false },
 						{ name: `Tools: ${s.toolCount}`, value: "", inline: false },
 						{ name: `Villagers: ${s.villagerCount}`, value: "", inline: false },
 						{ name: `Weapons: ${s.weaponCount}`, value: "", inline: false },
@@ -327,7 +336,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artifact, artisan, bait, book, bundle, craft, crystalarium, crop, deconstruct, farm-building, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
+				error: `Unknown command "${command}". Try: artifact, artisan, bait, book, bundle, craft, crystalarium, crop, deconstruct, farm-building, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tackle, tool, weapon, info`,
 			});
 	}
 
