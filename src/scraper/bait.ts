@@ -9,13 +9,17 @@ function parsePurchase(cell: HTMLElement): string | null {
 
 	// Qi Gem purchase (img alt="Qi Gem.png")
 	if (cell.querySelector('img[alt="Qi Gem.png"]')) {
-		// Extract the number adjacent to the gem icon
 		const numMatch = text.match(/(\d+)/);
 		return numMatch ? `${numMatch[1]} Qi Gems` : text;
 	}
 
-	// Gold purchase — return as-is (already formatted like "5g", "1,000g")
-	return text.replace(/\s+/g, "");
+	// Gold purchase — read the .no-wrap span to avoid the hidden data-sort-value span
+	// that pollutes cell.text with junk like "data-sort-value="5">".
+	const noWrap = cell.querySelector(".no-wrap");
+	if (noWrap) return noWrap.text.trim();
+
+	// Fallback for plain-text prices like "0.2 × Fish Price"
+	return text;
 }
 
 function parseIngredients(cell: HTMLElement): CraftIngredient[] {
