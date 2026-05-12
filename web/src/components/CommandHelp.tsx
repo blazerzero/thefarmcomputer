@@ -22,6 +22,11 @@ const COMMANDS: CommandItem[] = [
 		example: "artisan wine",
 	},
 	{
+		command: Command.BAIT,
+		syntax: "bait <name>",
+		example: "bait wild bait",
+	},
+	{
 		command: Command.BOOK,
 		syntax: "book <name>",
 		example: "book price catalogue",

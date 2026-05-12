@@ -3,6 +3,7 @@ export {
 	getArtifact,
 	upsertArtifact,
 } from "./artifacts";
+export { countBait, getBait, upsertBait } from "./bait";
 export {
 	countArtisanGoods,
 	getArtisanGood,
@@ -46,8 +47,8 @@ export { countMonsters, getMonster, upsertMonster } from "./monsters";
 export { countRecipes, getRecipe, upsertRecipe } from "./recipes";
 export { countRings, getRing, upsertRing } from "./rings";
 export { initDb } from "./schema";
-export { countTackle, getTackle, upsertTackle } from "./tackle";
 export { getStatus } from "./status";
+export { countTackle, getTackle, upsertTackle } from "./tackle";
 export { countTools, getTool, upsertTool } from "./tools";
 export { countVillagers, getVillager, upsertVillager } from "./villagers";
 export { countWeapons, getWeapon, upsertWeapon } from "./weapons";

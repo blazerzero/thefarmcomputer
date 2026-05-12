@@ -1,5 +1,6 @@
 import { handleArtifact } from "@/commands/artifact";
 import { handleArtisan } from "@/commands/artisan";
+import { handleBait } from "@/commands/bait";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
@@ -27,6 +28,7 @@ import { formatDate } from "@/constants";
 import {
 	countArtifacts,
 	countArtisanGoods,
+	countBait,
 	countBooks,
 	countBundles,
 	countCraftedItems,
@@ -51,6 +53,7 @@ import {
 	initDb,
 	upsertArtifact,
 	upsertArtisanGood,
+	upsertBait,
 	upsertBook,
 	upsertBundle,
 	upsertCraftedItem,
@@ -75,6 +78,7 @@ import {
 import type { Env } from "@/env";
 import { scrapeArtifacts } from "@/scraper/artifacts";
 import { scrapeArtisanGoods } from "@/scraper/artisanGoods";
+import { scrapeBait } from "@/scraper/bait";
 import { scrapeBooks } from "@/scraper/books";
 import { scrapeBundles } from "@/scraper/bundles";
 import { scrapeCraftedItems } from "@/scraper/craftedItems";
@@ -110,6 +114,12 @@ async function refreshArtifacts(sql: SqlStorage): Promise<number> {
 async function refreshArtisanGoods(sql: SqlStorage): Promise<number> {
 	const items = await scrapeArtisanGoods();
 	for (const item of items) upsertArtisanGood(sql, item);
+	return items.length;
+}
+
+async function refreshBait(sql: SqlStorage): Promise<number> {
+	const items = await scrapeBait();
+	for (const item of items) upsertBait(sql, item);
 	return items.length;
 }
 
@@ -240,6 +250,12 @@ async function refreshAll(sql: SqlStorage): Promise<void> {
 		console.log(`Updated ${n} artifacts`);
 	} catch (err) {
 		console.error("Artifact scrape failed:", err);
+	}
+	try {
+		const n = await refreshBait(sql);
+		console.log(`Updated ${n} bait items`);
+	} catch (err) {
+		console.error("Bait scrape failed:", err);
 	}
 	try {
 		const n = await refreshCrops(sql);
@@ -379,6 +395,9 @@ async function ensureWebData(command: string, sql: SqlStorage): Promise<void> {
 			break;
 		case Command.ARTISAN:
 			if (countArtisanGoods(sql) === 0) await refreshArtisanGoods(sql);
+			break;
+		case Command.BAIT:
+			if (countBait(sql) === 0) await refreshBait(sql);
 			break;
 		case Command.BOOK:
 			if (countBooks(sql) === 0) await refreshBooks(sql);
@@ -600,6 +619,10 @@ export class StardewDO implements DurableObject {
 					await refreshArtisanGoods(this.sql);
 				return handleArtisan(interaction, this.sql);
 			}
+			if (commandName === Command.BAIT) {
+				if (countBait(this.sql) === 0) await refreshBait(this.sql);
+				return handleBait(interaction, this.sql);
+			}
 			if (commandName === Command.BOOK) {
 				if (countBooks(this.sql) === 0) await refreshBooks(this.sql);
 				return handleBook(interaction, this.sql);
@@ -709,6 +732,7 @@ export class StardewDO implements DurableObject {
 					s.artisanGoodsLastUpdated
 						? new Date(s.artisanGoodsLastUpdated).getTime()
 						: 0,
+					s.baitLastUpdated ? new Date(s.baitLastUpdated).getTime() : 0,
 					s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
 					s.craftedItemsLastUpdated
 						? new Date(s.craftedItemsLastUpdated).getTime()
@@ -762,6 +786,11 @@ export class StardewDO implements DurableObject {
 									},
 									{
 										name: `Artifacts: ${s.artifactCount}`,
+										value: "",
+										inline: false,
+									},
+									{
+										name: `Bait: ${s.baitCount}`,
 										value: "",
 										inline: false,
 									},

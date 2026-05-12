@@ -52,6 +52,20 @@ const commands = [
 		],
 	},
 	{
+		name: Command.BAIT,
+		description: COMMAND_DESCRIPTIONS[Command.BAIT],
+		integration_types: COMMAND_INTEGRATION_TYPES,
+		contexts: COMMAND_CONTEXTS,
+		options: [
+			{
+				type: OptionType.STRING,
+				name: "name",
+				description: "Bait name (e.g. Wild Bait, Magic Bait, Deluxe Bait)",
+				required: true,
+			},
+		],
+	},
+	{
 		name: Command.BOOK,
 		description: COMMAND_DESCRIPTIONS[Command.BOOK],
 		integration_types: COMMAND_INTEGRATION_TYPES,

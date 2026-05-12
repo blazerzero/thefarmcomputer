@@ -274,6 +274,20 @@ const fakeArtifactRow = {
 	last_updated: "2024-03-01T00:00:00.000Z",
 };
 
+const fakeBaitRow = {
+	name: "Wild Bait",
+	description:
+		"A unique recipe from Linus that gives you a chance to catch two fish at once.",
+	notes: JSON.stringify([
+		"Decreases the time taken for fish to bite slightly more than standard bait.",
+	]),
+	purchase: null,
+	ingredients: JSON.stringify([{ name: "Fiber", quantity: 10 }]),
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Wild_Bait",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
 const fakeTackleRow = {
@@ -342,6 +356,17 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.fields).toContainEqual(
 			expect.objectContaining({ name: "Machine" }),
 		);
+	});
+
+	it("routes 'bait' and returns an embed with the bait title", async () => {
+		const res = await handleWebQuery(
+			"bait wild bait",
+			makeSql([fakeBaitRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Wild Bait");
 	});
 
 	it("routes 'deconstruct' and returns an embed with the item title", async () => {
