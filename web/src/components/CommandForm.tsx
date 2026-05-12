@@ -57,6 +57,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "bait",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Wild Bait",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "book",
 		fields: [
 			{
