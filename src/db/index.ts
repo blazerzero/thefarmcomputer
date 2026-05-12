@@ -3,6 +3,7 @@ export {
 	getArtifact,
 	upsertArtifact,
 } from "./artifacts";
+export { countBait, getBait, upsertBait } from "./bait";
 export {
 	countArtisanGoods,
 	getArtisanGood,

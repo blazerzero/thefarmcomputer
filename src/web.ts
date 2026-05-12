@@ -1,5 +1,6 @@
 import { handleArtifact } from "@/commands/artifact";
 import { handleArtisan } from "@/commands/artisan";
+import { handleBait } from "@/commands/bait";
 import { handleBook } from "@/commands/book";
 import { handleBundle } from "@/commands/bundle";
 import { handleCraft } from "@/commands/craft";
@@ -64,6 +65,12 @@ export async function handleWebQuery(
 			break;
 		case Command.ARTISAN:
 			handlerResponse = handleArtisan(
+				makeInteraction([{ name: "name", value: args.join(" ") }]),
+				sql,
+			);
+			break;
+		case Command.BAIT:
+			handlerResponse = handleBait(
 				makeInteraction([{ name: "name", value: args.join(" ") }]),
 				sql,
 			);
@@ -212,6 +219,7 @@ export async function handleWebQuery(
 				s.artisanGoodsLastUpdated
 					? new Date(s.artisanGoodsLastUpdated).getTime()
 					: 0,
+				s.baitLastUpdated ? new Date(s.baitLastUpdated).getTime() : 0,
 				s.bundlesLastUpdated ? new Date(s.bundlesLastUpdated).getTime() : 0,
 				s.craftedItemsLastUpdated
 					? new Date(s.craftedItemsLastUpdated).getTime()
@@ -262,6 +270,7 @@ export async function handleWebQuery(
 							value: "",
 							inline: false,
 						},
+						{ name: `Bait: ${s.baitCount}`, value: "", inline: false },
 						{ name: `Books: ${s.bookCount}`, value: "", inline: false },
 						{ name: `Bundles: ${s.bundleCount}`, value: "", inline: false },
 						{
@@ -318,7 +327,7 @@ export async function handleWebQuery(
 		}
 		default:
 			return Response.json({
-				error: `Unknown command "${command}". Try: artifact, artisan, book, bundle, craft, crystalarium, crop, deconstruct, farm-building, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
+				error: `Unknown command "${command}". Try: artifact, artisan, bait, book, bundle, craft, crystalarium, crop, deconstruct, farm-building, fish, footwear, fruit, fruit-tree, forage, gift, ingredient, mineral, monster, recipe, ring, schedule, season, tool, weapon, info`,
 			});
 	}
 

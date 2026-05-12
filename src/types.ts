@@ -532,10 +532,30 @@ export interface FarmBuilding extends Omit<FarmBuildingRow, "materials"> {
 	materials: CraftIngredient[];
 }
 
+/** A bait item row as stored in SQLite. */
+export interface BaitRow {
+	id?: number;
+	name: string;
+	description: string | null;
+	notes: string | null; // JSON array of strings
+	purchase: string | null; // "5g" | "5 Qi Gems" | "N/A" | "0.2 × Fish Price"
+	ingredients: string; // JSON array of CraftIngredient
+	image_url: string | null;
+	wiki_url: string;
+	last_updated: string;
+}
+
+/** A bait row with notes and ingredients already decoded. */
+export interface Bait extends Omit<BaitRow, "notes" | "ingredients"> {
+	notes: string[] | null;
+	ingredients: CraftIngredient[];
+}
+
 /** Discord slash command names. */
 export enum Command {
 	ARTIFACT = "artifact",
 	ARTISAN = "artisan",
+	BAIT = "bait",
 	BOOK = "book",
 	BUNDLE = "bundle",
 	CRAFT = "craft",

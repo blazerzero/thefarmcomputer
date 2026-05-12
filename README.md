@@ -8,6 +8,7 @@ A nifty Discord bot and web app that provide real-time Stardew Valley game data 
 |---------|-------------|
 | `/artifact <name>` | Look up an artifact — description, sell price, and where to find it |
 | `/artisan <name>` | Look up an artisan good — machine, ingredients, energy/health, sell prices by quality, and Cask aging times |
+| `/bait <name>` | Look up a bait item — description, purchase price, crafting ingredients, and notes |
 | `/book <name>` | Look up a book — description, effect on subsequent readings, and where to find it |
 | `/bundle <name>` | Look up a Community Center bundle — required items, quantities, and reward |
 | `/craft <name>` | Look up a crafted item — ingredients, recipe source, duration, and stats |
