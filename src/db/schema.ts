@@ -441,6 +441,20 @@ export function initDb(sql: SqlStorage): void {
   `);
 
 	sql.exec(`
+    CREATE TABLE IF NOT EXISTS tackle (
+      id             INTEGER PRIMARY KEY,
+      name           TEXT UNIQUE NOT NULL,
+      description    TEXT,
+      notes          TEXT,
+      purchase_price INTEGER,
+      crafting       TEXT,
+      image_url      TEXT,
+      wiki_url       TEXT,
+      last_updated   TEXT
+    )
+  `);
+
+	sql.exec(`
     CREATE TABLE IF NOT EXISTS artisan_goods (
       id                   INTEGER PRIMARY KEY,
       name                 TEXT UNIQUE NOT NULL,

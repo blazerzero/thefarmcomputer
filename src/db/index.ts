@@ -46,6 +46,7 @@ export { countMonsters, getMonster, upsertMonster } from "./monsters";
 export { countRecipes, getRecipe, upsertRecipe } from "./recipes";
 export { countRings, getRing, upsertRing } from "./rings";
 export { initDb } from "./schema";
+export { countTackle, getTackle, upsertTackle } from "./tackle";
 export { getStatus } from "./status";
 export { countTools, getTool, upsertTool } from "./tools";
 export { countVillagers, getVillager, upsertVillager } from "./villagers";

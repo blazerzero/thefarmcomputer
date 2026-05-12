@@ -276,6 +276,17 @@ const fakeArtifactRow = {
 
 const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 
+const fakeTackleRow = {
+	name: "Spinner",
+	description: "The shape makes it spin around in the water.",
+	notes: "Reduces maximum delay before a nibble by 3.75 seconds.",
+	purchase_price: 500,
+	crafting: '["Iron Bar (2)"]',
+	image_url: null,
+	wiki_url: "https://stardewvalleywiki.com/Spinner",
+	last_updated: "2024-03-01T00:00:00.000Z",
+};
+
 const fakeCrystalariumRow = {
 	name: "Diamond",
 	sell_price: 750,
@@ -509,6 +520,17 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.title).toBe("Lucky Ring");
 	});
 
+	it("routes 'tackle' and returns an embed with the tackle title", async () => {
+		const res = await handleWebQuery(
+			"tackle spinner",
+			makeSql([fakeTackleRow]),
+			noopEnsure,
+		);
+		const json = (await res.json()) as WebApiResponse;
+
+		expect(json.embed?.title).toBe("Spinner");
+	});
+
 	it("routes 'tool' and returns an embed with the tool title", async () => {
 		const res = await handleWebQuery(
 			"tool copper hoe",
@@ -538,6 +560,7 @@ describe("handleWebQuery — command routing", () => {
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(
 			`Crystalarium Items: 10`,
 		);
+		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Tackle: 10`);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(`Tools: 10`);
 		expect(json.embed?.fields?.map((f) => f.name)).toContain(
 			`Deconstructed Items: 10`,

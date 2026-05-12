@@ -26,6 +26,7 @@ export const COMMAND_DESCRIPTIONS: Record<Command, string> = {
 	[Command.RING]: "Look up info about a ring.",
 	[Command.SCHEDULE]: "Look up a villager's schedule.",
 	[Command.SEASON]: "List all crops harvestable in a given season.",
+	[Command.TACKLE]: "Look up info about fishing tackle.",
 	[Command.TOOL]: "Look up info about a tool.",
 	[Command.WEAPON]: "Look up info about a weapon.",
 };

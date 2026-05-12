@@ -330,6 +330,18 @@ const COMMAND_DEFS: CommandDef[] = [
 		],
 	},
 	{
+		name: "tackle",
+		fields: [
+			{
+				type: "text",
+				name: "name",
+				label: "Name",
+				placeholder: "e.g. Spinner",
+				required: true,
+			},
+		],
+	},
+	{
 		name: "tool",
 		fields: [
 			{
