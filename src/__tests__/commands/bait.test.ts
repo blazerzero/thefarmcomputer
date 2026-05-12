@@ -6,8 +6,10 @@ const fakeWildBaitRow = {
 	name: "Wild Bait",
 	description:
 		"A unique recipe from Linus that gives you a chance to catch two fish at once.",
-	notes:
+	notes: JSON.stringify([
 		"Decreases the time taken for fish to bite slightly more than standard bait.",
+		"When used in a Crab Pot, Wild Bait decreases the chance of catching trash.",
+	]),
 	purchase: null,
 	ingredients: JSON.stringify([
 		{ name: "Fiber", quantity: 10 },
@@ -24,7 +26,9 @@ const fakeBaitRow = {
 	name: "Bait",
 	description:
 		"Causes fish to bite faster. Must first be attached to a fishing rod.",
-	notes: "Default bait, decreases the time taken for fish to bite.",
+	notes: JSON.stringify([
+		"Default bait, decreases the time taken for fish to bite.",
+	]),
 	purchase: "5g",
 	ingredients: JSON.stringify([{ name: "Bug Meat", quantity: 1 }]),
 	image_url: "https://stardewvalleywiki.com/mediawiki/images/f/ff/Bait.png",

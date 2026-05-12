@@ -1,6 +1,11 @@
 import { DEFAULT_COLOR, formatDate } from "@/constants";
 import { getBait } from "@/db";
-import { embedResponse, getOption, notFoundResponse } from "./utils";
+import {
+	embedResponse,
+	getOption,
+	notFoundResponse,
+	renderDotList,
+} from "./utils";
 
 export function handleBait(
 	interaction: Record<string, unknown>,
@@ -32,8 +37,12 @@ export function handleBait(
 		});
 	}
 
-	if (bait.notes) {
-		fields.push({ name: "Notes", value: bait.notes, inline: false });
+	if (bait.notes && bait.notes.length > 0) {
+		fields.push({
+			name: "Notes",
+			value: renderDotList(bait.notes),
+			inline: false,
+		});
 	}
 
 	return embedResponse({

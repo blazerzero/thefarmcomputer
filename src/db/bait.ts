@@ -16,6 +16,7 @@ export function getBait(sql: SqlStorage, name: string): Bait | null {
 		if (!row) return null;
 		return {
 			...row,
+			notes: row.notes ? (JSON.parse(row.notes) as string[]) : null,
 			ingredients: JSON.parse(row.ingredients || "[]") as CraftIngredient[],
 		};
 	} catch (err) {

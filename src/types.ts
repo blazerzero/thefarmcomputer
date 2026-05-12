@@ -537,7 +537,7 @@ export interface BaitRow {
 	id?: number;
 	name: string;
 	description: string | null;
-	notes: string | null;
+	notes: string | null; // JSON array of strings
 	purchase: string | null; // "5g" | "5 Qi Gems" | "N/A" | "0.2 × Fish Price"
 	ingredients: string; // JSON array of CraftIngredient
 	image_url: string | null;
@@ -545,8 +545,9 @@ export interface BaitRow {
 	last_updated: string;
 }
 
-/** A bait row with ingredients already decoded. */
-export interface Bait extends Omit<BaitRow, "ingredients"> {
+/** A bait row with notes and ingredients already decoded. */
+export interface Bait extends Omit<BaitRow, "notes" | "ingredients"> {
+	notes: string[] | null;
 	ingredients: CraftIngredient[];
 }
 

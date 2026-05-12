@@ -278,8 +278,9 @@ const fakeBaitRow = {
 	name: "Wild Bait",
 	description:
 		"A unique recipe from Linus that gives you a chance to catch two fish at once.",
-	notes:
+	notes: JSON.stringify([
 		"Decreases the time taken for fish to bite slightly more than standard bait.",
+	]),
 	purchase: null,
 	ingredients: JSON.stringify([{ name: "Fiber", quantity: 10 }]),
 	image_url: null,

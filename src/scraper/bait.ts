@@ -1,7 +1,7 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 import type { BaitRow, CraftIngredient } from "@/types";
-import { fetchPage, getCol, WIKI_BASE } from "./wiki";
+import { fetchPage, getCol, parseListCell, WIKI_BASE } from "./wiki";
 
 function parsePurchase(cell: HTMLElement): string | null {
 	const text = cell.text.replace(/\s+/g, " ").trim();
@@ -104,9 +104,10 @@ export async function scrapeBait(): Promise<
 			getCol(colIdx, cells, "description")?.text.trim().replace(/\s+/g, " ") ||
 			null;
 
-		// Notes
-		const notes =
-			getCol(colIdx, cells, "notes")?.text.trim().replace(/\s+/g, " ") || null;
+		// Notes — use parseListCell to preserve bullets and paragraph breaks
+		const notesCell = getCol(colIdx, cells, "notes");
+		const notesItems = notesCell ? parseListCell(notesCell) : [];
+		const notes = notesItems.length > 0 ? JSON.stringify(notesItems) : null;
 
 		// Purchase
 		const purchaseCell = getCol(colIdx, cells, "purchase");
