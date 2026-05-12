@@ -11,6 +11,7 @@ export function getTackle(sql: SqlStorage, name: string): Tackle | null {
 		return {
 			...row,
 			crafting: JSON.parse(row.crafting || "[]") as string[],
+			notes: JSON.parse(row.notes || "[]") as string[],
 		};
 	} catch (err) {
 		console.error("DB error in getTackle:", err);

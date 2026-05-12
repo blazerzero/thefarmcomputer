@@ -5,7 +5,7 @@ import { type DiscordResponse, type EmbedField, makeSql } from "../helpers";
 const fakeTackleRow = {
 	name: "Spinner",
 	description: "The shape makes it spin around in the water.",
-	notes: "Reduces maximum delay before a nibble by 3.75 seconds.",
+	notes: '["Reduces maximum delay before a nibble by 3.75 seconds."]',
 	purchase_price: 500,
 	crafting: '["Iron Bar (2)"]',
 	image_url: "https://example.com/spinner.png",

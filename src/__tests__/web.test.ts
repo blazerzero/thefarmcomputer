@@ -293,7 +293,7 @@ const fakeStatusRow = { n: 10, last_updated: "2024-03-01T00:00:00.000Z" };
 const fakeTackleRow = {
 	name: "Spinner",
 	description: "The shape makes it spin around in the water.",
-	notes: "Reduces maximum delay before a nibble by 3.75 seconds.",
+	notes: '["Reduces maximum delay before a nibble by 3.75 seconds."]',
 	purchase_price: 500,
 	crafting: '["Iron Bar (2)"]',
 	image_url: null,

@@ -409,9 +409,10 @@ export interface TackleRow {
 	last_updated: string;
 }
 
-/** A tackle row with crafting already decoded. */
-export interface Tackle extends Omit<TackleRow, "crafting"> {
+/** A tackle row with crafting and notes already decoded. */
+export interface Tackle extends Omit<TackleRow, "crafting" | "notes"> {
 	crafting: string[];
+	notes: string[];
 }
 
 /** An artifact row as stored in SQLite. */

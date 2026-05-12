@@ -75,9 +75,9 @@ export async function scrapeTackle(): Promise<
 					?.text.replace(/\s+/g, " ")
 					.trim() || null;
 
-			const notes =
-				getCol(colIdx, cells, "notes")?.text.replace(/\s+/g, " ").trim() ||
-				null;
+			const notesCell = getCol(colIdx, cells, "notes");
+			const notesItems = notesCell ? parseListCell(notesCell) : [];
+			const notes = notesItems.length > 0 ? JSON.stringify(notesItems) : null;
 
 			const purchaseText =
 				getCol(colIdx, cells, "purchase_price")?.text.trim() ?? "";

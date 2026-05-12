@@ -24,7 +24,7 @@ export function handleTackle(
 
 	fields.push({
 		name: "Notes",
-		value: item.notes ?? "N/A",
+		value: item.notes.length > 0 ? renderDotList(item.notes) : "N/A",
 		inline: false,
 	});
 
